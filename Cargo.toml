@@ -1,0 +1,48 @@
+[package]
+name = "axboe-liburing"
+version = "2.10.0-alpha"
+edition = "2021"
+build = "liburing-rs/build.rs"
+description = "A Rust transliteration of axboe's liburing"
+license = "MIT OR LGPL-2.1-only	"
+repository = "https://github.com/cmazakas/liburing"
+readme = "liburing-rs/README.md"
+documentation = "https://man.archlinux.org/listing/extra/liburing/"
+include = [
+  "/src/arch",
+  "/src/*.c",
+  "/src/*.h",
+  "/src/*.map",
+  "/src/include/liburing.h",
+  "/src/include/liburing/barrier.h",
+  "/src/include/liburing/io_uring.h",
+  "/src/include/liburing/sanitize.h",
+  "/src/Makefile*",
+  "/Makefile*",
+  "configure",
+  "/liburing*.pc.in",
+  "/liburing.spec",
+  "/liburing-rs/src",
+  "/liburing-rs/include",
+  "/liburing-rs/Cargo.lock",
+  "/liburing-rs/build.rs",
+  "/liburing-rs/tests"
+]
+
+[lib]
+name = "liburing_rs"
+path = "liburing-rs/src/lib.rs"
+
+[[test]]
+name = "liburing-rs-tests"
+path = "liburing-rs/tests/main.rs"
+
+[features]
+sanitizers = []
+
+[target.'cfg(unix)'.build-dependencies]
+bindgen = "0.71.1"
+
+[profile.release-with-debug]
+inherits = "release"
+debug = "full"
