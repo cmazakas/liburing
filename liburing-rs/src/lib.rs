@@ -190,6 +190,18 @@ pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c
 }
 
 #[inline]
+pub unsafe fn io_uring_for_each_cqe<F>(ring: *mut io_uring, mut f: F)
+where
+    F: FnMut(*mut io_uring_cqe),
+{
+    let mut iter = io_uring_cqe_iter_init(ring);
+    let mut cqe = ptr::null_mut::<io_uring_cqe>();
+    while io_uring_cqe_iter_next(&raw mut iter, &raw mut cqe) {
+        f(cqe);
+    }
+}
+
+#[inline]
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint) {
     if nr > 0 {
