@@ -59,3 +59,38 @@ pub fn queue_init() {
     //
     unsafe { io_uring_queue_exit(ring) };
 }
+
+#[test]
+fn for_each_cqe() {
+    let mut ring = unsafe { zeroed::<io_uring>() };
+    let ring = &raw mut ring;
+    let r = unsafe { io_uring_queue_init(64, ring, 0) };
+    assert_eq!(r, 0);
+
+    let dur = Duration::from_millis(250);
+    let mut ts: timespec = dur.into();
+    let ts = (&raw mut ts).cast();
+
+    for i in 0..23 {
+        let sqe = unsafe { io_uring_get_sqe(ring) };
+        assert!(!sqe.is_null());
+        unsafe { io_uring_prep_timeout(sqe, ts, 0, 0) };
+        unsafe { io_uring_sqe_set_data64(sqe, i) };
+    }
+
+    unsafe { io_uring_submit_and_wait(ring, 1) };
+
+    let mut x = 0;
+
+    unsafe {
+        io_uring_for_each_cqe(ring, |cqe| {
+            let cqe = &mut *cqe;
+            assert_eq!(cqe.user_data, x);
+            x += 1;
+        })
+    };
+
+    unsafe { io_uring_queue_exit(ring) };
+
+    assert_eq!(x, 23);
+}
