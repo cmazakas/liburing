@@ -350,13 +350,15 @@ rust-runtests-parallel: $(run_rust_test_targets) $(asan_run_rust_test_targets)
 CARGO_TOOLCHAIN ?= x86_64-unknown-linux-gnu
 CARGO_FLAGS := --profile release-with-debug --target $(CARGO_TOOLCHAIN)
 
+RUSTFLAGS ?=
+
 ifeq ($(CONFIG_USE_SANITIZER),y)
 	CARGO_FLAGS += -Zbuild-std --features sanitizers
-	RUSTFLAGS='-Zsanitizer=address'
+	RUSTFLAGS += -Zsanitizer=address
 endif
 
 liburing_rs: liburing.h.in
-	+ CC=$(CC) CXX=$(CXX) RUSTFLAGS=$(RUSTFLAGS) cargo +nightly build $(CARGO_FLAGS) -Z unstable-options --artifact-dir .
+	+ CC=$(CC) CXX=$(CXX) RUSTFLAGS="$(RUSTFLAGS)" cargo +nightly build $(CARGO_FLAGS) -Z unstable-options --artifact-dir .
 	cp liburing.h.in liburing.h
 
 %.rt: %.c $(helpers) helpers.h liburing_rs
