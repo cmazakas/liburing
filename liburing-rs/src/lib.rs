@@ -189,6 +189,16 @@ pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c
     }
 }
 
+#[macro_export]
+macro_rules! io_uring_for_each_cqe {
+    ($ring: ident, $cqe: ident, $f: stmt) => {
+        let mut iter = io_uring_cqe_iter_init($ring);
+        while io_uring_cqe_iter_next(&raw mut iter, &raw mut $cqe) {
+            let _ = { $f };
+        }
+    };
+}
+
 #[inline]
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint) {
