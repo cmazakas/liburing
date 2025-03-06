@@ -964,6 +964,26 @@ pub unsafe extern "C" fn io_uring_prep_openat2_direct(
 
 #[inline]
 #[no_mangle]
+pub unsafe extern "C" fn io_uring_prep_epoll_wait(
+    sqe: *mut io_uring_sqe,
+    fd: c_int,
+    events: *mut epoll_event,
+    maxevents: c_int,
+    flags: c_uint,
+) {
+    io_uring_prep_rw(
+        io_uring_op_IORING_OP_EPOLL_WAIT as _,
+        sqe,
+        fd,
+        events.cast(),
+        maxevents as _,
+        0,
+    );
+    (*sqe).__liburing_anon_3.rw_flags = flags as _;
+}
+
+#[inline]
+#[no_mangle]
 pub unsafe extern "C" fn io_uring_prep_files_update(
     sqe: *mut io_uring_sqe,
     fds: *mut c_int,
