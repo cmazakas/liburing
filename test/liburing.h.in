@@ -460,6 +460,11 @@ IOURINGINLINE void io_uring_prep_write_fixed(struct io_uring_sqe *sqe, int fd,
 					     const void *buf, unsigned nbytes,
 					     __u64 offset, int buf_index);
 
+IOURINGINLINE void io_uring_prep_writev_fixed(struct io_uring_sqe *sqe, int fd,
+				       const struct iovec *iovecs,
+				       unsigned nr_vecs, __u64 offset,
+				       int flags, int buf_index);
+
 IOURINGINLINE void io_uring_prep_recvmsg(struct io_uring_sqe *sqe, int fd,
 					 struct msghdr *msg, unsigned flags);
 
@@ -639,6 +644,12 @@ IOURINGINLINE void io_uring_prep_send_zc_fixed(struct io_uring_sqe *sqe,
 IOURINGINLINE void io_uring_prep_sendmsg_zc(struct io_uring_sqe *sqe, int fd,
 					    const struct msghdr *msg,
 					    unsigned flags);
+
+IOURINGINLINE void io_uring_prep_sendmsg_zc_fixed(struct io_uring_sqe *sqe,
+						int fd,
+						const struct msghdr *msg,
+						unsigned flags,
+						unsigned buf_index);
 
 IOURINGINLINE void io_uring_prep_recv(struct io_uring_sqe *sqe, int sockfd,
 				      void *buf, size_t len, int flags);
