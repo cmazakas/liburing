@@ -353,6 +353,12 @@ pub unsafe extern "C" fn io_uring_cqe_get_data(cqe: *const io_uring_cqe) -> *mut
 
 #[inline]
 #[no_mangle]
+pub unsafe extern "C" fn io_uring_cqe_get_data64(cqe: *const io_uring_cqe) -> u64 {
+    (*cqe).user_data
+}
+
+#[inline]
+#[no_mangle]
 pub unsafe extern "C" fn io_uring_wait_cqe_nr(
     ring: *mut io_uring,
     cqe_ptr: *mut *mut io_uring_cqe,
