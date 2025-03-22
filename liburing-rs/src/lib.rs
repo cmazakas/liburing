@@ -674,6 +674,20 @@ pub unsafe extern "C" fn io_uring_prep_writev(
 
 #[inline]
 #[no_mangle]
+pub unsafe extern "C" fn io_uring_prep_writev2(
+    sqe: *mut io_uring_sqe,
+    fd: c_int,
+    iovecs: *const iovec,
+    nr_vecs: c_uint,
+    offset: u64,
+    flags: c_int,
+) {
+    io_uring_prep_writev(sqe, fd, iovecs, nr_vecs, offset);
+    (*sqe).__liburing_anon_3.rw_flags = flags;
+}
+
+#[inline]
+#[no_mangle]
 pub unsafe extern "C" fn io_uring_prep_write_fixed(
     sqe: *mut io_uring_sqe,
     fd: c_int,
@@ -690,6 +704,22 @@ pub unsafe extern "C" fn io_uring_prep_write_fixed(
         nbytes,
         offset,
     );
+    (*sqe).__liburing_anon_4.buf_index = buf_index as u16;
+}
+
+#[inline]
+#[no_mangle]
+pub unsafe extern "C" fn io_uring_prep_writev_fixed(
+    sqe: *mut io_uring_sqe,
+    fd: c_int,
+    iovecs: *const iovec,
+    nr_vecs: c_uint,
+    offset: u64,
+    flags: c_int,
+    buf_index: c_int,
+) {
+    io_uring_prep_writev2(sqe, fd, iovecs, nr_vecs, offset, flags);
+    (*sqe).opcode = io_uring_op_IORING_OP_WRITEV_FIXED as _;
     (*sqe).__liburing_anon_4.buf_index = buf_index as u16;
 }
 
@@ -1746,6 +1776,20 @@ pub unsafe extern "C" fn io_uring_prep_sendmsg_zc(
 ) {
     io_uring_prep_sendmsg(sqe, fd, msg, flags);
     (*sqe).opcode = io_uring_op_IORING_OP_SENDMSG_ZC as _;
+}
+
+#[inline]
+#[no_mangle]
+pub unsafe extern "C" fn io_uring_prep_sendmsg_zc_fixed(
+    sqe: *mut io_uring_sqe,
+    fd: c_int,
+    msg: *const msghdr,
+    flags: c_uint,
+    buf_index: c_uint,
+) {
+    io_uring_prep_sendmsg_zc(sqe, fd, msg, flags);
+    (*sqe).ioprio |= IORING_RECVSEND_FIXED_BUF as u16;
+    (*sqe).__liburing_anon_4.buf_index = buf_index as _;
 }
 
 #[inline]
