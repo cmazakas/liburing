@@ -101,9 +101,6 @@ fn main() {
 
     println!("generated bindings");
 
-    println!(
-        "cargo::rustc-link-search={}/src",
-        out_path.to_str().unwrap()
-    );
+    println!("cargo::rustc-link-search={}/src", out_path.to_str().unwrap());
     println!("cargo::rustc-link-lib=static=uring");
 }
