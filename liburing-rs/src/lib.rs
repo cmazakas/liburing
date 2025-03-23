@@ -69,8 +69,7 @@ unsafe fn IO_URING_WRITE_ONCE<T: Atomic>(var: *mut T, val: T) {
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int {
+pub unsafe fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int {
     if op > (*p).last_op as _ {
         return 0;
     }
@@ -88,8 +87,7 @@ pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c
  * CQE `index` can be computed as &cq.cqes[(index & cq.ring_mask) << cqe_shift].
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint {
+pub unsafe fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint {
     if flags & IORING_SETUP_CQE32 > 0 {
         1
     } else {
@@ -98,14 +96,12 @@ pub unsafe extern "C" fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint 
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint {
     io_uring_cqe_shift_from_flags((*ring).flags)
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter {
+pub unsafe fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter {
     io_uring_cqe_iter {
         cqes: (*ring).cq.cqes,
         mask: (*ring).cq.ring_mask,
@@ -117,8 +113,7 @@ pub unsafe extern "C" fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe) -> bool {
+pub unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe) -> bool {
     if (*iter).head == (*iter).tail {
         return false;
     }
@@ -148,8 +143,7 @@ where
  * Must be called after io_uring_for_each_cqe()
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint) {
+pub unsafe fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint) {
     if nr > 0 {
         let cq = &raw mut (*ring).cq;
 
@@ -166,8 +160,7 @@ pub unsafe extern "C" fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint) {
  * been processed by the application.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_seen(ring: *mut io_uring, cqe: *mut io_uring_cqe) {
+pub unsafe fn io_uring_cqe_seen(ring: *mut io_uring, cqe: *mut io_uring_cqe) {
     if !cqe.is_null() {
         io_uring_cq_advance(ring, 1);
     }
@@ -182,14 +175,12 @@ pub unsafe extern "C" fn io_uring_cqe_seen(ring: *mut io_uring, cqe: *mut io_uri
  * at command completion time with io_uring_cqe_get_data().
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_set_data(sqe: *mut io_uring_sqe, data: *mut c_void) {
+pub unsafe fn io_uring_sqe_set_data(sqe: *mut io_uring_sqe, data: *mut c_void) {
     (*sqe).user_data = data as u64;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_get_data(cqe: *const io_uring_cqe) -> *mut c_void {
+pub unsafe fn io_uring_cqe_get_data(cqe: *const io_uring_cqe) -> *mut c_void {
     (*cqe).user_data as *mut c_void
 }
 
@@ -199,32 +190,27 @@ pub unsafe extern "C" fn io_uring_cqe_get_data(cqe: *const io_uring_cqe) -> *mut
  * these store a 64-bit type rather than a data pointer.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_set_data64(sqe: *mut io_uring_sqe, data: u64) {
+pub unsafe fn io_uring_sqe_set_data64(sqe: *mut io_uring_sqe, data: u64) {
     (*sqe).user_data = data;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cqe_get_data64(cqe: *const io_uring_cqe) -> u64 {
+pub unsafe fn io_uring_cqe_get_data64(cqe: *const io_uring_cqe) -> u64 {
     (*cqe).user_data
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_set_flags(sqe: *mut io_uring_sqe, flags: c_uint) {
+pub unsafe fn io_uring_sqe_set_flags(sqe: *mut io_uring_sqe, flags: c_uint) {
     (*sqe).flags = flags as u8;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int) {
+pub unsafe fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int) {
     (*sqe).__liburing_anon_4.buf_group = bgid as u16;
 }
 
 #[inline]
-#[no_mangle]
-unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint) {
+pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint) {
     /* 0 means no fixed files, indexes should be encoded as "index + 1" */
     (*sqe).__liburing_anon_5.file_index = file_index + 1;
 }
@@ -242,8 +228,7 @@ unsafe fn io_uring_initialize_sqe(sqe: *mut io_uring_sqe) {
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_rw(
+pub unsafe fn io_uring_prep_rw(
     op: c_int, sqe: *mut io_uring_sqe, fd: c_int, addr: *const c_void, len: c_uint, offset: __u64,
 ) {
     (*sqe).opcode = op as u8;
@@ -275,8 +260,7 @@ pub unsafe extern "C" fn io_uring_prep_rw(
  * Check issue #291 for more information.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_splice(
+pub unsafe fn io_uring_prep_splice(
     sqe: *mut io_uring_sqe, fd_in: c_int, off_in: i64, fd_out: c_int, off_out: i64, nbytes: c_uint,
     splice_flags: c_uint,
 ) {
@@ -287,8 +271,7 @@ pub unsafe extern "C" fn io_uring_prep_splice(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_tee(
+pub unsafe fn io_uring_prep_tee(
     sqe: *mut io_uring_sqe, fd_in: c_int, fd_out: c_int, nbytes: c_uint, splice_flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_TEE as _, sqe, fd_out, ptr::null_mut(), nbytes, 0);
@@ -298,16 +281,14 @@ pub unsafe extern "C" fn io_uring_prep_tee(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_readv(
+pub unsafe fn io_uring_prep_readv(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_READV as _, sqe, fd, iovecs.cast(), nr_vecs, offset);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_readv2(
+pub unsafe fn io_uring_prep_readv2(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64, flags: c_int,
 ) {
     io_uring_prep_readv(sqe, fd, iovecs, nr_vecs, offset);
@@ -315,8 +296,7 @@ pub unsafe extern "C" fn io_uring_prep_readv2(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_read_fixed(
+pub unsafe fn io_uring_prep_read_fixed(
     sqe: *mut io_uring_sqe, fd: c_int, buf: *mut c_void, nbytes: c_uint, offset: u64, buf_index: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_READ_FIXED as _, sqe, fd, buf, nbytes, offset);
@@ -324,8 +304,7 @@ pub unsafe extern "C" fn io_uring_prep_read_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_readv_fixed(
+pub unsafe fn io_uring_prep_readv_fixed(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64, flags: c_int,
     buf_index: c_int,
 ) {
@@ -335,16 +314,14 @@ pub unsafe extern "C" fn io_uring_prep_readv_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_writev(
+pub unsafe fn io_uring_prep_writev(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_WRITEV as _, sqe, fd, iovecs.cast(), nr_vecs, offset);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_writev2(
+pub unsafe fn io_uring_prep_writev2(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64, flags: c_int,
 ) {
     io_uring_prep_writev(sqe, fd, iovecs, nr_vecs, offset);
@@ -352,8 +329,7 @@ pub unsafe extern "C" fn io_uring_prep_writev2(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_write_fixed(
+pub unsafe fn io_uring_prep_write_fixed(
     sqe: *mut io_uring_sqe, fd: c_int, buf: *const c_void, nbytes: c_uint, offset: u64, buf_index: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_WRITE_FIXED as _, sqe, fd, buf, nbytes, offset);
@@ -361,8 +337,7 @@ pub unsafe extern "C" fn io_uring_prep_write_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_writev_fixed(
+pub unsafe fn io_uring_prep_writev_fixed(
     sqe: *mut io_uring_sqe, fd: c_int, iovecs: *const iovec, nr_vecs: c_uint, offset: u64, flags: c_int,
     buf_index: c_int,
 ) {
@@ -372,24 +347,19 @@ pub unsafe extern "C" fn io_uring_prep_writev_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_recvmsg(sqe: *mut io_uring_sqe, fd: c_int, msg: *mut msghdr, flags: c_uint) {
+pub unsafe fn io_uring_prep_recvmsg(sqe: *mut io_uring_sqe, fd: c_int, msg: *mut msghdr, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_RECVMSG as _, sqe, fd, msg.cast(), 1, 0);
     (*sqe).__liburing_anon_3.msg_flags = flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_recvmsg_multishot(
-    sqe: *mut io_uring_sqe, fd: c_int, msg: *mut msghdr, flags: c_uint,
-) {
+pub unsafe fn io_uring_prep_recvmsg_multishot(sqe: *mut io_uring_sqe, fd: c_int, msg: *mut msghdr, flags: c_uint) {
     io_uring_prep_recvmsg(sqe, fd, msg, flags);
     (*sqe).ioprio |= IORING_RECV_MULTISHOT as u16;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_sendmsg(sqe: *mut io_uring_sqe, fd: c_int, msg: *const msghdr, flags: c_uint) {
+pub unsafe fn io_uring_prep_sendmsg(sqe: *mut io_uring_sqe, fd: c_int, msg: *const msghdr, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SENDMSG as _, sqe, fd, msg.cast(), 1, 0);
     (*sqe).__liburing_anon_3.msg_flags = flags;
 }
@@ -400,29 +370,25 @@ unsafe fn __io_uring_prep_poll_mask(poll_mask: c_uint) -> c_uint {
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_poll_add(sqe: *mut io_uring_sqe, fd: c_int, poll_mask: c_uint) {
+pub unsafe fn io_uring_prep_poll_add(sqe: *mut io_uring_sqe, fd: c_int, poll_mask: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_POLL_ADD as _, sqe, fd, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_3.poll32_events = __io_uring_prep_poll_mask(poll_mask);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_poll_multishot(sqe: *mut io_uring_sqe, fd: c_int, poll_mask: c_uint) {
+pub unsafe fn io_uring_prep_poll_multishot(sqe: *mut io_uring_sqe, fd: c_int, poll_mask: c_uint) {
     io_uring_prep_poll_add(sqe, fd, poll_mask);
     (*sqe).len = IORING_POLL_ADD_MULTI;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_poll_remove(sqe: *mut io_uring_sqe, user_data: u64) {
+pub unsafe fn io_uring_prep_poll_remove(sqe: *mut io_uring_sqe, user_data: u64) {
     io_uring_prep_rw(io_uring_op_IORING_OP_POLL_REMOVE as _, sqe, -1, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_2.addr = user_data;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_poll_update(
+pub unsafe fn io_uring_prep_poll_update(
     sqe: *mut io_uring_sqe, old_user_data: u64, new_user_data: u64, poll_mask: c_uint, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_POLL_REMOVE as _, sqe, -1, ptr::null_mut(), flags, new_user_data);
@@ -431,38 +397,31 @@ pub unsafe extern "C" fn io_uring_prep_poll_update(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fsync(sqe: *mut io_uring_sqe, fd: c_int, fsync_flags: c_uint) {
+pub unsafe fn io_uring_prep_fsync(sqe: *mut io_uring_sqe, fd: c_int, fsync_flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FSYNC as _, sqe, fd, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_3.fsync_flags = fsync_flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_nop(sqe: *mut io_uring_sqe) {
+pub unsafe fn io_uring_prep_nop(sqe: *mut io_uring_sqe) {
     io_uring_prep_rw(io_uring_op_IORING_OP_NOP as _, sqe, -1, ptr::null_mut(), 0, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_timeout(
-    sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, count: c_uint, flags: c_uint,
-) {
+pub unsafe fn io_uring_prep_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, count: c_uint, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_TIMEOUT as c_int, sqe, -1, ts.cast(), 1, count as __u64);
     (*sqe).__liburing_anon_3.timeout_flags = flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_timeout_remove(sqe: *mut io_uring_sqe, user_data: __u64, flags: c_uint) {
+pub unsafe fn io_uring_prep_timeout_remove(sqe: *mut io_uring_sqe, user_data: __u64, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_TIMEOUT_REMOVE as c_int, sqe, -1, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_2.addr = user_data;
     (*sqe).__liburing_anon_3.timeout_flags = flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_timeout_update(
+pub unsafe fn io_uring_prep_timeout_update(
     sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, user_data: __u64, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_TIMEOUT_REMOVE as c_int, sqe, -1, ptr::null_mut(), 0, ts as u64);
@@ -471,8 +430,7 @@ pub unsafe extern "C" fn io_uring_prep_timeout_update(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_accept(
+pub unsafe fn io_uring_prep_accept(
     sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: *mut socklen_t, flags: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_ACCEPT as _, sqe, fd, addr.cast(), 0, addrlen as u64);
@@ -481,8 +439,7 @@ pub unsafe extern "C" fn io_uring_prep_accept(
 
 /* accept directly into the fixed file table */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_accept_direct(
+pub unsafe fn io_uring_prep_accept_direct(
     sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: *mut socklen_t, flags: c_int,
     mut file_index: c_uint,
 ) {
@@ -495,8 +452,7 @@ pub unsafe extern "C" fn io_uring_prep_accept_direct(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_multishot_accept(
+pub unsafe fn io_uring_prep_multishot_accept(
     sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: *mut socklen_t, flags: c_int,
 ) {
     io_uring_prep_accept(sqe, fd, addr, addrlen, flags);
@@ -505,8 +461,7 @@ pub unsafe extern "C" fn io_uring_prep_multishot_accept(
 
 /* multishot accept directly into the fixed file table */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_multishot_accept_direct(
+pub unsafe fn io_uring_prep_multishot_accept_direct(
     sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: *mut socklen_t, flags: c_int,
 ) {
     io_uring_prep_multishot_accept(sqe, fd, addr, addrlen, flags);
@@ -514,58 +469,46 @@ pub unsafe extern "C" fn io_uring_prep_multishot_accept_direct(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_cancel64(sqe: *mut io_uring_sqe, user_data: u64, flags: c_int) {
+pub unsafe fn io_uring_prep_cancel64(sqe: *mut io_uring_sqe, user_data: u64, flags: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_ASYNC_CANCEL as _, sqe, -1, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_2.addr = user_data;
     (*sqe).__liburing_anon_3.cancel_flags = flags as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_cancel(sqe: *mut io_uring_sqe, user_data: *mut c_void, flags: c_int) {
+pub unsafe fn io_uring_prep_cancel(sqe: *mut io_uring_sqe, user_data: *mut c_void, flags: c_int) {
     io_uring_prep_cancel64(sqe, user_data as usize as u64, flags);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_cancel_fd(sqe: *mut io_uring_sqe, fd: c_int, flags: c_uint) {
+pub unsafe fn io_uring_prep_cancel_fd(sqe: *mut io_uring_sqe, fd: c_int, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_ASYNC_CANCEL as _, sqe, fd, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_3.cancel_flags = flags | IORING_ASYNC_CANCEL_FD;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_link_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, flags: c_uint) {
+pub unsafe fn io_uring_prep_link_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_LINK_TIMEOUT as _, sqe, -1, ts.cast(), 1, 0);
     (*sqe).__liburing_anon_3.timeout_flags = flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_connect(
-    sqe: *mut io_uring_sqe, fd: c_int, addr: *const sockaddr, addrlen: socklen_t,
-) {
+pub unsafe fn io_uring_prep_connect(sqe: *mut io_uring_sqe, fd: c_int, addr: *const sockaddr, addrlen: socklen_t) {
     io_uring_prep_rw(io_uring_op_IORING_OP_CONNECT as _, sqe, fd, addr.cast(), 0, addrlen as u64);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_bind(
-    sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: socklen_t,
-) {
+pub unsafe fn io_uring_prep_bind(sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr, addrlen: socklen_t) {
     io_uring_prep_rw(io_uring_op_IORING_OP_BIND as _, sqe, fd, addr.cast(), 0, addrlen as _);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_listen(sqe: *mut io_uring_sqe, fd: c_int, backlog: c_int) {
+pub unsafe fn io_uring_prep_listen(sqe: *mut io_uring_sqe, fd: c_int, backlog: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_LISTEN as _, sqe, fd, ptr::null_mut(), backlog as _, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_epoll_wait(
+pub unsafe fn io_uring_prep_epoll_wait(
     sqe: *mut io_uring_sqe, fd: c_int, events: *mut epoll_event, maxevents: c_int, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_EPOLL_WAIT as _, sqe, fd, events.cast(), maxevents as _, 0);
@@ -573,25 +516,18 @@ pub unsafe extern "C" fn io_uring_prep_epoll_wait(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_files_update(
-    sqe: *mut io_uring_sqe, fds: *mut c_int, nr_fds: c_uint, offset: c_int,
-) {
+pub unsafe fn io_uring_prep_files_update(sqe: *mut io_uring_sqe, fds: *mut c_int, nr_fds: c_uint, offset: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FILES_UPDATE as _, sqe, -1, fds.cast(), nr_fds, offset as u64);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fallocate(
-    sqe: *mut io_uring_sqe, fd: c_int, mode: c_int, offset: u64, len: u64,
-) {
+pub unsafe fn io_uring_prep_fallocate(sqe: *mut io_uring_sqe, fd: c_int, mode: c_int, offset: u64, len: u64) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FALLOCATE as _, sqe, fd, ptr::null_mut(), mode as c_uint, offset);
     (*sqe).__liburing_anon_2.addr = len;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_openat(
+pub unsafe fn io_uring_prep_openat(
     sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, flags: c_int, mode: mode_t,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_OPENAT as _, sqe, dfd, path.cast(), mode, 0);
@@ -600,8 +536,7 @@ pub unsafe extern "C" fn io_uring_prep_openat(
 
 /* open directly into the fixed file table */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_openat_direct(
+pub unsafe fn io_uring_prep_openat_direct(
     sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, flags: c_int, mode: mode_t, mut file_index: c_uint,
 ) {
     io_uring_prep_openat(sqe, dfd, path, flags, mode);
@@ -613,44 +548,36 @@ pub unsafe extern "C" fn io_uring_prep_openat_direct(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_open(sqe: *mut io_uring_sqe, path: *const c_char, flags: c_int, mode: mode_t) {
+pub unsafe fn io_uring_prep_open(sqe: *mut io_uring_sqe, path: *const c_char, flags: c_int, mode: mode_t) {
     io_uring_prep_openat(sqe, AT_FDCWD, path, flags, mode);
 }
 
 /* open directly into the fixed file table */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_open_direct(
+pub unsafe fn io_uring_prep_open_direct(
     sqe: *mut io_uring_sqe, path: *const c_char, flags: c_int, mode: mode_t, file_index: c_uint,
 ) {
     io_uring_prep_openat_direct(sqe, AT_FDCWD, path, flags, mode, file_index);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_close(sqe: *mut io_uring_sqe, fd: c_int) {
+pub unsafe fn io_uring_prep_close(sqe: *mut io_uring_sqe, fd: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_CLOSE as _, sqe, fd, ptr::null_mut(), 0, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_close_direct(sqe: *mut io_uring_sqe, file_index: c_uint) {
+pub unsafe fn io_uring_prep_close_direct(sqe: *mut io_uring_sqe, file_index: c_uint) {
     io_uring_prep_close(sqe, 0);
     __io_uring_set_target_fixed_file(sqe, file_index);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_read(
-    sqe: *mut io_uring_sqe, fd: c_int, buf: *mut c_void, nbytes: c_uint, offset: u64,
-) {
+pub unsafe fn io_uring_prep_read(sqe: *mut io_uring_sqe, fd: c_int, buf: *mut c_void, nbytes: c_uint, offset: u64) {
     io_uring_prep_rw(io_uring_op_IORING_OP_READ as _, sqe, fd, buf, nbytes, offset);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_read_multishot(
+pub unsafe fn io_uring_prep_read_multishot(
     sqe: *mut io_uring_sqe, fd: c_int, nbytes: c_uint, offset: u64, buf_group: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_READ_MULTISHOT as _, sqe, fd, ptr::null_mut(), nbytes, offset);
@@ -659,16 +586,12 @@ pub unsafe extern "C" fn io_uring_prep_read_multishot(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_write(
-    sqe: *mut io_uring_sqe, fd: c_int, buf: *const c_void, nbytes: c_uint, offset: u64,
-) {
+pub unsafe fn io_uring_prep_write(sqe: *mut io_uring_sqe, fd: c_int, buf: *const c_void, nbytes: c_uint, offset: u64) {
     io_uring_prep_rw(io_uring_op_IORING_OP_WRITE as _, sqe, fd, buf, nbytes, offset);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_statx(
+pub unsafe fn io_uring_prep_statx(
     sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, flags: c_int, mask: c_uint, statxbuf: *mut statx,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_STATX as _, sqe, dfd, path.cast(), mask, statxbuf as u64);
@@ -676,66 +599,50 @@ pub unsafe extern "C" fn io_uring_prep_statx(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fadvise(
-    sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32, advice: c_int,
-) {
+pub unsafe fn io_uring_prep_fadvise(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32, advice: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FADVISE as _, sqe, fd, ptr::null_mut(), len, offset);
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_madvise(sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32, advice: c_int) {
+pub unsafe fn io_uring_prep_madvise(sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32, advice: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_MADVISE as _, sqe, -1, addr, length, 0);
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fadvise64(
-    sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32, advice: c_int,
-) {
+pub unsafe fn io_uring_prep_fadvise64(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32, advice: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FADVISE as _, sqe, fd, ptr::null_mut(), 0, offset);
     (*sqe).__liburing_anon_2.addr = len as _;
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_madvise64(
-    sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32, advice: c_int,
-) {
+pub unsafe fn io_uring_prep_madvise64(sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32, advice: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_MADVISE as _, sqe, -1, addr, 0, length as _);
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_send(
-    sqe: *mut io_uring_sqe, sockfd: c_int, buf: *const c_void, len: usize, flags: c_int,
-) {
+pub unsafe fn io_uring_prep_send(sqe: *mut io_uring_sqe, sockfd: c_int, buf: *const c_void, len: usize, flags: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SEND as _, sqe, sockfd, buf, len as u32, 0);
     (*sqe).__liburing_anon_3.msg_flags = flags as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_send_bundle(sqe: *mut io_uring_sqe, sockfd: c_int, len: usize, flags: c_int) {
+pub unsafe fn io_uring_prep_send_bundle(sqe: *mut io_uring_sqe, sockfd: c_int, len: usize, flags: c_int) {
     io_uring_prep_send(sqe, sockfd, ptr::null_mut(), len, flags);
     (*sqe).ioprio |= IORING_RECVSEND_BUNDLE as u16;
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_send_set_addr(
-    sqe: *mut io_uring_sqe, dest_addr: *const sockaddr, addr_len: u16,
-) {
+#[inline]
+pub unsafe fn io_uring_prep_send_set_addr(sqe: *mut io_uring_sqe, dest_addr: *const sockaddr, addr_len: u16) {
     (*sqe).__liburing_anon_1.addr2 = dest_addr as usize as u64;
     (*sqe).__liburing_anon_5.__liburing_anon_1.addr_len = addr_len;
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_sendto(
+#[inline]
+pub unsafe fn io_uring_prep_sendto(
     sqe: *mut io_uring_sqe, sockfd: c_int, buf: *const c_void, len: usize, flags: c_int, addr: *const sockaddr,
     addrlen: socklen_t,
 ) {
@@ -744,8 +651,7 @@ pub unsafe extern "C" fn io_uring_prep_sendto(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_send_zc(
+pub unsafe fn io_uring_prep_send_zc(
     sqe: *mut io_uring_sqe, sockfd: c_int, buf: *const c_void, len: usize, flags: c_int, zc_flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SEND_ZC as _, sqe, sockfd, buf, len as u32, 0);
@@ -753,8 +659,8 @@ pub unsafe extern "C" fn io_uring_prep_send_zc(
     (*sqe).ioprio = zc_flags as _;
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_send_zc_fixed(
+#[inline]
+pub unsafe fn io_uring_prep_send_zc_fixed(
     sqe: *mut io_uring_sqe, sockfd: c_int, buf: *const c_void, len: usize, flags: c_int, zc_flags: c_uint,
     buf_index: c_uint,
 ) {
@@ -764,17 +670,13 @@ pub unsafe extern "C" fn io_uring_prep_send_zc_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_sendmsg_zc(
-    sqe: *mut io_uring_sqe, fd: c_int, msg: *const msghdr, flags: c_uint,
-) {
+pub unsafe fn io_uring_prep_sendmsg_zc(sqe: *mut io_uring_sqe, fd: c_int, msg: *const msghdr, flags: c_uint) {
     io_uring_prep_sendmsg(sqe, fd, msg, flags);
     (*sqe).opcode = io_uring_op_IORING_OP_SENDMSG_ZC as _;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_sendmsg_zc_fixed(
+pub unsafe fn io_uring_prep_sendmsg_zc_fixed(
     sqe: *mut io_uring_sqe, fd: c_int, msg: *const msghdr, flags: c_uint, buf_index: c_uint,
 ) {
     io_uring_prep_sendmsg_zc(sqe, fd, msg, flags);
@@ -783,17 +685,13 @@ pub unsafe extern "C" fn io_uring_prep_sendmsg_zc_fixed(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_recv(
-    sqe: *mut io_uring_sqe, sockfd: c_int, buf: *mut c_void, len: usize, flags: c_int,
-) {
+pub unsafe fn io_uring_prep_recv(sqe: *mut io_uring_sqe, sockfd: c_int, buf: *mut c_void, len: usize, flags: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_RECV as _, sqe, sockfd, buf, len as u32, 0);
     (*sqe).__liburing_anon_3.msg_flags = flags as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_recv_multishot(
+pub unsafe fn io_uring_prep_recv_multishot(
     sqe: *mut io_uring_sqe, sockfd: c_int, buf: *mut c_void, len: usize, flags: c_int,
 ) {
     io_uring_prep_recv(sqe, sockfd, buf, len, flags);
@@ -801,8 +699,7 @@ pub unsafe extern "C" fn io_uring_prep_recv_multishot(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_validate(
+pub unsafe fn io_uring_recvmsg_validate(
     buf: *mut c_void, buf_len: c_int, msgh: *mut msghdr,
 ) -> *mut io_uring_recvmsg_out {
     let header = (*msgh).msg_controllen + (*msgh).msg_namelen as usize + mem::size_of::<io_uring_recvmsg_out>();
@@ -815,16 +712,12 @@ pub unsafe extern "C" fn io_uring_recvmsg_validate(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_name(o: *mut io_uring_recvmsg_out) -> *mut c_void {
+pub unsafe fn io_uring_recvmsg_name(o: *mut io_uring_recvmsg_out) -> *mut c_void {
     o.add(1).cast()
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_cmsg_firsthdr(
-    o: *mut io_uring_recvmsg_out, msgh: *mut msghdr,
-) -> *mut cmsghdr {
+pub unsafe fn io_uring_recvmsg_cmsg_firsthdr(o: *mut io_uring_recvmsg_out, msgh: *mut msghdr) -> *mut cmsghdr {
     if ((*o).controllen as usize) < mem::size_of::<cmsghdr>() {
         return ptr::null_mut();
     }
@@ -836,8 +729,7 @@ pub unsafe extern "C" fn io_uring_recvmsg_cmsg_firsthdr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_cmsg_nexthdr(
+pub unsafe fn io_uring_recvmsg_cmsg_nexthdr(
     o: *mut io_uring_recvmsg_out, msgh: *mut msghdr, cmsg: *mut cmsghdr,
 ) -> *mut cmsghdr {
     #[allow(non_snake_case)]
@@ -867,8 +759,7 @@ pub unsafe extern "C" fn io_uring_recvmsg_cmsg_nexthdr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_payload(o: *mut io_uring_recvmsg_out, msgh: *mut msghdr) -> *mut c_void {
+pub unsafe fn io_uring_recvmsg_payload(o: *mut io_uring_recvmsg_out, msgh: *mut msghdr) -> *mut c_void {
     io_uring_recvmsg_name(o)
         .cast::<u8>()
         .add((*msgh).msg_namelen as usize + (*msgh).msg_controllen)
@@ -876,8 +767,7 @@ pub unsafe extern "C" fn io_uring_recvmsg_payload(o: *mut io_uring_recvmsg_out, 
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_recvmsg_payload_length(
+pub unsafe fn io_uring_recvmsg_payload_length(
     o: *mut io_uring_recvmsg_out, buf_len: c_int, msgh: *mut msghdr,
 ) -> c_uint {
     let payload_start = io_uring_recvmsg_payload(o, msgh) as usize;
@@ -886,10 +776,7 @@ pub unsafe extern "C" fn io_uring_recvmsg_payload_length(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_openat2(
-    sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, how: *mut open_how,
-) {
+pub unsafe fn io_uring_prep_openat2(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, how: *mut open_how) {
     io_uring_prep_rw(
         io_uring_op_IORING_OP_OPENAT2 as _,
         sqe,
@@ -902,8 +789,7 @@ pub unsafe extern "C" fn io_uring_prep_openat2(
 
 /* open directly into the fixed file table */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_openat2_direct(
+pub unsafe fn io_uring_prep_openat2_direct(
     sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, how: *mut open_how, mut file_index: c_uint,
 ) {
     io_uring_prep_openat2(sqe, dfd, path, how);
@@ -915,16 +801,12 @@ pub unsafe extern "C" fn io_uring_prep_openat2_direct(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_epoll_ctl(
-    sqe: *mut io_uring_sqe, epfd: c_int, fd: c_int, op: c_int, ev: *mut epoll_event,
-) {
+pub unsafe fn io_uring_prep_epoll_ctl(sqe: *mut io_uring_sqe, epfd: c_int, fd: c_int, op: c_int, ev: *mut epoll_event) {
     io_uring_prep_rw(io_uring_op_IORING_OP_EPOLL_CTL as _, sqe, epfd, ev.cast(), op as u32, fd as u32 as u64);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_provide_buffers(
+pub unsafe fn io_uring_prep_provide_buffers(
     sqe: *mut io_uring_sqe, addr: *mut c_void, len: c_int, nr: c_int, bgid: c_int, bid: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_PROVIDE_BUFFERS as _, sqe, nr, addr, len as u32, bid as u64);
@@ -932,34 +814,29 @@ pub unsafe extern "C" fn io_uring_prep_provide_buffers(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_remove_buffers(sqe: *mut io_uring_sqe, nr: c_int, bgid: c_int) {
+pub unsafe fn io_uring_prep_remove_buffers(sqe: *mut io_uring_sqe, nr: c_int, bgid: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_REMOVE_BUFFERS as _, sqe, nr, ptr::null_mut(), 0, 0);
     (*sqe).__liburing_anon_4.buf_group = bgid as u16;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_shutdown(sqe: *mut io_uring_sqe, fd: c_int, how: c_int) {
+pub unsafe fn io_uring_prep_shutdown(sqe: *mut io_uring_sqe, fd: c_int, how: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SHUTDOWN as _, sqe, fd, ptr::null_mut(), how as u32, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_unlinkat(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, flags: c_int) {
+pub unsafe fn io_uring_prep_unlinkat(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, flags: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_UNLINKAT as _, sqe, dfd, path.cast(), 0, 0);
     (*sqe).__liburing_anon_3.unlink_flags = flags as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_unlink(sqe: *mut io_uring_sqe, path: *const c_char, flags: c_int) {
+pub unsafe fn io_uring_prep_unlink(sqe: *mut io_uring_sqe, path: *const c_char, flags: c_int) {
     io_uring_prep_unlinkat(sqe, AT_FDCWD, path, flags);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_renameat(
+pub unsafe fn io_uring_prep_renameat(
     sqe: *mut io_uring_sqe, olddfd: c_int, oldpath: *const c_char, newdfd: c_int, newpath: *const c_char, flags: c_uint,
 ) {
     io_uring_prep_rw(
@@ -974,48 +851,39 @@ pub unsafe extern "C" fn io_uring_prep_renameat(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_rename(sqe: *mut io_uring_sqe, oldpath: *const c_char, newpath: *const c_char) {
+pub unsafe fn io_uring_prep_rename(sqe: *mut io_uring_sqe, oldpath: *const c_char, newpath: *const c_char) {
     io_uring_prep_renameat(sqe, AT_FDCWD, oldpath, AT_FDCWD, newpath, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_sync_file_range(
-    sqe: *mut io_uring_sqe, fd: c_int, len: c_uint, offset: u64, flags: c_int,
-) {
+pub unsafe fn io_uring_prep_sync_file_range(sqe: *mut io_uring_sqe, fd: c_int, len: c_uint, offset: u64, flags: c_int) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SYNC_FILE_RANGE as _, sqe, fd, ptr::null_mut(), len, offset);
     (*sqe).__liburing_anon_3.sync_range_flags = flags as u32;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_mkdirat(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, mode: mode_t) {
+pub unsafe fn io_uring_prep_mkdirat(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char, mode: mode_t) {
     io_uring_prep_rw(io_uring_op_IORING_OP_MKDIRAT as _, sqe, dfd, path.cast(), mode, 0);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_mkdir(sqe: *mut io_uring_sqe, path: *const c_char, mode: mode_t) {
+pub unsafe fn io_uring_prep_mkdir(sqe: *mut io_uring_sqe, path: *const c_char, mode: mode_t) {
     io_uring_prep_mkdirat(sqe, AT_FDCWD, path, mode);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_symlinkat(
+pub unsafe fn io_uring_prep_symlinkat(
     sqe: *mut io_uring_sqe, target: *const c_char, newdirfd: c_int, linkpath: *const c_char,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SYMLINKAT as _, sqe, newdirfd, target.cast(), 0, linkpath as usize as u64);
 }
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_symlink(sqe: *mut io_uring_sqe, target: *const c_char, linkpath: *const c_char) {
+pub unsafe fn io_uring_prep_symlink(sqe: *mut io_uring_sqe, target: *const c_char, linkpath: *const c_char) {
     io_uring_prep_symlinkat(sqe, target, AT_FDCWD, linkpath);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_linkat(
+pub unsafe fn io_uring_prep_linkat(
     sqe: *mut io_uring_sqe, olddfd: c_int, oldpath: *const c_char, newdfd: c_int, newpath: *const c_char, flags: c_int,
 ) {
     io_uring_prep_rw(
@@ -1030,16 +898,12 @@ pub unsafe extern "C" fn io_uring_prep_linkat(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_link(
-    sqe: *mut io_uring_sqe, oldpath: *const c_char, newpath: *const c_char, flags: c_int,
-) {
+pub unsafe fn io_uring_prep_link(sqe: *mut io_uring_sqe, oldpath: *const c_char, newpath: *const c_char, flags: c_int) {
     io_uring_prep_linkat(sqe, AT_FDCWD, oldpath, AT_FDCWD, newpath, flags);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_msg_ring_cqe_flags(
+pub unsafe fn io_uring_prep_msg_ring_cqe_flags(
     sqe: *mut io_uring_sqe, fd: c_int, len: c_uint, data: u64, flags: c_uint, cqe_flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_MSG_RING as _, sqe, fd, ptr::null_mut(), len, data);
@@ -1048,17 +912,13 @@ pub unsafe extern "C" fn io_uring_prep_msg_ring_cqe_flags(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_msg_ring(
-    sqe: *mut io_uring_sqe, fd: c_int, len: c_uint, data: u64, flags: c_uint,
-) {
+pub unsafe fn io_uring_prep_msg_ring(sqe: *mut io_uring_sqe, fd: c_int, len: c_uint, data: u64, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_MSG_RING as _, sqe, fd, ptr::null_mut(), len, data);
     (*sqe).__liburing_anon_3.msg_ring_flags = IORING_MSG_RING_FLAGS_PASS | flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_msg_ring_fd(
+pub unsafe fn io_uring_prep_msg_ring_fd(
     sqe: *mut io_uring_sqe, fd: c_int, source_fd: c_int, mut target_fd: c_int, data: u64, flags: c_uint,
 ) {
     io_uring_prep_rw(
@@ -1079,16 +939,14 @@ pub unsafe extern "C" fn io_uring_prep_msg_ring_fd(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_msg_ring_fd_alloc(
+pub unsafe fn io_uring_prep_msg_ring_fd_alloc(
     sqe: *mut io_uring_sqe, fd: c_int, source_fd: c_int, data: u64, flags: c_uint,
 ) {
     io_uring_prep_msg_ring_fd(sqe, fd, source_fd, IORING_FILE_INDEX_ALLOC, data, flags);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_getxattr(
+pub unsafe fn io_uring_prep_getxattr(
     sqe: *mut io_uring_sqe, name: *const c_char, value: *mut c_char, path: *const c_char, len: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_GETXATTR as _, sqe, 0, name.cast(), len, value as usize as u64);
@@ -1098,8 +956,7 @@ pub unsafe extern "C" fn io_uring_prep_getxattr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_setxattr(
+pub unsafe fn io_uring_prep_setxattr(
     sqe: *mut io_uring_sqe, name: *const c_char, value: *const c_char, path: *const c_char, flags: c_int, len: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SETXATTR as _, sqe, 0, name.cast(), len, value as usize as u64);
@@ -1108,8 +965,7 @@ pub unsafe extern "C" fn io_uring_prep_setxattr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fgetxattr(
+pub unsafe fn io_uring_prep_fgetxattr(
     sqe: *mut io_uring_sqe, fd: c_int, name: *const c_char, value: *mut c_char, len: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FGETXATTR as _, sqe, fd, name.cast(), len, value as usize as u64);
@@ -1117,8 +973,7 @@ pub unsafe extern "C" fn io_uring_prep_fgetxattr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fsetxattr(
+pub unsafe fn io_uring_prep_fsetxattr(
     sqe: *mut io_uring_sqe, fd: c_int, name: *const c_char, value: *mut c_char, flags: c_int, len: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FSETXATTR as _, sqe, fd, name.cast(), len, value as usize as u64);
@@ -1126,8 +981,7 @@ pub unsafe extern "C" fn io_uring_prep_fsetxattr(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_socket(
+pub unsafe fn io_uring_prep_socket(
     sqe: *mut io_uring_sqe, domain: c_int, r#type: c_int, protocol: c_int, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SOCKET as _, sqe, domain, ptr::null_mut(), protocol as u32, r#type as u64);
@@ -1135,8 +989,7 @@ pub unsafe extern "C" fn io_uring_prep_socket(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_socket_direct(
+pub unsafe fn io_uring_prep_socket_direct(
     sqe: *mut io_uring_sqe, domain: c_int, r#type: c_int, protocol: c_int, mut file_index: c_uint, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SOCKET as _, sqe, domain, ptr::null_mut(), protocol as u32, r#type as u64);
@@ -1149,8 +1002,7 @@ pub unsafe extern "C" fn io_uring_prep_socket_direct(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_socket_direct_alloc(
+pub unsafe fn io_uring_prep_socket_direct_alloc(
     sqe: *mut io_uring_sqe, domain: c_int, r#type: c_int, protocol: c_int, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_SOCKET as _, sqe, domain, ptr::null_mut(), protocol as u32, r#type as u64);
@@ -1162,8 +1014,7 @@ pub unsafe extern "C" fn io_uring_prep_socket_direct_alloc(
  * Prepare commands for sockets
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_cmd_sock(
+pub unsafe fn io_uring_prep_cmd_sock(
     sqe: *mut io_uring_sqe, cmd_op: c_int, fd: c_int, level: c_int, optname: c_int, optval: *mut c_void, optlen: c_int,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_URING_CMD as _, sqe, fd, ptr::null_mut(), 0, 0);
@@ -1176,8 +1027,7 @@ pub unsafe extern "C" fn io_uring_prep_cmd_sock(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_waitid(
+pub unsafe fn io_uring_prep_waitid(
     sqe: *mut io_uring_sqe, idtype: idtype_t, id: id_t, infop: *mut siginfo_t, options: c_int, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_WAITID as _, sqe, id as _, ptr::null_mut(), idtype, 0);
@@ -1187,8 +1037,7 @@ pub unsafe extern "C" fn io_uring_prep_waitid(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_futex_wake(
+pub unsafe fn io_uring_prep_futex_wake(
     sqe: *mut io_uring_sqe, futex: *mut u32, val: u64, mask: u64, futex_flags: u32, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FUTEX_WAKE as _, sqe, futex_flags as _, futex.cast(), 0, val);
@@ -1197,8 +1046,7 @@ pub unsafe extern "C" fn io_uring_prep_futex_wake(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_futex_wait(
+pub unsafe fn io_uring_prep_futex_wait(
     sqe: *mut io_uring_sqe, futex: *mut u32, val: u64, mask: u64, futex_flags: u32, flags: c_uint,
 ) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FUTEX_WAIT as _, sqe, futex_flags as _, futex.cast(), 0, val);
@@ -1207,17 +1055,13 @@ pub unsafe extern "C" fn io_uring_prep_futex_wait(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_futex_waitv(
-    sqe: *mut io_uring_sqe, futex: *mut futex_waitv, nr_futex: u32, flags: c_uint,
-) {
+pub unsafe fn io_uring_prep_futex_waitv(sqe: *mut io_uring_sqe, futex: *mut futex_waitv, nr_futex: u32, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FUTEX_WAITV as _, sqe, 0, futex.cast(), nr_futex, 0);
     (*sqe).__liburing_anon_3.futex_flags = flags;
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_fixed_fd_install(sqe: *mut io_uring_sqe, fd: c_int, flags: c_uint) {
+pub unsafe fn io_uring_prep_fixed_fd_install(sqe: *mut io_uring_sqe, fd: c_int, flags: c_uint) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FIXED_FD_INSTALL as _, sqe, fd, ptr::null_mut(), 0, 0);
 
     (*sqe).flags = IOSQE_FIXED_FILE as _;
@@ -1225,14 +1069,12 @@ pub unsafe extern "C" fn io_uring_prep_fixed_fd_install(sqe: *mut io_uring_sqe, 
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_ftruncate(sqe: *mut io_uring_sqe, fd: c_int, len: c_longlong) {
+pub unsafe fn io_uring_prep_ftruncate(sqe: *mut io_uring_sqe, fd: c_int, len: c_longlong) {
     io_uring_prep_rw(io_uring_op_IORING_OP_FTRUNCATE as _, sqe, fd, ptr::null_mut(), 0, len as _);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, nbytes: u64) {
+pub unsafe fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, nbytes: u64) {
     io_uring_prep_rw(io_uring_op_IORING_OP_URING_CMD as _, sqe, fd, ptr::null_mut(), 0, 0);
 
     // TODO: really someday fix this
@@ -1245,8 +1087,7 @@ pub unsafe extern "C" fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c
 
 /* Read the kernel's SQ head index with appropriate memory ordering */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint {
     /*
      * Without acquire ordering, we could overwrite a SQE before the kernel
      * finished reading it. We don't need the acquire ordering for
@@ -1264,8 +1105,7 @@ pub unsafe extern "C" fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint {
  * the SQ ring
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sq_ready(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_sq_ready(ring: *mut io_uring) -> c_uint {
     (*ring).sq.sqe_tail - io_uring_load_sq_head(ring)
 }
 
@@ -1273,8 +1113,7 @@ pub unsafe extern "C" fn io_uring_sq_ready(ring: *mut io_uring) -> c_uint {
  * Returns how much space is left in the SQ ring.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sq_space_left(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_sq_space_left(ring: *mut io_uring) -> c_uint {
     (*ring).sq.ring_entries - io_uring_sq_ready(ring)
 }
 
@@ -1284,8 +1123,7 @@ pub unsafe extern "C" fn io_uring_sq_space_left(ring: *mut io_uring) -> c_uint {
  * SQE `index` can be computed as &sq.sqes[(index & sq.ring_mask) << sqe_shift].
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_shift_from_flags(flags: c_uint) -> c_uint {
+pub unsafe fn io_uring_sqe_shift_from_flags(flags: c_uint) -> c_uint {
     if flags & IORING_SETUP_SQE128 > 0 {
         1
     } else {
@@ -1294,8 +1132,7 @@ pub unsafe extern "C" fn io_uring_sqe_shift_from_flags(flags: c_uint) -> c_uint 
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqe_shift(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_sqe_shift(ring: *mut io_uring) -> c_uint {
     io_uring_sqe_shift_from_flags((*ring).flags)
 }
 
@@ -1307,8 +1144,7 @@ pub unsafe extern "C" fn io_uring_sqe_shift(ring: *mut io_uring) -> c_uint {
  * this feature.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_sqring_wait(ring: *mut io_uring) -> c_int {
+pub unsafe fn io_uring_sqring_wait(ring: *mut io_uring) -> c_int {
     if (*ring).flags & IORING_SETUP_SQPOLL == 0 {
         return 0;
     }
@@ -1323,8 +1159,7 @@ pub unsafe extern "C" fn io_uring_sqring_wait(ring: *mut io_uring) -> c_int {
  * Returns how many unconsumed entries are ready in the CQ ring
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cq_ready(ring: *mut io_uring) -> c_uint {
+pub unsafe fn io_uring_cq_ready(ring: *mut io_uring) -> c_uint {
     io_uring_smp_load_acquire((*ring).cq.ktail) - *(*ring).cq.khead
 }
 
@@ -1333,8 +1168,7 @@ pub unsafe extern "C" fn io_uring_cq_ready(ring: *mut io_uring) -> c_uint {
  * the CQ ring
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cq_has_overflow(ring: *mut io_uring) -> bool {
+pub unsafe fn io_uring_cq_has_overflow(ring: *mut io_uring) -> bool {
     IO_URING_READ_ONCE((*ring).sq.kflags) & IORING_SQ_CQ_OVERFLOW > 0
 }
 
@@ -1342,8 +1176,7 @@ pub unsafe extern "C" fn io_uring_cq_has_overflow(ring: *mut io_uring) -> bool {
  * Returns true if the eventfd notification is currently enabled
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cq_eventfd_enabled(ring: *mut io_uring) -> bool {
+pub unsafe fn io_uring_cq_eventfd_enabled(ring: *mut io_uring) -> bool {
     if (*ring).cq.kflags.is_null() {
         return true;
     }
@@ -1355,8 +1188,7 @@ pub unsafe extern "C" fn io_uring_cq_eventfd_enabled(ring: *mut io_uring) -> boo
  * the ring.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_cq_eventfd_toggle(ring: *mut io_uring, enabled: bool) -> c_int {
+pub unsafe fn io_uring_cq_eventfd_toggle(ring: *mut io_uring, enabled: bool) -> c_int {
     if enabled == io_uring_cq_eventfd_enabled(ring) {
         return 0;
     }
@@ -1384,10 +1216,7 @@ pub unsafe extern "C" fn io_uring_cq_eventfd_toggle(ring: *mut io_uring, enabled
  * failure.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_wait_cqe_nr(
-    ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe, wait_nr: c_uint,
-) -> c_int {
+pub unsafe fn io_uring_wait_cqe_nr(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe, wait_nr: c_uint) -> c_int {
     __io_uring_get_cqe(ring, cqe_ptr, 0, wait_nr, ptr::null_mut())
 }
 
@@ -1444,8 +1273,7 @@ unsafe fn __io_uring_peek_cqe(
  * cqe_ptr filled in on success, -errno on failure.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe) -> c_int {
+pub unsafe fn io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe) -> c_int {
     if __io_uring_peek_cqe(ring, cqe_ptr, ptr::null_mut()) == 0 && !(*cqe_ptr).is_null() {
         return 0;
     }
@@ -1458,8 +1286,7 @@ pub unsafe extern "C" fn io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *m
  * cqe_ptr filled in on success, -errno on failure.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_wait_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe) -> c_int {
+pub unsafe fn io_uring_wait_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe) -> c_int {
     if __io_uring_peek_cqe(ring, cqe_ptr, ptr::null_mut()) == 0 && !(*cqe_ptr).is_null() {
         return 0;
     }
@@ -1496,14 +1323,12 @@ unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe {
  * Return the appropriate mask for a buffer ring of size 'ring_entries'
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_mask(ring_entries: u32) -> c_int {
+pub unsafe fn io_uring_buf_ring_mask(ring_entries: u32) -> c_int {
     (ring_entries - 1) as _
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_init(br: *mut io_uring_buf_ring) {
+pub unsafe fn io_uring_buf_ring_init(br: *mut io_uring_buf_ring) {
     (*br).__liburing_anon_1.__liburing_anon_1.as_mut().tail = 0;
 }
 
@@ -1511,8 +1336,7 @@ pub unsafe extern "C" fn io_uring_buf_ring_init(br: *mut io_uring_buf_ring) {
  * Assign 'buf' with the addr/len/buffer ID supplied
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_add(
+pub unsafe fn io_uring_buf_ring_add(
     br: *mut io_uring_buf_ring, addr: *mut c_void, len: c_uint, bid: c_ushort, mask: c_int, buf_offset: c_int,
 ) {
     let tail = (*br).__liburing_anon_1.__liburing_anon_1.as_ref().tail;
@@ -1534,8 +1358,7 @@ pub unsafe extern "C" fn io_uring_buf_ring_add(
  * buffers.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, count: c_int) {
+pub unsafe fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, count: c_int) {
     let tail = (*br).__liburing_anon_1.__liburing_anon_1.as_ref().tail;
     let new_tail = tail.wrapping_add(count as u16);
 
@@ -1543,8 +1366,7 @@ pub unsafe extern "C" fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, c
 }
 
 #[inline]
-#[no_mangle]
-unsafe extern "C" fn __io_uring_buf_ring_cq_advance(
+unsafe fn __io_uring_buf_ring_cq_advance(
     ring: *mut io_uring, br: *mut io_uring_buf_ring, cq_count: i32, buf_count: c_int,
 ) {
     io_uring_buf_ring_advance(br, buf_count);
@@ -1559,16 +1381,12 @@ unsafe extern "C" fn __io_uring_buf_ring_cq_advance(
  * the ring buffer index at the same time.
  */
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_buf_ring, count: c_int) {
+pub unsafe fn io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_buf_ring, count: c_int) {
     __io_uring_buf_ring_cq_advance(ring, br, count, count);
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_buf_ring_available(
-    ring: *mut io_uring, br: *mut io_uring_buf_ring, bgid: c_ushort,
-) -> c_int {
+pub unsafe fn io_uring_buf_ring_available(ring: *mut io_uring, br: *mut io_uring_buf_ring, bgid: c_ushort) -> c_int {
     let mut head = 0;
     let ret = io_uring_buf_ring_head(ring, bgid as _, &raw mut head);
     if ret > 0 {
@@ -1578,8 +1396,7 @@ pub unsafe extern "C" fn io_uring_buf_ring_available(
 }
 
 #[inline]
-#[no_mangle]
-pub unsafe extern "C" fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe {
+pub unsafe fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe {
     _io_uring_get_sqe(ring)
 }
 
