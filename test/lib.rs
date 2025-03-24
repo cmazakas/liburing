@@ -1,11 +1,12 @@
 extern crate liburing_rs;
 
-pub use liburing_rs::*;
-
-use std::{
-    os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void},
-    ptr,
+pub use liburing_rs::{
+    __kernel_timespec, cmsghdr, epoll_event, futex_waitv, id_t, idtype_t, io_uring, io_uring_buf_ring, io_uring_cqe,
+    io_uring_cqe_iter, io_uring_probe, io_uring_recvmsg_out, io_uring_sqe, iovec, mode_t, msghdr, open_how, siginfo_t,
+    sockaddr, socklen_t, statx, AT_FDCWD,
 };
+
+use std::os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void};
 
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int {
@@ -79,7 +80,7 @@ pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_inde
 
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_prep_rw(
-    op: c_int, sqe: *mut io_uring_sqe, fd: c_int, addr: *const c_void, len: c_uint, offset: __u64,
+    op: c_int, sqe: *mut io_uring_sqe, fd: c_int, addr: *const c_void, len: c_uint, offset: u64,
 ) {
     liburing_rs::io_uring_prep_rw(op, sqe, fd, addr, len, offset)
 }
@@ -214,13 +215,13 @@ pub unsafe extern "C" fn io_uring_prep_timeout(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn io_uring_prep_timeout_remove(sqe: *mut io_uring_sqe, user_data: __u64, flags: c_uint) {
+pub unsafe extern "C" fn io_uring_prep_timeout_remove(sqe: *mut io_uring_sqe, user_data: u64, flags: c_uint) {
     liburing_rs::io_uring_prep_timeout_remove(sqe, user_data, flags)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_prep_timeout_update(
-    sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, user_data: __u64, flags: c_uint,
+    sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec, user_data: u64, flags: c_uint,
 ) {
     liburing_rs::io_uring_prep_timeout_update(sqe, ts, user_data, flags)
 }
@@ -545,7 +546,7 @@ pub unsafe extern "C" fn io_uring_prep_remove_buffers(sqe: *mut io_uring_sqe, nr
 
 #[no_mangle]
 pub unsafe extern "C" fn io_uring_prep_shutdown(sqe: *mut io_uring_sqe, fd: c_int, how: c_int) {
-    liburing_rs::io_uring_prep_rw(io_uring_op_IORING_OP_SHUTDOWN as _, sqe, fd, ptr::null_mut(), how as u32, 0);
+    liburing_rs::io_uring_prep_shutdown(sqe, fd, how)
 }
 
 #[no_mangle]
