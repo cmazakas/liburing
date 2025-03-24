@@ -9,7 +9,7 @@ buffer groups, and create and manage SQEs and CQEs. liburing's API offers users 
 in a simple manner.
 
 axboe-liburing implements the entire header `liburing.h` in native Rust so that everything is as equally inlined as
-if you were using the library from C or C++. This covers around 117 public functions.
+if you were using the library from C or C++. This covers around 142 public functions.
 
 Add the crate with:
 ```bash

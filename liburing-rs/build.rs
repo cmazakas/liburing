@@ -90,6 +90,7 @@ fn main() {
         .clang_arg("-D_POSIX_C_SOURCE=200809L")
         .header("liburing-rs/include/liburing_wrapper.h")
         .anon_fields_prefix("__liburing_anon_")
+        .prepend_enum_name(false)
         .generate()
         .expect("Unable to generate bindings");
 
