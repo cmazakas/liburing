@@ -1,12 +1,14 @@
 [package]
 name = "axboe-liburing"
-version = "2.10.0-alpha"
-edition = "2021"
+version = "2.10.0-alpha.1"
+edition = "2024"
 build = "liburing-rs/build.rs"
 description = "A Rust transliteration of axboe's liburing"
 license = "MIT OR LGPL-2.1-only	"
 repository = "https://github.com/cmazakas/liburing"
 readme = "liburing-rs/README.md"
+keywords = ["io_uring", "liburing", "linux"]
+categories = [ "asynchronous", "network-programming", "filesystem" ]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
 include = [
   "/src/arch",
