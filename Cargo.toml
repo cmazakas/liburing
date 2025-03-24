@@ -48,3 +48,12 @@ bindgen = "0.71.1"
 [profile.release-with-debug]
 inherits = "release"
 debug = "full"
+
+[dev-dependencies]
+io-uring = "0.7.4"
+criterion = "0.5.1"
+
+[[bench]]
+name = "nop"
+path = "liburing-rs/benches/nop.rs"
+harness = false
