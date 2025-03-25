@@ -74,16 +74,6 @@ fn main() {
 
     println!("completed `make library` call");
 
-    let objcopy_cmd = std::env::var("OBJCOPY").unwrap_or(String::from("objcopy"));
-    let r = std::process::Command::new(objcopy_cmd)
-        .args(["--weaken-symbol", "io_uring_get_sqe", "src/liburing.a"])
-        .current_dir(out_path.clone())
-        .output()
-        .unwrap();
-
-    std::io::stderr().write_all(&r.stderr).unwrap();
-    assert!(r.status.success());
-
     let bindings = bindgen::Builder::default()
         .clang_arg(format!("-I{}/src/include", out_path.to_str().unwrap()))
         .clang_arg("-std=c11")
