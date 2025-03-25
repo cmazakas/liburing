@@ -228,13 +228,13 @@ jobs:
       - name: Build liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
         run: |
-          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} OBJCOPY=${{matrix.build_args.objcopy}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
+          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
           OBJCOPY=${{matrix.build_args.objcopy}} make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
       - name: Build liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '1'}}
         run: |
-          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} OBJCOPY=${{matrix.build_args.objcopy}} cargo +nightly build --target ${{matrix.build_args.cargo_toolchain}} -Zbuild-std --features sanitizers;
+          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +nightly build --target ${{matrix.build_args.cargo_toolchain}} -Zbuild-std --features sanitizers;
           OBJCOPY=${{matrix.build_args.objcopy}} make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
       - name: Test install command
@@ -244,7 +244,7 @@ jobs:
       - name: Test crate packaging
         if: ${{matrix.build_args.cargo_toolchain}}
         run: |
-           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} OBJCOPY=${{matrix.build_args.objcopy}} cargo package --target ${{matrix.build_args.cargo_toolchain}};
+           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo package --target ${{matrix.build_args.cargo_toolchain}};
 
   alpine-musl-build:
     needs: get_commit_list
