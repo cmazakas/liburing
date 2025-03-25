@@ -18,24 +18,58 @@ cargo add axboe-liburing
 
 axboe-liburing ships with the liburing source and builds `liburing.a`, statically linking it in via the `build.rs`. This means
 that axboe-liburing requires a C toolchain be present on the system in order to build. Typical conventions are followed,
-the environment variables `CC`, `CXX` are used to set the C and C++ compilers. axboe-liburing also uses `objcopy` in order to weaken
-the `io_uring_get_sqe()` symbol present in `liburing.a`. When cross-compiling, it can be important to specify the `objcopy` being used.
-The `objcopy` binary can be set via the `OBJCOPY` environment variable. `objcopy` ships with gcc toolchains.
+the environment variables `CC`, `CXX` are used to set the C and C++ compilers.
 
-Example:
+```bash
+CC=clang-19 CXX=clang++-19 cargo build
+```
+
+## Building Tests
+
+axboe-liburing includes a few Rust-specific tests to verify the basic flow works but the lion's share of the testing is
+in recycling what already exists in liburing proper. To this end, we need `objcopy` in order to weaken the `io_uring_get_sqe()`
+symbol present in `liburing.a`. When cross-compiling, it can be important to specify the `objcopy` being used. The `objcopy`
+binary can be set via the `OBJCOPY` environment variable. `objcopy` ships with gcc toolchains.
+
+Example building liburing tests with liburing-rs:
 ```bash
 export CC=aarch64-linux-gnu-gcc
 export CXX=aarch64-linux-gnu-g++
 export OBJCOPY=aarch64-linux-gnu-objcopy
-cargo build --target aarch64-unknown-linux-gnu
+export CARGO_TOOLCHAIN=aarch64-unknown-linux-gnu
+make -C test liburing_rs_tests -j$(nproc)
 ```
+
+axboe-liburing is also tested using sanitizers as well. To build the tests with sanitization enabled, one needs to enable
+the `sanitizers` feature. This causes the crate to build `liburing.a` with sanitization enabled.
+
+```bash
+RUSTFLAGS='-Zsanitizer=address' cargo +nightly test --features sanitizers --target x86_64-unknown-linux-gnu -Zbuild-std
+```
+
+For building the `liburing_rs_tests` target in `test/Makefile`, one needs to first configure the project to use sanitization.
+
+```bash
+# for liburing_rs_test.a, needed for the C test files to link against
+./configure --enable-sanitizer
+
+# builds everything, including C the default tests which are relied upon to exist by other tests
+make all -j$(nproc)
+
+# build a static library that exports everything from the Rust crate and use a shim header in the
+# test files so that they link against the Rust-derived staticlib
+make -C test liburing_rs_tests -j$(nproc)
+```
+
+## Docs
 
 For documentation, see the man pages for the liburing package itself. The Arch Linux pages have relatively up-to-date
 docs: https://man.archlinux.org/listing/extra/liburing/.
 
 Examples can be found in the main repo: https://github.com/axboe/liburing/tree/master/examples
 
-Example:
+## Example
+
 ```rust
 extern crate liburing_rs;
 
