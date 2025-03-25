@@ -1372,7 +1372,7 @@ impl From<Duration> for timespec {
     #[inline]
     fn from(duration: Duration) -> Self {
         let mut ts = unsafe { zeroed::<timespec>() };
-        ts.tv_sec = duration.as_secs() as time_t;
+        ts.tv_sec = duration.as_secs() as _;
         ts.tv_nsec = duration.subsec_nanos() as _;
         ts
     }
@@ -1382,7 +1382,7 @@ impl From<Duration> for __kernel_timespec {
     #[inline]
     fn from(duration: Duration) -> Self {
         let mut ts = unsafe { zeroed::<__kernel_timespec>() };
-        ts.tv_sec = duration.as_secs() as time_t;
+        ts.tv_sec = duration.as_secs() as _;
         ts.tv_nsec = duration.subsec_nanos() as _;
         ts
     }
