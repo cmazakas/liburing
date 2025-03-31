@@ -367,6 +367,7 @@ ifeq ($(CONFIG_USE_SANITIZER),y)
 endif
 
 liburing_rs: liburing.h.in
+	+ CC=$(CC) CXX=$(CXX) RUSTFLAGS="$(RUSTFLAGS)" cargo +nightly clippy $(CARGO_FLAGS)
 	+ CC=$(CC) CXX=$(CXX) RUSTFLAGS="$(RUSTFLAGS)" cargo +nightly build $(CARGO_FLAGS) -Z unstable-options --artifact-dir .
 	$(OBJCOPY) --weaken-symbol io_uring_get_sqe liburing_rs_test.a
 	cp liburing.h.in liburing.h

@@ -1,7 +1,7 @@
 [package]
 name = "liburing-rs-tests"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Test crate for liburing-rs"
 license = "MIT OR LGPL"
 repository = "https://github.com/cmazakas/liburing"
