@@ -194,6 +194,7 @@ test_srcs := \
 	rw_merge_test.c \
 	self.c \
 	recvsend_bundle.c \
+	recvsend_bundle2.c \
 	recvsend_bundle-inc.c \
 	send_recv.c \
 	send_recvmsg.c \
