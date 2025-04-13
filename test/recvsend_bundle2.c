@@ -27,7 +27,7 @@ struct io_uring_sqe* get_sqe(struct io_uring* ring)
 	return sqe;
 }
 
-#define NUM_CONNS 75
+#define NUM_CONNS 2000
 #define NUM_BUFS 64
 #define SERVER_BGID 27
 #define CLIENT_BGID 72
@@ -38,6 +38,7 @@ struct conn
 {
 	int fd;
 	char* send_buf;
+	char* recv_buf;
 	size_t num_sent;
 	size_t num_received;
 	bool send_done;
@@ -49,6 +50,7 @@ struct conn make_conn()
 	{
 		.fd = -1,
 		.send_buf = NULL,
+		.recv_buf = NULL,
 		.num_sent = 0,
 		.num_received = 0,
 		.send_done = false
@@ -56,8 +58,9 @@ struct conn make_conn()
 	return c;
 }
 
-void set_send_buf(struct conn* c)
+void set_conn_bufs(struct conn* c)
 {
+	c->recv_buf = (char*) malloc(MSG_LEN);
 	c->send_buf = (char*) malloc(MSG_LEN);
 	for (int i = 0; i < MSG_LEN; ++i) {
 		c->send_buf[i] = rand();
@@ -68,6 +71,7 @@ void release_conn(struct conn* c)
 {
 	close(c->fd);
 	free(c->send_buf);
+	free(c->recv_buf);
 }
 
 enum op_type { send_op = 1, recv_op };
@@ -92,12 +96,12 @@ enum op_type user_data_to_op(__u64 user_data)
 	return op;
 }
 
-void prep_recv( struct conn* conn, struct io_uring* ring, int idx)
+void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16_t bgid)
 {
 	struct io_uring_sqe* sqe = get_sqe(ring);
 	io_uring_prep_recv_multishot(sqe, conn->fd, NULL, 0, 0);
 	io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
-	sqe->buf_group = SERVER_BGID;
+	sqe->buf_group = bgid;
 	sqe->ioprio = IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE;
 
 	prep_user_data(sqe, idx, recv_op);
@@ -115,7 +119,7 @@ static void *stress_send_fn(void* data)
 		for (int i = 0; i < NUM_CONNS; ++i)
 		{
 			conns[i] = make_conn();
-			set_send_buf(&conns[i]);
+			set_conn_bufs(&conns[i]);
 		}
 	}
 
@@ -168,6 +172,9 @@ static void *stress_send_fn(void* data)
 	}
 
 	{
+		int buf_len = BUF_LEN;
+		int num_bufs = NUM_BUFS;
+
 		for (int i = 0; i < NUM_CONNS; ++i)
 		{
 			struct io_uring_sqe* sqe = get_sqe(&ring);
@@ -187,8 +194,11 @@ static void *stress_send_fn(void* data)
 			{
 				++c;
 
-				int idx = user_data_to_idx(io_uring_cqe_get_data64(cqe));
-				enum op_type op = user_data_to_op(io_uring_cqe_get_data64(cqe));
+				__u64 userdata = io_uring_cqe_get_data64(cqe);
+				int idx = user_data_to_idx(userdata);
+				enum op_type op = user_data_to_op(userdata);
+
+				struct conn* conn = &conns[idx];
 
 				if (op == send_op)
 				{
@@ -198,7 +208,6 @@ static void *stress_send_fn(void* data)
 						return NULL;
 					}
 
-					struct conn* conn = &conns[idx];
 					if (conn->num_sent == 0)
 					{
 						conn->num_sent += cqe->res;
@@ -212,9 +221,75 @@ static void *stress_send_fn(void* data)
 					else
 					{
 						conn->send_done = true;
-						++num_completed;
+						prep_recv(conn, &ring, idx, CLIENT_BGID);
+						// ++num_completed;
 						// printf("Send completed for connection %p\n", conn);
 					}
+				}
+				else if( op == recv_op )
+				{
+					if( cqe->res == -ENOBUFS )
+					{
+						prep_recv(conn, &ring, idx, CLIENT_BGID);
+						continue;
+					}
+
+					if( cqe->res < 0 )
+					{
+						perror("bad recv");
+						return NULL;
+					}
+
+					if( !(cqe->flags & IORING_CQE_F_MORE) )
+					{
+						prep_recv(conn, &ring, idx, CLIENT_BGID);
+					}
+
+					uint16_t bid = cqe->flags >> IORING_CQE_BUFFER_SHIFT;
+
+					int offset = 0;
+					int num_received = cqe->res;
+					while( num_received > 0 )
+					{
+						int n = buf_len;
+						if( num_received < buf_len )
+						{
+							n = num_received;
+						}
+
+						// printf("num_received: %d, conn->send_buf => %p, conn->num_received => %lu, conn->fd => %d\n", num_received, conn->send_buf, conn->num_received, conn->fd);
+
+						memcpy(conn->recv_buf + conn->num_received, bufs[bid], n);
+
+						free(bufs[bid]);
+
+						void* buf = malloc(buf_len);
+						io_uring_buf_ring_add(br, buf, buf_len, bid, io_uring_buf_ring_mask(num_bufs), offset);
+
+						conn->num_received += n;
+						num_received -= n;
+
+						bufs[bid] = buf;
+
+						++bid;
+						++offset;
+					}
+
+					io_uring_buf_ring_advance(br, offset);
+
+					if( conn->num_received == MSG_LEN )
+					{
+						if( memcmp(conn->recv_buf, conn->send_buf, MSG_LEN) != 0 )
+						{
+							printf("bad send/recv pair found!!!!!!\n");
+						}
+						else
+						{
+							printf("lmao ur rust sucks dude\n");
+						}
+						++num_completed;
+					}
+
 				}
 				else
 				{
@@ -260,7 +335,7 @@ static int test_tcp_stress(void)
 		for (int i = 0; i < NUM_CONNS; ++i)
 		{
 			conns[i] = make_conn();
-			set_send_buf(&conns[i]);
+			set_conn_bufs(&conns[i]);
 		}
 	}
 
@@ -348,7 +423,7 @@ static int test_tcp_stress(void)
 		for( int i = 0; i < NUM_CONNS; ++i )
 		{
 			struct conn* conn = &conns[i];
-			prep_recv(conn, &ring, i);
+			prep_recv(conn, &ring, i, SERVER_BGID);
 		}
 
 		int num_completed = 0;
@@ -359,6 +434,7 @@ static int test_tcp_stress(void)
 			struct io_uring_cqe *cqe = NULL;
 			unsigned head = 0;
 			int c = 0;
+
 			io_uring_for_each_cqe(&ring, head, cqe)
 			{
 				++c;
@@ -372,8 +448,7 @@ static int test_tcp_stress(void)
 					struct conn* conn = &conns[idx];
 					if( cqe->res == -ENOBUFS )
 					{
-						prep_recv(conn, &ring, idx);
-						io_uring_cq_advance(&ring, c);
+						prep_recv(conn, &ring, idx, SERVER_BGID);
 						continue;
 					}
 
@@ -385,13 +460,13 @@ static int test_tcp_stress(void)
 
 					if( !(cqe->flags & IORING_CQE_F_MORE) )
 					{
-						prep_recv(conn, &ring, idx);
+						prep_recv(conn, &ring, idx, SERVER_BGID);
 					}
 
 					uint16_t bid = cqe->flags >> IORING_CQE_BUFFER_SHIFT;
 
-					int num_received = cqe->res;
 					int offset = 0;
+					int num_received = cqe->res;
 					while( num_received > 0 )
 					{
 						int n = buf_len;
@@ -417,12 +492,43 @@ static int test_tcp_stress(void)
 						++bid;
 						++offset;
 					}
+
 					io_uring_buf_ring_advance(br, offset);
+
 
 					if( conn->num_received == MSG_LEN )
 					{
-						printf("recv loop completed\n");
+						struct io_uring_sqe* sqe = get_sqe(&ring);
+						io_uring_prep_send_zc(sqe, conn->fd, conn->send_buf, MSG_LEN, 0, 0);
+						prep_user_data(sqe, idx, send_op);
+					}
+
+				}
+				else if( op == send_op )
+				{
+					if (cqe->res < 0)
+					{
+						perror("send op");
+						printf("cqe->res: %d\n", cqe->res);
+						return -1;
+					}
+
+					struct conn* conn = &conns[idx];
+					if (conn->num_sent == 0)
+					{
+						conn->num_sent += cqe->res;
+						// printf("(cqe->res => %d, cqe->flags => %d)\n", cqe->res, cqe->flags);
+						if (!(cqe->flags & IORING_CQE_F_MORE))
+						{
+							perror("broken zc send");
+							return -1;
+						}
+					}
+					else
+					{
+						conn->send_done = true;
 						++num_completed;
+						// printf("Send completed for connection %p\n", conn);
 					}
 
 				}
@@ -437,6 +543,7 @@ static int test_tcp_stress(void)
 				}
 			}
 			io_uring_cq_advance(&ring, c);
+
 		}
 	}
 
