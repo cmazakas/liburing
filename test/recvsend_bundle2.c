@@ -27,12 +27,12 @@ struct io_uring_sqe* get_sqe(struct io_uring* ring)
 	return sqe;
 }
 
-#define NUM_CONNS 2000
-#define NUM_BUFS 64
+#define NUM_CONNS 10000
+#define NUM_BUFS 16 * 1024
 #define SERVER_BGID 27
 #define CLIENT_BGID 72
-#define BUF_LEN 64
-#define MSG_LEN 1024
+#define BUF_LEN 8 * 1024
+#define MSG_LEN 256 * 1024
 
 struct conn
 {
@@ -62,9 +62,6 @@ void set_conn_bufs(struct conn* c)
 {
 	c->recv_buf = (char*) malloc(MSG_LEN);
 	c->send_buf = (char*) malloc(MSG_LEN);
-	for (int i = 0; i < MSG_LEN; ++i) {
-		c->send_buf[i] = rand();
-	}
 }
 
 void release_conn(struct conn* c)
@@ -107,6 +104,19 @@ void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16_t bgid
 	prep_user_data(sqe, idx, recv_op);
 }
 
+void prep_send( struct conn* conn, struct io_uring* ring, int idx )
+{
+	size_t n = MSG_LEN - conn->num_sent;
+	if( n > 16 * 1024 )
+	{
+		n = 16 * 1024;
+	}
+
+	struct io_uring_sqe* sqe = get_sqe(ring);
+	io_uring_prep_send_zc(sqe, conn->fd, conn->send_buf + conn->num_sent, n, 0, 0);
+	prep_user_data(sqe, idx, send_op);
+}
+
 static void *stress_send_fn(void* data)
 {
 	struct io_uring_params p = { };
@@ -123,7 +133,7 @@ static void *stress_send_fn(void* data)
 		}
 	}
 
-	p.cq_entries = 4096;
+	p.cq_entries = 64 * 1024;
 	p.flags = IORING_SETUP_CQSIZE;
 	ret = t_create_ring_params(256, &ring, &p);
 	if (ret < 0) {
@@ -177,9 +187,7 @@ static void *stress_send_fn(void* data)
 
 		for (int i = 0; i < NUM_CONNS; ++i)
 		{
-			struct io_uring_sqe* sqe = get_sqe(&ring);
-			io_uring_prep_send_zc(sqe, conns[i].fd, conns[i].send_buf, MSG_LEN, 0, 0);
-			prep_user_data(sqe, i, send_op);
+			prep_send(&conns[i], &ring, i);
 		}
 
 		int num_completed = 0;
@@ -205,16 +213,26 @@ static void *stress_send_fn(void* data)
 					if (cqe->res < 0)
 					{
 						perror("send op");
+						printf("cqe->res: %d\n", cqe->res);
 						return NULL;
 					}
 
-					if (conn->num_sent == 0)
+					struct conn* conn = &conns[idx];
+					if( conn->num_sent < MSG_LEN )
 					{
 						conn->num_sent += cqe->res;
-						// printf("(cqe->res => %d, cqe->flags => %d)\n", cqe->res, cqe->flags);
-						if (!(cqe->flags & IORING_CQE_F_MORE))
+
+						if( cqe->flags & IORING_CQE_F_NOTIF )
+						{
+							prep_send( conn, &ring, idx );
+							continue;
+						}
+
+						// printf("(cqe->res => %d, cqe->flags => %d, total sent: %zu)\n", cqe->res, cqe->flags, conn->num_sent);
+						if ( !(cqe->flags & IORING_CQE_F_MORE) )
 						{
 							perror("broken zc send");
+							printf("cqe->res: %d, total sent: %zu\n", cqe->res, conn->num_sent);
 							return NULL;
 						}
 					}
@@ -282,11 +300,12 @@ static void *stress_send_fn(void* data)
 						if( memcmp(conn->recv_buf, conn->send_buf, MSG_LEN) != 0 )
 						{
 							printf("bad send/recv pair found!!!!!!\n");
+							return NULL;
 						}
-						else
-						{
-							printf("lmao ur rust sucks dude\n");
-						}
+
+						// for( int i = 0; i < MSG_LEN; ++i ) printf("%d, ", (int)conn->recv_buf[i]);
+						// printf("\n");
+
 						++num_completed;
 					}
 
@@ -336,10 +355,14 @@ static int test_tcp_stress(void)
 		{
 			conns[i] = make_conn();
 			set_conn_bufs(&conns[i]);
+			for (int j = 0; j < MSG_LEN; ++j ) {
+				conns[i].send_buf[j] = j & 255;
+			}
+
 		}
 	}
 
-	p.cq_entries = 4096;
+	p.cq_entries = 64 * 1024;
 	p.flags = IORING_SETUP_CQSIZE | IORING_SETUP_SINGLE_ISSUER | IORING_SETUP_DEFER_TASKRUN;
 	ret = t_create_ring_params(256, &ring, &p);
 	if (ret < 0) {
@@ -391,7 +414,7 @@ static int test_tcp_stress(void)
 			goto err;
 		}
 
-		ret = listen(sockfd, 1024);
+		ret = listen(sockfd, 2 * 1024);
 		if (ret < 0) {
 			perror("listen");
 			goto err;
@@ -514,13 +537,25 @@ static int test_tcp_stress(void)
 					}
 
 					struct conn* conn = &conns[idx];
-					if (conn->num_sent == 0)
+
+					// printf("(cqe->res => %d, cqe->flags => %d, total sent: %zu)\n", cqe->res, cqe->flags, conn->num_sent);
+
+					if( conn->num_sent < MSG_LEN )
 					{
 						conn->num_sent += cqe->res;
-						// printf("(cqe->res => %d, cqe->flags => %d)\n", cqe->res, cqe->flags);
-						if (!(cqe->flags & IORING_CQE_F_MORE))
+
+						if( (conn->num_sent < MSG_LEN) && (cqe->flags & IORING_CQE_F_NOTIF) )
+						{
+							prep_send( conn, &ring, idx );
+							continue;
+						}
+
+
+						if ( !(cqe->flags & IORING_CQE_F_MORE) )
 						{
 							perror("broken zc send");
+							printf("cqe->res: %d, total sent: %zu\n", cqe->res, conn->num_sent);
+
 							return -1;
 						}
 					}
