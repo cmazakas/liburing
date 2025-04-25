@@ -81,6 +81,7 @@ fn main() {
         .header("liburing-rs/include/liburing_wrapper.h")
         .anon_fields_prefix("__liburing_anon_")
         .prepend_enum_name(false)
+        .derive_default(true)
         .generate()
         .expect("Unable to generate bindings");
 
