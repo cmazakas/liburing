@@ -33,6 +33,23 @@
 /examples/reg-wait
 /examples/zcrx
 
+/examples/io_uring-close-test-rs
+/examples/io_uring-cp-rs
+/examples/io_uring-test-rs
+/examples/io_uring-udp-rs
+/examples/link-cp-rs
+/examples/napi-busy-poll-client-rs
+/examples/napi-busy-poll-server-rs
+/examples/ucontext-cp-rs
+/examples/poll-bench-rs
+/examples/proxy-rs
+/examples/send-zerocopy-rs
+/examples/rsrc-update-bench-rs
+/examples/kdigest-rs
+/examples/reg-wait-rs
+/examples/zcrx-rs
+/examples/liburing_rs_test.a
+
 /test/*.t
 /test/*.rt
 /test/*.dmesg
