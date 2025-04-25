@@ -1511,7 +1511,7 @@ pub unsafe fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, count: c_int
     let tail = (*br).__liburing_anon_1.__liburing_anon_1.as_ref().tail;
     let new_tail = tail.wrapping_add(count as u16);
 
-    io_uring_smp_store_release(&mut (*br).__liburing_anon_1.__liburing_anon_1.as_mut().tail,
+    io_uring_smp_store_release(&raw mut (*br).__liburing_anon_1.__liburing_anon_1.as_mut().tail,
                                new_tail);
 }
 
