@@ -8,7 +8,7 @@ license = "MIT OR LGPL-2.1-only	"
 repository = "https://github.com/cmazakas/liburing"
 readme = "liburing-rs/README.md"
 keywords = ["io_uring", "liburing", "linux"]
-categories = [ "asynchronous", "network-programming", "filesystem" ]
+categories = ["asynchronous", "network-programming", "filesystem"]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
 include = [
   "/src/arch",
@@ -28,7 +28,7 @@ include = [
   "/liburing-rs/include",
   "/liburing-rs/Cargo.lock",
   "/liburing-rs/build.rs",
-  "/liburing-rs/tests"
+  "/liburing-rs/tests",
 ]
 
 [lib]
@@ -52,6 +52,8 @@ debug = "full"
 [dev-dependencies]
 io-uring = "0.7.4"
 criterion = "0.5.1"
+rand = "0.9.0"
+nix = { version = "0.29.0", features = ["net"] }
 
 [[bench]]
 name = "nop"
