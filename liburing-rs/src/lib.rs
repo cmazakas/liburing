@@ -1560,12 +1560,23 @@ pub unsafe fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 
 impl From<Duration> for timespec
 {
+    #[cfg(not(any(target_arch = "powerpc", target_arch = "arm")))]
     #[inline]
     fn from(duration: Duration) -> Self
     {
         let mut ts = unsafe { zeroed::<timespec>() };
         ts.tv_sec = duration.as_secs() as _;
         ts.tv_nsec = duration.subsec_nanos().into();
+        ts
+    }
+
+    #[cfg(any(target_arch = "powerpc", target_arch = "arm"))]
+    #[inline]
+    fn from(duration: Duration) -> Self
+    {
+        let mut ts = unsafe { zeroed::<timespec>() };
+        ts.tv_sec = duration.as_secs() as _;
+        ts.tv_nsec = duration.subsec_nanos().try_into().unwrap();
         ts
     }
 }
