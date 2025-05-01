@@ -17,7 +17,7 @@
 
 static int use_port = PORT;
 
-struct io_uring_sqe* get_sqe(struct io_uring* ring)
+static struct io_uring_sqe* get_sqe(struct io_uring* ring)
 {
 	struct io_uring_sqe* sqe = io_uring_get_sqe(ring);
 	if(!sqe) {
@@ -44,7 +44,7 @@ struct conn
 	bool send_done;
 };
 
-struct conn make_conn()
+static struct conn make_conn(void)
 {
 	struct conn c =
 	{
@@ -58,13 +58,13 @@ struct conn make_conn()
 	return c;
 }
 
-void set_conn_bufs(struct conn* c)
+static void set_conn_bufs(struct conn* c)
 {
 	c->recv_buf = (char*) malloc(MSG_LEN);
 	c->send_buf = (char*) malloc(MSG_LEN);
 }
 
-void release_conn(struct conn* c)
+static void release_conn(struct conn* c)
 {
 	close(c->fd);
 	free(c->send_buf);
@@ -73,19 +73,19 @@ void release_conn(struct conn* c)
 
 enum op_type { send_op = 1, recv_op };
 
-void prep_user_data(struct io_uring_sqe* sqe, int idx, enum op_type op)
+static void prep_user_data(struct io_uring_sqe* sqe, int idx, enum op_type op)
 {
 	__u64 user_data = (__u64) idx | ((__u64) op << 32 );
 	// printf("prep_user_data => %llu\n", user_data);
 	io_uring_sqe_set_data64(sqe, user_data);
 }
 
-int user_data_to_idx(__u64 user_data)
+static int user_data_to_idx(__u64 user_data)
 {
 	return user_data & 0xffffffff;
 }
 
-enum op_type user_data_to_op(__u64 user_data)
+static enum op_type user_data_to_op(__u64 user_data)
 {
 	// printf("user_data_to_op => %llu\n", user_data);
 	enum op_type op = user_data >> 32;
@@ -93,7 +93,7 @@ enum op_type user_data_to_op(__u64 user_data)
 	return op;
 }
 
-void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16_t bgid)
+static void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16_t bgid)
 {
 	struct io_uring_sqe* sqe = get_sqe(ring);
 	io_uring_prep_recv_multishot(sqe, conn->fd, NULL, 0, 0);
@@ -104,7 +104,7 @@ void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16_t bgid
 	prep_user_data(sqe, idx, recv_op);
 }
 
-void prep_send( struct conn* conn, struct io_uring* ring, int idx )
+static void prep_send( struct conn* conn, struct io_uring* ring, int idx )
 {
 	size_t n = MSG_LEN - conn->num_sent;
 	if( n > 16 * 1024 )
