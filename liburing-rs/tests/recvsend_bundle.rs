@@ -11,7 +11,7 @@ use std::{
     net::{Ipv4Addr, SocketAddrV4},
     os::fd::AsRawFd,
     ptr::null_mut,
-    rc::Rc,
+    rc::Rc, time::Instant,
 };
 
 use liburing_rs::{
@@ -35,12 +35,12 @@ use nix::{
 };
 use rand::Fill;
 
-const NUM_CONNS: u32 = 500;
-const NUM_BUFS: u32 = 64;
-const BUF_LEN: usize = 64;
+const NUM_CONNS: u32 = 20000;
+const NUM_BUFS: u32 = 32 * 1024;
+const BUF_LEN: usize = 4096;
 const SERVER_BGID: i32 = 27;
 const CLIENT_BGID: i32 = 72;
-const MSG_LEN: usize = 1024;
+const MSG_LEN: usize = 256 * 1024;
 
 const PORT: u16 = 10202;
 
@@ -471,6 +471,8 @@ fn client_thread(mut send_bufs: Vec<Vec<u8>>)
 
     ex.register_buf_ring(NUM_BUFS, BUF_LEN, bgid);
 
+    let start_time = Instant::now();
+
     let mut conns = Vec::<Conn>::new();
     for idx in 0..NUM_CONNS {
         let fd = socket(Inet, Stream, SockFlag::empty(), None).unwrap();
@@ -614,4 +616,6 @@ fn client_thread(mut send_bufs: Vec<Vec<u8>>)
     for conn in &conns {
         unsafe { close(conn.fd) };
     }
+
+    println!("completed client loop in: {:?}", start_time.elapsed());
 }
