@@ -27,12 +27,12 @@ static struct io_uring_sqe* get_sqe(struct io_uring* ring)
 	return sqe;
 }
 
-#define NUM_CONNS 10000
-#define NUM_BUFS 16 * 1024
+#define NUM_CONNS 500
 #define SERVER_BGID 27
 #define CLIENT_BGID 72
-#define BUF_LEN 8 * 1024
-#define MSG_LEN 256 * 1024
+#define NUM_BUFS 128
+#define BUF_LEN 128
+#define MSG_LEN 16 * 1024
 
 struct conn
 {
@@ -98,8 +98,8 @@ static void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16
 	struct io_uring_sqe* sqe = get_sqe(ring);
 	io_uring_prep_recv_multishot(sqe, conn->fd, NULL, 0, 0);
 	io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
-	sqe->buf_group = bgid;
-	sqe->ioprio = IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE;
+	io_uring_sqe_set_buf_group(sqe, bgid);
+	sqe->ioprio |= IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE;
 
 	prep_user_data(sqe, idx, recv_op);
 }
@@ -107,6 +107,12 @@ static void prep_recv( struct conn* conn, struct io_uring* ring, int idx, uint16
 static void prep_send( struct conn* conn, struct io_uring* ring, int idx )
 {
 	size_t n = MSG_LEN - conn->num_sent;
+
+	if( conn->num_sent == 0 )
+	{
+		n = 23;
+	}
+
 	if( n > 16 * 1024 )
 	{
 		n = 16 * 1024;
@@ -267,6 +273,9 @@ static void *stress_send_fn(void* data)
 
 					int offset = 0;
 					int num_received = cqe->res;
+
+					printf("received: %d\n", num_received);
+
 					while( num_received > 0 )
 					{
 						int n = buf_len;
@@ -289,7 +298,8 @@ static void *stress_send_fn(void* data)
 
 						bufs[bid] = buf;
 
-						++bid;
+						// ++bid;
+						bid = (bid + 1) & io_uring_buf_ring_mask(num_bufs);
 						++offset;
 					}
 
@@ -301,6 +311,9 @@ static void *stress_send_fn(void* data)
 						{
 							printf("bad send/recv pair found!!!!!!\n");
 							return NULL;
+						} else
+						{
+							// printf("buffers matched perfectly, sorry\n");
 						}
 
 						// for( int i = 0; i < MSG_LEN; ++i ) printf("%d, ", (int)conn->recv_buf[i]);
@@ -512,7 +525,8 @@ static int test_tcp_stress(void)
 
 						bufs[bid] = buf;
 
-						++bid;
+						// ++bid;
+						bid = (bid + 1) & io_uring_buf_ring_mask(num_bufs);
 						++offset;
 					}
 
