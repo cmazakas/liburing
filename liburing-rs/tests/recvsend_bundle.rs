@@ -11,7 +11,8 @@ use std::{
     net::{Ipv4Addr, SocketAddrV4},
     os::fd::AsRawFd,
     ptr::null_mut,
-    rc::Rc, time::Instant,
+    rc::Rc,
+    time::Instant,
 };
 
 use liburing_rs::{
@@ -21,8 +22,8 @@ use liburing_rs::{
     io_uring_buf_ring_add, io_uring_buf_ring_advance, io_uring_buf_ring_mask, io_uring_cq_advance,
     io_uring_cqe, io_uring_cqe_get_data64, io_uring_for_each_cqe, io_uring_get_sqe,
     io_uring_params, io_uring_prep_recv_multishot, io_uring_prep_send_zc, io_uring_queue_exit,
-    io_uring_queue_init_params, io_uring_setup_buf_ring, io_uring_sqe, io_uring_sqe_set_data64,
-    io_uring_sqe_set_flags, io_uring_submit, io_uring_submit_and_wait,
+    io_uring_queue_init_params, io_uring_setup_buf_ring, io_uring_sqe, io_uring_sqe_set_buf_group,
+    io_uring_sqe_set_data64, io_uring_sqe_set_flags, io_uring_submit, io_uring_submit_and_wait,
     io_uring_unregister_buf_ring,
 };
 
@@ -35,12 +36,12 @@ use nix::{
 };
 use rand::Fill;
 
-const NUM_CONNS: u32 = 20000;
-const NUM_BUFS: u32 = 32 * 1024;
-const BUF_LEN: usize = 4096;
+const NUM_CONNS: u32 = 500;
+const NUM_BUFS: u32 = 128;
+const BUF_LEN: usize = 128;
 const SERVER_BGID: i32 = 27;
 const CLIENT_BGID: i32 = 72;
-const MSG_LEN: usize = 256 * 1024;
+const MSG_LEN: usize = 16 * 1024;
 
 const PORT: u16 = 10202;
 
@@ -251,6 +252,11 @@ fn user_data_to_op(user_data: u64) -> OpType
 fn prep_send(conn: &Conn, ex: Executor, idx: u32)
 {
     let mut n = MSG_LEN - conn.num_sent;
+
+    if conn.num_sent == 0 {
+        n = 23;
+    }
+
     if n > 16 * 1024 {
         n = 16 * 1024;
     }
@@ -271,10 +277,12 @@ fn prep_send(conn: &Conn, ex: Executor, idx: u32)
 fn prep_recv(conn: &Conn, ex: Executor, idx: u32, bgid: u16)
 {
     let sqe = get_sqe(ex);
+    let ioprio = u16::try_from(IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE).unwrap();
+
     unsafe { io_uring_prep_recv_multishot(sqe, conn.fd, null_mut(), 0, 0) };
     unsafe { io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT) };
-    unsafe { (*sqe).__liburing_anon_4.buf_group = bgid };
-    unsafe { (*sqe).ioprio = (IORING_RECVSEND_POLL_FIRST | IORING_RECVSEND_BUNDLE) as u16 };
+    unsafe { io_uring_sqe_set_buf_group(sqe, bgid as _) };
+    unsafe { (*sqe).ioprio |= ioprio };
 
     unsafe { prep_user_data(sqe, idx as _, OpType::RecvOp) };
 }
@@ -375,6 +383,8 @@ fn test_tcp_stress_send()
                     let mut offset = 0;
                     let mut num_received = cqe_res as usize;
 
+                    // println!("received: {num_received} bytes from the peer");
+
                     let buf_rings = unsafe { &mut (*ex.pframe.get()).buf_rings };
                     let buf_ring = buf_rings.get_mut(&(bgid as _)).unwrap();
                     let buf_len = buf_ring.buf_len;
@@ -414,7 +424,7 @@ fn test_tcp_stress_send()
                         num_received -= n;
                         conn.num_received += n;
 
-                        bid += 1;
+                        bid = (bid + 1) & io_uring_buf_ring_mask(buf_ring.num_bufs) as u32;
                         offset += 1;
                     }
 
@@ -559,6 +569,10 @@ fn client_thread(mut send_bufs: Vec<Vec<u8>>)
                     let buf_rings = unsafe { &mut (*ex.pframe.get()).buf_rings };
                     let buf_ring = buf_rings.get_mut(&(bgid as _)).unwrap();
 
+                    let mut printstr = String::new();
+
+                    // println!("received: {num_received} bytes from the peer");
+
                     while num_received > 0 {
                         let mut n = BUF_LEN;
                         if num_received < BUF_LEN {
@@ -580,6 +594,9 @@ fn client_thread(mut send_bufs: Vec<Vec<u8>>)
 
                         let mut new_buf = Vec::<u8>::with_capacity(BUF_LEN);
 
+                        let s = format!("adding bid {bid}\n");
+                        printstr += &s;
+
                         unsafe {
                             io_uring_buf_ring_add(buf_ring.br,
                                                   new_buf.as_mut_ptr().cast(),
@@ -594,11 +611,16 @@ fn client_thread(mut send_bufs: Vec<Vec<u8>>)
                         num_received -= n;
                         conn.num_received += n;
 
-                        bid += 1;
+                        // bid += 1;
+                        bid = (bid + 1) & io_uring_buf_ring_mask(buf_ring.num_bufs) as u32;
                         offset += 1;
                     }
 
+                    printstr += &format!("going to advance the buf ring by {offset} bufs");
+
                     unsafe { io_uring_buf_ring_advance(buf_ring.br, offset) };
+
+                    println!("{printstr}");
 
                     if conn.num_received == MSG_LEN {
                         assert!(conn.recv_buf == conn.send_buf);
