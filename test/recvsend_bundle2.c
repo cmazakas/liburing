@@ -274,7 +274,7 @@ static void *stress_send_fn(void* data)
 					int offset = 0;
 					int num_received = cqe->res;
 
-					printf("received: %d\n", num_received);
+					// printf("received: %d\n", num_received);
 
 					while( num_received > 0 )
 					{
