@@ -1,5 +1,13 @@
 # axboe-liburing
 
+Building this crate successfully may require the following in your `.cargo/config.toml`:
+
+```toml
+[env]
+CLANG_PATH = "/usr/bin/clang-20"
+LIBCLANG_PATH = "/usr/lib/llvm-20/lib"
+```
+
 This crate implements an almost pure Rust version of Jens Axboe's [liburing](https://github.com/axboe/liburing).
 All the good names were taken so the package's name is axboe-liburing but the imported crate is `liburing_rs`.
 
