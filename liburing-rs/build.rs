@@ -76,8 +76,7 @@ fn main() {
 
     let bindings = bindgen::Builder::default()
         .clang_arg(format!("-I{}/src/include", out_path.to_str().unwrap()))
-        .clang_arg("-std=c11")
-        .clang_arg("-D_POSIX_C_SOURCE=200809L")
+        .clang_arg("-std=gnu11")
         .header("liburing-rs/include/liburing_wrapper.h")
         .anon_fields_prefix("__liburing_anon_")
         .prepend_enum_name(false)
