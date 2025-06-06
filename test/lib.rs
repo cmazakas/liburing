@@ -5,7 +5,7 @@ extern crate liburing_rs;
 pub use liburing_rs::{
     __kernel_timespec, AT_FDCWD, cmsghdr, epoll_event, futex_waitv, id_t, idtype_t, io_uring, io_uring_buf_ring,
     io_uring_cqe, io_uring_cqe_iter, io_uring_probe, io_uring_recvmsg_out, io_uring_sqe, iovec, mode_t, msghdr,
-    open_how, siginfo_t, sockaddr, socklen_t, statx,
+    open_how, siginfo_t, sockaddr, socklen_t, statx, off_t,
 };
 
 use std::os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void};
@@ -394,14 +394,14 @@ pub unsafe extern "C" fn io_uring_prep_madvise(sqe: *mut io_uring_sqe, addr: *mu
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_prep_fadvise64(
-    sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32, advice: c_int,
+    sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: off_t, advice: c_int,
 ) {
     liburing_rs::io_uring_prep_fadvise64(sqe, fd, offset, len, advice)
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_prep_madvise64(
-    sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32, advice: c_int,
+    sqe: *mut io_uring_sqe, addr: *mut c_void, length: off_t, advice: c_int,
 ) {
     liburing_rs::io_uring_prep_madvise64(sqe, addr, length, advice)
 }
