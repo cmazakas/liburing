@@ -675,19 +675,19 @@ pub unsafe fn io_uring_prep_madvise(sqe: *mut io_uring_sqe, addr: *mut c_void, l
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_fadvise64(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: u32,
+pub unsafe fn io_uring_prep_fadvise64(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, len: off_t,
                                       advice: c_int)
 {
     io_uring_prep_rw(IORING_OP_FADVISE, sqe, fd, ptr::null_mut(), 0, offset);
-    (*sqe).__liburing_anon_2.addr = len.into();
+    (*sqe).__liburing_anon_2.addr = len as _;
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_madvise64(sqe: *mut io_uring_sqe, addr: *mut c_void, length: u32,
+pub unsafe fn io_uring_prep_madvise64(sqe: *mut io_uring_sqe, addr: *mut c_void, length: off_t,
                                       advice: c_int)
 {
-    io_uring_prep_rw(IORING_OP_MADVISE, sqe, -1, addr, 0, length.into());
+    io_uring_prep_rw(IORING_OP_MADVISE, sqe, -1, addr, 0, length as _);
     (*sqe).__liburing_anon_3.fadvise_advice = advice as u32;
 }
 
