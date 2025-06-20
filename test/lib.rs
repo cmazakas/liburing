@@ -11,6 +11,11 @@ pub use liburing_rs::{
 use std::os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void};
 
 #[unsafe(no_mangle)]
+pub unsafe extern "C" fn uring_ptr_to_u64(p: *const c_void) -> u64 {
+    liburing_rs::uring_ptr_to_u64(p)
+}
+
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int {
     liburing_rs::io_uring_opcode_supported(p, op)
 }
