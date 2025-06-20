@@ -81,6 +81,17 @@ unsafe fn IO_URING_WRITE_ONCE<T: Atomic>(var: *mut T, val: T)
     Atomic::store(var, val, Relaxed);
 }
 
+/*
+ * Library interface
+ */
+
+#[must_use]
+#[inline]
+pub unsafe fn uring_ptr_to_u64(ptr: *const c_void) -> u64
+{
+    ptr as u64
+}
+
 #[inline]
 pub unsafe fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int
 {
@@ -469,7 +480,7 @@ pub unsafe fn io_uring_prep_timeout_update(sqe: *mut io_uring_sqe, ts: *mut __ke
 pub unsafe fn io_uring_prep_accept(sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr,
                                    addrlen: *mut socklen_t, flags: c_int)
 {
-    io_uring_prep_rw(IORING_OP_ACCEPT, sqe, fd, addr.cast(), 0, addrlen as u64);
+    io_uring_prep_rw(IORING_OP_ACCEPT, sqe, fd, addr.cast(), 0, uring_ptr_to_u64(addrlen.cast()));
     (*sqe).__liburing_anon_3.accept_flags = flags as u32;
 }
 
@@ -654,7 +665,12 @@ pub unsafe fn io_uring_prep_write(sqe: *mut io_uring_sqe, fd: c_int, buf: *const
 pub unsafe fn io_uring_prep_statx(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char,
                                   flags: c_int, mask: c_uint, statxbuf: *mut statx)
 {
-    io_uring_prep_rw(IORING_OP_STATX, sqe, dfd, path.cast(), mask, statxbuf as u64);
+    io_uring_prep_rw(IORING_OP_STATX,
+                     sqe,
+                     dfd,
+                     path.cast(),
+                     mask,
+                     uring_ptr_to_u64(statxbuf.cast()));
     (*sqe).__liburing_anon_3.statx_flags = flags as u32;
 }
 
