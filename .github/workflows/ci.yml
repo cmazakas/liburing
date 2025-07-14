@@ -253,6 +253,9 @@ jobs:
       matrix:
         commit: ${{ fromJson(needs.get_commit_list.outputs.commit_list) }}
 
+    env:
+      CARGO_TOOLCHAIN: x86_64-unknown-linux-musl
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -277,17 +280,43 @@ jobs:
         run: |
           apk add --no-cache build-base musl-dev linux-headers;
 
+      - name: Install liburing-rs build dependencies
+        shell: alpine.sh --root {0}
+        run: |
+          apk add --no-cache curl clang;
+
+      - name: Install Rust
+        shell: alpine.sh {0}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain none -y;
+          . "$HOME/.cargo/env";
+          rustup update;
+          rustup update nightly;
+          rustup target add x86_64-unknown-linux-musl --toolchain stable;
+          rustup target add x86_64-unknown-linux-musl --toolchain nightly;
+          rustup component add rust-src --toolchain nightly --target x86_64-unknown-linux-musl;
+
       - name: Build
         shell: alpine.sh {0}
         run: |
           ./configure --cc=gcc --cxx=g++;
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
 
+      - name: Build liburing-rs
+        shell: alpine.sh {0}
+        run: |
+          cargo build --target x86_64-unknown-linux-musl;
+          make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
+
       - name: Test install command
         shell: alpine.sh --root {0}
         run: |
           make install;
 
+      - name: Test crate packaging
+        shell: alpine.sh {0}
+        run: |
+           cargo package --target x86_64-unknown-linux-musl;
 
   codespell:
     needs: get_commit_list
