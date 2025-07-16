@@ -1395,7 +1395,12 @@ pub unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uri
 
     loop {
         let tail = io_uring_smp_load_acquire((*ring).cq.ktail);
-        let head = *(*ring).cq.khead;
+
+        /*
+         * A load_acquire on the head prevents reordering with the
+         * cqe load below, ensuring that we see the correct cq entry.
+         */
+        let head = io_uring_smp_load_acquire((*ring).cq.khead);
 
         cqe = ptr::null_mut();
         available = tail - head;
