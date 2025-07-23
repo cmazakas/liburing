@@ -20,7 +20,7 @@ jobs:
           git config core.abbrev 12;
           ( \
             ( \
-              git log -n 1 --pretty="%h" --reverse ${{github.event.commits[0].id}}^...${{github.sha}} || \
+              git log --pretty="%h" --reverse ${{github.event.commits[0].id}}^...${{github.sha}} || \
               (printf "%s" ${{github.sha}} | head -c 12) \
             ) | awk '{ print "id" NR "=" $1 }' \
           ) > $GITHUB_OUTPUT;
