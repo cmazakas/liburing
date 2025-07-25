@@ -855,6 +855,19 @@ pub unsafe extern "C" fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c
 }
 
 #[unsafe(no_mangle)]
+pub unsafe fn io_uring_prep_pipe(sqe: *mut io_uring_sqe, fds: *mut c_int, pipe_flags: c_int)
+{
+    liburing_rs::io_uring_prep_pipe(sqe, fds, pipe_flags);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe fn io_uring_prep_pipe_direct(sqe: *mut io_uring_sqe, fds: *mut c_int,
+                                        pipe_flags: c_int, file_index: c_uint)
+{
+    liburing_rs::io_uring_prep_pipe_direct(sqe, fds, pipe_flags, file_index);
+}
+
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint
 {
     liburing_rs::io_uring_load_sq_head(ring)

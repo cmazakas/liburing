@@ -1231,6 +1231,26 @@ pub unsafe fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c_int, offse
     (*sqe).__liburing_anon_6.__liburing_anon_1.as_mut().addr3 = nbytes;
 }
 
+#[inline]
+pub unsafe fn io_uring_prep_pipe(sqe: *mut io_uring_sqe, fds: *mut c_int, pipe_flags: c_int)
+{
+    io_uring_prep_rw(IORING_OP_PIPE, sqe, 0, fds as *const _, 0, 0);
+    (*sqe).__liburing_anon_3.pipe_flags = pipe_flags as u32;
+}
+
+/* setup pipe directly into the fixed file table */
+#[inline]
+pub unsafe fn io_uring_prep_pipe_direct(sqe: *mut io_uring_sqe, fds: *mut c_int,
+                                        pipe_flags: c_int, mut file_index: c_uint)
+{
+    io_uring_prep_pipe(sqe, fds, pipe_flags);
+    /* offset by 1 for allocation */
+    if file_index == IORING_FILE_INDEX_ALLOC as u32 {
+        file_index -= 1;
+    }
+    __io_uring_set_target_fixed_file(sqe, file_index);
+}
+
 /* Read the kernel's SQ head index with appropriate memory ordering */
 #[inline]
 pub unsafe fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint

@@ -844,6 +844,14 @@ IOURINGINLINE void io_uring_prep_cmd_discard(struct io_uring_sqe *sqe,
 					     int fd,
 					     uint64_t offset, uint64_t nbytes);
 
+IOURINGINLINE void io_uring_prep_pipe(struct io_uring_sqe *sqe, int *fds,
+				      int pipe_flags);
+
+/* setup pipe directly into the fixed file table */
+IOURINGINLINE void io_uring_prep_pipe_direct(struct io_uring_sqe *sqe, int *fds,
+					     int pipe_flags,
+					     unsigned int file_index);
+
 /* Read the kernel's SQ head index with appropriate memory ordering */
 IOURINGINLINE unsigned io_uring_load_sq_head(const struct io_uring *ring);
 
