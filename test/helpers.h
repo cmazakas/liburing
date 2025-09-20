@@ -122,6 +122,20 @@ unsigned long long mtime_since_now(struct timeval *tv);
 unsigned long long utime_since(const struct timeval *s, const struct timeval *e);
 unsigned long long utime_since_now(struct timeval *tv);
 
+int t_submit_and_wait_single(struct io_uring *ring, struct io_uring_cqe **cqe);
+
+size_t t_iovec_data_length(struct iovec *iov, unsigned iov_len);
+
+unsigned long t_compare_data_iovec(struct iovec *iov_src, unsigned nr_src,
+				   struct iovec *iov_dst, unsigned nr_dst);
+
+static inline void t_sqe_prep_cmd(struct io_uring_sqe *sqe,
+				  int fd, unsigned cmd_op)
+{
+	io_uring_prep_rw(IORING_OP_URING_CMD, sqe, fd, NULL, 0, 0);
+	sqe->cmd_op = cmd_op;
+}
+
 #ifdef __cplusplus
 }
 #endif

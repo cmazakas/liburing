@@ -99,6 +99,7 @@ test_srcs := \
 	fdinfo.c \
 	fdinfo-sqpoll.c \
 	fifo-nonblock-read.c \
+	fifo-futex-poll.c \
 	file-exit-unreg.c \
 	file-register.c \
 	files-exit-hang-poll.c \
@@ -148,6 +149,8 @@ test_srcs := \
 	no-mmap-inval.c \
 	nop-all-sizes.c \
 	nop.c \
+	nop32.c \
+	nop32-overflow.c \
 	ooo-file-unreg.c \
 	openat2.c \
 	open-close.c \
@@ -193,6 +196,7 @@ test_srcs := \
 	register-restrictions.c \
 	rename.c \
 	resize-rings.c \
+	ringbuf-loop.c \
 	ringbuf-read.c \
 	ringbuf-status.c \
 	ring-leak2.c \
@@ -256,6 +260,8 @@ test_srcs := \
 	zcrx.c \
 	vec-regbuf.c \
 	timestamp.c \
+	ring-query.c \
+	mock_file.c \
 	# EOL
 
 # Please keep this list sorted alphabetically.
