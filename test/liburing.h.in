@@ -16,8 +16,8 @@
 #include <sys/wait.h>
 #include "liburing/compat.h"
 #include "liburing/io_uring.h"
+#include "liburing/io_uring/query.h"
 #include "liburing/io_uring_version.h"
-#include "liburing/barrier.h"
 
 #define IOURINGINLINE
 
@@ -28,6 +28,19 @@
 #ifndef uring_likely
 #define uring_likely(cond)	__builtin_expect(!!(cond), 1)
 #endif
+
+#ifndef _LOCAL_INLINE
+#if defined(__cplusplus) && __cplusplus >= 202002L
+#define _LOCAL_INLINE inline
+#else
+#define _LOCAL_INLINE static inline
+#endif
+#endif
+
+/*
+ * barrier.h needs _LOCAL_INLINE.
+ */
+#include "liburing/barrier.h"
 
 #ifdef __alpha__
 /*
@@ -330,6 +343,8 @@ int io_uring_set_iowait(struct io_uring *ring, bool enable_iowait);
 IOURINGINLINE unsigned io_uring_cqe_shift_from_flags(unsigned flags);
 
 IOURINGINLINE unsigned io_uring_cqe_shift(const struct io_uring *ring);
+
+IOURINGINLINE unsigned io_uring_cqe_nr(const struct io_uring_cqe *cqe);
 
 struct io_uring_cqe_iter {
 	struct io_uring_cqe *cqes;

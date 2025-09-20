@@ -120,6 +120,14 @@ pub unsafe fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint
     io_uring_cqe_shift_from_flags((*ring).flags)
 }
 
+#[must_use]
+#[inline]
+pub unsafe fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
+{
+    let shift = i32::from((*cqe).flags & IORING_CQE_F_32 > 0);
+    1 << shift
+}
+
 #[inline]
 pub unsafe fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter
 {
@@ -144,6 +152,10 @@ pub unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mu
 
     let offset = (head & (*iter).mask) << (*iter).shift;
     *cqe = (*iter).cqes.add(offset as usize);
+
+    if (*(*cqe)).flags & IORING_CQE_F_32 > 0 {
+        (*iter).head += 1;
+    }
 
     true
 }
@@ -183,7 +195,7 @@ pub unsafe fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint)
 pub unsafe fn io_uring_cqe_seen(ring: *mut io_uring, cqe: *mut io_uring_cqe)
 {
     if !cqe.is_null() {
-        io_uring_cq_advance(ring, 1);
+        io_uring_cq_advance(ring, io_uring_cqe_nr(cqe));
     }
 }
 
@@ -1396,6 +1408,32 @@ pub unsafe fn io_uring_wait_cqe_nr(ring: *mut io_uring, cqe_ptr: *mut *mut io_ur
     __io_uring_get_cqe(ring, cqe_ptr, 0, wait_nr, ptr::null_mut())
 }
 
+#[inline]
+unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *mut c_int)
+                                -> bool
+{
+    'out: {
+        if (*cqe).flags & IORING_CQE_F_SKIP != 0 {
+            break 'out;
+        }
+
+        if (*ring).features & IORING_FEAT_EXT_ARG != 0 {
+            return false;
+        }
+
+        if (*cqe).user_data != LIBURING_UDATA_TIMEOUT {
+            return false;
+        }
+
+        if (*cqe).res < 0 {
+            *err = (*cqe).res;
+        }
+    }
+
+    io_uring_cq_advance(ring, io_uring_cqe_nr(cqe));
+    *err != 0
+}
+
 /*
  * Internal helper, don't use directly in applications. Use one of the
  * "official" versions of this, io_uring_peek_cqe(), io_uring_wait_cqe(),
@@ -1429,20 +1467,9 @@ pub unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uri
         }
 
         cqe = &raw mut *(*ring).cq.cqes.add(((head & mask) << shift) as usize);
-        if ((*ring).features & IORING_FEAT_EXT_ARG) == 0
-           && (*cqe).user_data == LIBURING_UDATA_TIMEOUT
-        {
-            if (*cqe).res < 0 {
-                err = (*cqe).res;
-            }
-            io_uring_cq_advance(ring, 1);
-            if err == 0 {
-                continue;
-            }
-            cqe = ptr::null_mut();
+        if !io_uring_skip_cqe(ring, cqe, &raw mut err) {
+            break;
         }
-
-        break;
     }
 
     *cqe_ptr = cqe;

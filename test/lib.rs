@@ -31,8 +31,15 @@ pub unsafe extern "C" fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint
 {
-    liburing_rs::io_uring_cqe_shift_from_flags((*ring).flags)
+    liburing_rs::io_uring_cqe_shift(ring)
 }
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
+{
+    liburing_rs::io_uring_cqe_nr(cqe)
+}
+
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter
