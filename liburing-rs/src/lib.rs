@@ -87,7 +87,7 @@ unsafe fn IO_URING_WRITE_ONCE<T: Atomic>(var: *mut T, val: T)
 
 #[must_use]
 #[inline]
-pub unsafe fn uring_ptr_to_u64(ptr: *const c_void) -> u64
+unsafe fn uring_ptr_to_u64(ptr: *const c_void) -> u64
 {
     ptr as u64
 }
@@ -114,8 +114,9 @@ pub fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint
     u32::from(flags & IORING_SETUP_CQE32 != 0)
 }
 
+#[must_use]
 #[inline]
-pub unsafe fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint
+pub unsafe fn io_uring_cqe_shift(ring: *const io_uring) -> c_uint
 {
     io_uring_cqe_shift_from_flags((*ring).flags)
 }
@@ -124,12 +125,12 @@ pub unsafe fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint
 #[inline]
 pub unsafe fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
 {
-    let shift = i32::from((*cqe).flags & IORING_CQE_F_32 > 0);
+    let shift = i32::from((*cqe).flags & IORING_CQE_F_32 != 0);
     1 << shift
 }
 
 #[inline]
-pub unsafe fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter
+unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
 {
     io_uring_cqe_iter { cqes: (*ring).cq.cqes,
                         mask: (*ring).cq.ring_mask,
@@ -140,8 +141,8 @@ pub unsafe fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter
 }
 
 #[inline]
-pub unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe)
-                                     -> bool
+unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe)
+                                 -> bool
 {
     if (*iter).head == (*iter).tail {
         return false;
@@ -251,7 +252,7 @@ pub unsafe fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int)
 }
 
 #[inline]
-pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
+unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
 {
     /* 0 means no fixed files, indexes should be encoded as "index + 1" */
     (*sqe).__liburing_anon_5.file_index = file_index + 1;
@@ -1409,8 +1410,7 @@ pub unsafe fn io_uring_wait_cqe_nr(ring: *mut io_uring, cqe_ptr: *mut *mut io_ur
 }
 
 #[inline]
-unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *mut c_int)
-                                -> bool
+unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *mut c_int) -> bool
 {
     'out: {
         if (*cqe).flags & IORING_CQE_F_SKIP != 0 {
@@ -1440,9 +1440,9 @@ unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *m
  * or io_uring_wait_cqes*().
  */
 #[inline]
-pub unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe,
-                                  nr_available: *mut c_uint)
-                                  -> c_int
+unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe,
+                              nr_available: *mut c_uint)
+                              -> c_int
 {
     let mut cqe;
     let mut err = 0;
@@ -1515,7 +1515,7 @@ pub unsafe fn io_uring_wait_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring
  * Returns a vacant sqe, or NULL if we're full.
  */
 #[inline]
-pub unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
+unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
     let sq = &raw mut (*ring).sq;
 
@@ -1584,8 +1584,8 @@ pub unsafe fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, count: c_int
 }
 
 #[inline]
-pub unsafe fn __io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_buf_ring,
-                                             cq_count: i32, buf_count: c_int)
+unsafe fn __io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_buf_ring,
+                                         cq_count: i32, buf_count: c_int)
 {
     io_uring_buf_ring_advance(br, buf_count);
     io_uring_cq_advance(ring, cq_count as _);

@@ -11,12 +11,6 @@ pub use liburing_rs::{
 use std::os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void};
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn uring_ptr_to_u64(p: *const c_void) -> u64
-{
-    liburing_rs::uring_ptr_to_u64(p)
-}
-
-#[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int
 {
     liburing_rs::io_uring_opcode_supported(p, op)
@@ -38,21 +32,6 @@ pub unsafe extern "C" fn io_uring_cqe_shift(ring: *mut io_uring) -> c_uint
 pub unsafe extern "C" fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
 {
     liburing_rs::io_uring_cqe_nr(cqe)
-}
-
-
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn io_uring_cqe_iter_init(ring: *mut io_uring) -> io_uring_cqe_iter
-{
-    liburing_rs::io_uring_cqe_iter_init(ring)
-}
-
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter,
-                                                cqe: *mut *mut io_uring_cqe)
-                                                -> bool
-{
-    liburing_rs::io_uring_cqe_iter_next(iter, cqe)
 }
 
 #[unsafe(no_mangle)]
@@ -101,12 +80,6 @@ pub unsafe extern "C" fn io_uring_sqe_set_flags(sqe: *mut io_uring_sqe, flags: c
 pub unsafe extern "C" fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int)
 {
     liburing_rs::io_uring_sqe_set_buf_group(sqe, bgid)
-}
-
-#[unsafe(no_mangle)]
-pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
-{
-    liburing_rs::__io_uring_set_target_fixed_file(sqe, file_index)
 }
 
 #[unsafe(no_mangle)]
