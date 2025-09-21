@@ -19,6 +19,7 @@ include = [
   "/src/include/liburing/barrier.h",
   "/src/include/liburing/io_uring.h",
   "/src/include/liburing/sanitize.h",
+  "/src/include/liburing/io_uring/query.h",
   "/src/Makefile*",
   "/Makefile*",
   "configure",
