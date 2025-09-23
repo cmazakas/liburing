@@ -567,7 +567,7 @@ pub unsafe fn io_uring_prep_connect(sqe: *mut io_uring_sqe, fd: c_int, addr: *co
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_bind(sqe: *mut io_uring_sqe, fd: c_int, addr: *mut sockaddr,
+pub unsafe fn io_uring_prep_bind(sqe: *mut io_uring_sqe, fd: c_int, addr: *const sockaddr,
                                  addrlen: socklen_t)
 {
     io_uring_prep_rw(IORING_OP_BIND, sqe, fd, addr.cast(), 0, addrlen.into());
