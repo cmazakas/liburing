@@ -240,7 +240,7 @@ jobs:
       - name: Build liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
         run: |
-          RUSTFLANGS="-Zbuild-std" CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
+          RUSTFLAGS="-Zbuild-std" CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
 
       - name: Build liburing_rs_tests
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
