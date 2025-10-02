@@ -518,6 +518,7 @@ IOURINGINLINE void io_uring_sqe_set_data(struct io_uring_sqe *sqe, void *data)
 }
 
 IOURINGINLINE void *io_uring_cqe_get_data(const struct io_uring_cqe *cqe)
+	LIBURING_NOEXCEPT
 {
 	return (void *) (uintptr_t) cqe->user_data;
 }
@@ -800,7 +801,7 @@ IOURINGINLINE void io_uring_prep_nop(struct io_uring_sqe *sqe)
 }
 
 IOURINGINLINE void io_uring_prep_timeout(struct io_uring_sqe *sqe,
-					 struct __kernel_timespec *ts,
+					 const struct __kernel_timespec *ts,
 					 unsigned count, unsigned flags)
 	LIBURING_NOEXCEPT
 {
@@ -818,7 +819,7 @@ IOURINGINLINE void io_uring_prep_timeout_remove(struct io_uring_sqe *sqe,
 }
 
 IOURINGINLINE void io_uring_prep_timeout_update(struct io_uring_sqe *sqe,
-						struct __kernel_timespec *ts,
+						const struct __kernel_timespec *ts,
 						__u64 user_data, unsigned flags)
 	LIBURING_NOEXCEPT
 {
@@ -883,7 +884,7 @@ IOURINGINLINE void io_uring_prep_cancel64(struct io_uring_sqe *sqe,
 }
 
 IOURINGINLINE void io_uring_prep_cancel(struct io_uring_sqe *sqe,
-					void *user_data, int flags)
+					const void *user_data, int flags)
 	LIBURING_NOEXCEPT
 {
 	io_uring_prep_cancel64(sqe, (__u64) (uintptr_t) user_data, flags);
@@ -898,7 +899,7 @@ IOURINGINLINE void io_uring_prep_cancel_fd(struct io_uring_sqe *sqe, int fd,
 }
 
 IOURINGINLINE void io_uring_prep_link_timeout(struct io_uring_sqe *sqe,
-					      struct __kernel_timespec *ts,
+					      const struct __kernel_timespec *ts,
 					      unsigned flags)
 	LIBURING_NOEXCEPT
 {
@@ -915,7 +916,7 @@ IOURINGINLINE void io_uring_prep_connect(struct io_uring_sqe *sqe, int fd,
 }
 
 IOURINGINLINE void io_uring_prep_bind(struct io_uring_sqe *sqe, int fd,
-				      struct sockaddr *addr,
+				      const struct sockaddr *addr,
 				      socklen_t addrlen)
 	LIBURING_NOEXCEPT
 {
@@ -923,7 +924,7 @@ IOURINGINLINE void io_uring_prep_bind(struct io_uring_sqe *sqe, int fd,
 }
 
 IOURINGINLINE void io_uring_prep_listen(struct io_uring_sqe *sqe, int fd,
-				      int backlog)
+					int backlog)
 	LIBURING_NOEXCEPT
 {
 	io_uring_prep_rw(IORING_OP_LISTEN, sqe, fd, 0, backlog, 0);
@@ -940,7 +941,7 @@ IOURINGINLINE void io_uring_prep_epoll_wait(struct io_uring_sqe *sqe, int fd,
 }
 
 IOURINGINLINE void io_uring_prep_files_update(struct io_uring_sqe *sqe,
-					      int *fds, unsigned nr_fds,
+					      const int *fds, unsigned nr_fds,
 					      int offset)
 	LIBURING_NOEXCEPT
 {
@@ -1247,7 +1248,7 @@ io_uring_recvmsg_payload_length(struct io_uring_recvmsg_out *o,
 }
 
 IOURINGINLINE void io_uring_prep_openat2(struct io_uring_sqe *sqe, int dfd,
-					const char *path, struct open_how *how)
+					const char *path, const struct open_how *how)
 	LIBURING_NOEXCEPT
 {
 	io_uring_prep_rw(IORING_OP_OPENAT2, sqe, dfd, path, sizeof(*how),
@@ -1257,7 +1258,7 @@ IOURINGINLINE void io_uring_prep_openat2(struct io_uring_sqe *sqe, int dfd,
 /* open directly into the fixed file table */
 IOURINGINLINE void io_uring_prep_openat2_direct(struct io_uring_sqe *sqe,
 						int dfd, const char *path,
-						struct open_how *how,
+						const struct open_how *how,
 						unsigned file_index)
 	LIBURING_NOEXCEPT
 {
@@ -1271,7 +1272,7 @@ IOURINGINLINE void io_uring_prep_openat2_direct(struct io_uring_sqe *sqe,
 struct epoll_event;
 IOURINGINLINE void io_uring_prep_epoll_ctl(struct io_uring_sqe *sqe, int epfd,
 					   int fd, int op,
-					   struct epoll_event *ev)
+					   const struct epoll_event *ev)
 	LIBURING_NOEXCEPT
 {
 	io_uring_prep_rw(IORING_OP_EPOLL_CTL, sqe, epfd, ev,
@@ -1550,7 +1551,7 @@ IOURINGINLINE void io_uring_prep_waitid(struct io_uring_sqe *sqe,
 }
 
 IOURINGINLINE void io_uring_prep_futex_wake(struct io_uring_sqe *sqe,
-					    uint32_t *futex, uint64_t val,
+					    const uint32_t *futex, uint64_t val,
 					    uint64_t mask, uint32_t futex_flags,
 					    unsigned int flags)
 	LIBURING_NOEXCEPT
@@ -1561,7 +1562,7 @@ IOURINGINLINE void io_uring_prep_futex_wake(struct io_uring_sqe *sqe,
 }
 
 IOURINGINLINE void io_uring_prep_futex_wait(struct io_uring_sqe *sqe,
-					    uint32_t *futex, uint64_t val,
+					    const uint32_t *futex, uint64_t val,
 					    uint64_t mask, uint32_t futex_flags,
 					    unsigned int flags)
 	LIBURING_NOEXCEPT
@@ -1573,7 +1574,7 @@ IOURINGINLINE void io_uring_prep_futex_wait(struct io_uring_sqe *sqe,
 
 struct futex_waitv;
 IOURINGINLINE void io_uring_prep_futex_waitv(struct io_uring_sqe *sqe,
-					     struct futex_waitv *futex,
+					     const struct futex_waitv *futex,
 					     uint32_t nr_futex,
 					     unsigned int flags)
 	LIBURING_NOEXCEPT
@@ -1773,7 +1774,7 @@ IOURINGINLINE int io_uring_wait_cqe_nr(struct io_uring *ring,
 	return __io_uring_get_cqe(ring, cqe_ptr, 0, wait_nr, NULL);
 }
 
-static inline bool io_uring_skip_cqe(struct io_uring *ring,
+_LOCAL_INLINE bool io_uring_skip_cqe(struct io_uring *ring,
 				     struct io_uring_cqe *cqe, int *err)
 {
 	if (cqe->flags & IORING_CQE_F_SKIP)
