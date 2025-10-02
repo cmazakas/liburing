@@ -200,7 +200,7 @@ jobs:
           ${{matrix.build_args.cc}} --version;
           ${{matrix.build_args.cxx}} --version;
 
-      - name: Install Rust
+      - name: Install rustup
         if: ${{matrix.build_args.cargo_toolchain}}
         run: |
           sudo apt-get update -y;
@@ -209,10 +209,19 @@ jobs:
           . "$HOME/.cargo/env";
           rustup update;
           rustup update nightly;
-          rustup target add ${{matrix.build_args.cargo_toolchain}} --toolchain stable;
+
+      - name: Install stable Rust
+        if: ${{matrix.build_args.cargo_toolchain}}
+        run: |
           rustup target add ${{matrix.build_args.cargo_toolchain}} --toolchain nightly;
-          rustup component add rust-src --toolchain stable --target ${{matrix.build_args.cargo_toolchain}};
-          rustup component add rust-std --toolchain stable --target ${{matrix.build_args.cargo_toolchain}};
+          rustup component add rust-src --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
+          rustup component add rust-std --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
+
+
+      - name: Install nightly Rust
+        if: ${{matrix.build_args.cargo_toolchain}}
+        run: |
+          rustup target add ${{matrix.build_args.cargo_toolchain}} --toolchain nightly;
           rustup component add rust-src --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
           rustup component add rust-std --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
 
@@ -232,12 +241,20 @@ jobs:
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
         run: |
           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
+
+      - name: Build liburing_rs_tests
+        if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
+        run: |
           OBJCOPY=${{matrix.build_args.objcopy}} make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
-      - name: Build liburing-rs
+      - name: Build sanitized liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '1'}}
         run: |
           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +nightly build --target ${{matrix.build_args.cargo_toolchain}} -Zbuild-std --features sanitizers;
+
+      - name: Build sanitized liburing_rs_tests
+        if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '1'}}
+        run: |
           OBJCOPY=${{matrix.build_args.objcopy}} make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
       - name: Test install command
