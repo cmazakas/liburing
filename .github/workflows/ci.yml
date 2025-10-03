@@ -213,9 +213,9 @@ jobs:
       - name: Install stable Rust
         if: ${{matrix.build_args.cargo_toolchain}}
         run: |
-          rustup target add ${{matrix.build_args.cargo_toolchain}} --toolchain nightly;
-          rustup component add rust-src --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
-          rustup component add rust-std --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
+          rustup target add ${{matrix.build_args.cargo_toolchain}} --toolchain stable;
+          rustup component add rust-src --toolchain stable --target ${{matrix.build_args.cargo_toolchain}};
+          rustup component add rust-std --toolchain stable --target ${{matrix.build_args.cargo_toolchain}};
 
 
       - name: Install nightly Rust
@@ -240,7 +240,7 @@ jobs:
       - name: Build liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
         run: |
-          RUSTFLAGS="-Zbuild-std" CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo build --target ${{matrix.build_args.cargo_toolchain}};
+          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable build --target ${{matrix.build_args.cargo_toolchain}};
 
       - name: Build liburing_rs_tests
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
@@ -264,7 +264,7 @@ jobs:
       - name: Test crate packaging
         if: ${{matrix.build_args.cargo_toolchain}}
         run: |
-           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo package --target ${{matrix.build_args.cargo_toolchain}};
+           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable package --target ${{matrix.build_args.cargo_toolchain}};
 
       - name: Test build against the installed liburing
         run: |
@@ -337,7 +337,7 @@ jobs:
       - name: Build liburing-rs
         shell: alpine.sh {0}
         run: |
-          cargo build --target x86_64-unknown-linux-musl;
+          cargo +stable build --target x86_64-unknown-linux-musl;
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
       - name: Test install command
@@ -348,7 +348,7 @@ jobs:
       - name: Test crate packaging
         shell: alpine.sh {0}
         run: |
-           cargo package --target x86_64-unknown-linux-musl;
+           cargo +stable package --target x86_64-unknown-linux-musl;
       - name: Test build against the installed liburing
         shell: alpine.sh {0}
         run: |
