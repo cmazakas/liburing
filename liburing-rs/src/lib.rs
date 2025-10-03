@@ -465,7 +465,7 @@ pub unsafe fn io_uring_prep_nop(sqe: *mut io_uring_sqe)
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec,
+pub unsafe fn io_uring_prep_timeout(sqe: *mut io_uring_sqe, ts: *const __kernel_timespec,
                                     count: c_uint, flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_TIMEOUT, sqe, -1, ts.cast(), 1, count.into());
@@ -481,7 +481,7 @@ pub unsafe fn io_uring_prep_timeout_remove(sqe: *mut io_uring_sqe, user_data: __
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_timeout_update(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec,
+pub unsafe fn io_uring_prep_timeout_update(sqe: *mut io_uring_sqe, ts: *const __kernel_timespec,
                                            user_data: __u64, flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_TIMEOUT_REMOVE, sqe, -1, ptr::null_mut(), 0, ts as u64);
@@ -539,7 +539,7 @@ pub unsafe fn io_uring_prep_cancel64(sqe: *mut io_uring_sqe, user_data: u64, fla
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_cancel(sqe: *mut io_uring_sqe, user_data: *mut c_void, flags: c_int)
+pub unsafe fn io_uring_prep_cancel(sqe: *mut io_uring_sqe, user_data: *const c_void, flags: c_int)
 {
     io_uring_prep_cancel64(sqe, user_data as usize as u64, flags);
 }
@@ -552,7 +552,7 @@ pub unsafe fn io_uring_prep_cancel_fd(sqe: *mut io_uring_sqe, fd: c_int, flags: 
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_link_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec,
+pub unsafe fn io_uring_prep_link_timeout(sqe: *mut io_uring_sqe, ts: *const __kernel_timespec,
                                          flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_LINK_TIMEOUT, sqe, -1, ts.cast(), 1, 0);
@@ -588,8 +588,8 @@ pub unsafe fn io_uring_prep_epoll_wait(sqe: *mut io_uring_sqe, fd: c_int,
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_files_update(sqe: *mut io_uring_sqe, fds: *mut c_int, nr_fds: c_uint,
-                                         offset: c_int)
+pub unsafe fn io_uring_prep_files_update(sqe: *mut io_uring_sqe, fds: *const c_int,
+                                         nr_fds: c_uint, offset: c_int)
 {
     io_uring_prep_rw(IORING_OP_FILES_UPDATE, sqe, -1, fds.cast(), nr_fds, offset as u64);
 }
@@ -893,7 +893,7 @@ pub unsafe fn io_uring_recvmsg_payload_length(o: *mut io_uring_recvmsg_out, buf_
 
 #[inline]
 pub unsafe fn io_uring_prep_openat2(sqe: *mut io_uring_sqe, dfd: c_int, path: *const c_char,
-                                    how: *mut open_how)
+                                    how: *const open_how)
 {
     io_uring_prep_rw(IORING_OP_OPENAT2 as _,
                      sqe,
@@ -906,7 +906,7 @@ pub unsafe fn io_uring_prep_openat2(sqe: *mut io_uring_sqe, dfd: c_int, path: *c
 /* open directly into the fixed file table */
 #[inline]
 pub unsafe fn io_uring_prep_openat2_direct(sqe: *mut io_uring_sqe, dfd: c_int,
-                                           path: *const c_char, how: *mut open_how,
+                                           path: *const c_char, how: *const open_how,
                                            mut file_index: c_uint)
 {
     io_uring_prep_openat2(sqe, dfd, path, how);
@@ -919,7 +919,7 @@ pub unsafe fn io_uring_prep_openat2_direct(sqe: *mut io_uring_sqe, dfd: c_int,
 
 #[inline]
 pub unsafe fn io_uring_prep_epoll_ctl(sqe: *mut io_uring_sqe, epfd: c_int, fd: c_int, op: c_int,
-                                      ev: *mut epoll_event)
+                                      ev: *const epoll_event)
 {
     io_uring_prep_rw(IORING_OP_EPOLL_CTL, sqe, epfd, ev.cast(), op as u32, u64::from(fd as u32));
 }
@@ -1191,7 +1191,7 @@ pub unsafe fn io_uring_prep_waitid(sqe: *mut io_uring_sqe, idtype: idtype_t, id:
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_futex_wake(sqe: *mut io_uring_sqe, futex: *mut u32, val: u64,
+pub unsafe fn io_uring_prep_futex_wake(sqe: *mut io_uring_sqe, futex: *const u32, val: u64,
                                        mask: u64, futex_flags: u32, flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_FUTEX_WAKE, sqe, futex_flags as _, futex.cast(), 0, val);
@@ -1200,7 +1200,7 @@ pub unsafe fn io_uring_prep_futex_wake(sqe: *mut io_uring_sqe, futex: *mut u32, 
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_futex_wait(sqe: *mut io_uring_sqe, futex: *mut u32, val: u64,
+pub unsafe fn io_uring_prep_futex_wait(sqe: *mut io_uring_sqe, futex: *const u32, val: u64,
                                        mask: u64, futex_flags: u32, flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_FUTEX_WAIT, sqe, futex_flags as _, futex.cast(), 0, val);
@@ -1209,7 +1209,7 @@ pub unsafe fn io_uring_prep_futex_wait(sqe: *mut io_uring_sqe, futex: *mut u32, 
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_futex_waitv(sqe: *mut io_uring_sqe, futex: *mut futex_waitv,
+pub unsafe fn io_uring_prep_futex_waitv(sqe: *mut io_uring_sqe, futex: *const futex_waitv,
                                         nr_futex: u32, flags: c_uint)
 {
     io_uring_prep_rw(IORING_OP_FUTEX_WAITV, sqe, 0, futex.cast(), nr_futex, 0);
