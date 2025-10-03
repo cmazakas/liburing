@@ -301,7 +301,7 @@ jobs:
       - name: Setup Alpine Environment
         uses: jirutka/setup-alpine@v1
         with:
-          branch: v3.15
+          branch: v3.22
 
       - name: Display Alpine version
         shell: alpine.sh {0}
