@@ -315,7 +315,7 @@ jobs:
       - name: Install liburing-rs build dependencies
         shell: alpine.sh --root {0}
         run: |
-          apk add --no-cache curl clang;
+          apk add --no-cache curl clang rust-bindgen;
 
       - name: Install Rust
         shell: alpine.sh {0}

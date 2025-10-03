@@ -10,6 +10,7 @@ readme = "liburing-rs/README.md"
 keywords = ["io_uring", "liburing", "linux"]
 categories = ["asynchronous", "network-programming", "filesystem"]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
+
 include = [
   "/src/arch",
   "/src/*.c",
@@ -42,6 +43,7 @@ path = "liburing-rs/tests/main.rs"
 
 [features]
 sanitizers = []
+bindgen-cli = []
 
 [target.'cfg(unix)'.build-dependencies]
 bindgen = "0.71.1"
