@@ -2,7 +2,8 @@ use std::{env, io::Write, path::PathBuf};
 
 extern crate bindgen;
 
-fn main() {
+fn main()
+{
     println!("cargo::rerun-if-changed=src/");
     println!("cargo::rerun-if-changed=Makefile");
     println!("cargo::rerun-if-changed=Makefile.common");
@@ -17,45 +18,39 @@ fn main() {
 
     // copy everything in src to the OUT_DIR
     // Note, this brings along existing binary artifacts in the source tree
-    std::process::Command::new("cp")
-        .args([
-            "-r",
-            "src",
-            "Makefile",
-            "Makefile.common",
-            "Makefile.quiet",
-            "configure",
-            "liburing-ffi.pc.in",
-            "liburing.pc.in",
-            "liburing.spec",
-            out_path.to_str().unwrap(),
-        ])
-        .spawn()
-        .unwrap()
-        .wait()
-        .unwrap();
+    std::process::Command::new("cp").args(["-r",
+                                           "src",
+                                           "Makefile",
+                                           "Makefile.common",
+                                           "Makefile.quiet",
+                                           "configure",
+                                           "liburing-ffi.pc.in",
+                                           "liburing.pc.in",
+                                           "liburing.spec",
+                                           out_path.to_str().unwrap()])
+                                    .spawn()
+                                    .unwrap()
+                                    .wait()
+                                    .unwrap();
 
     // if there are any binary artifacts in the source for OUT_DIR, clean them
-    let r = std::process::Command::new("make")
-        .args(["-C", "src", "clean"])
-        .current_dir(out_path.clone())
-        .output()
-        .unwrap();
+    let r = std::process::Command::new("make").args(["-C", "src", "clean"])
+                                              .current_dir(out_path.clone())
+                                              .output()
+                                              .unwrap();
 
     std::io::stderr().write_all(&r.stderr).unwrap();
     assert!(r.status.success());
 
     let r = if cfg!(feature = "sanitizers") {
-        std::process::Command::new("./configure")
-            .current_dir(out_path.clone())
-            .arg("--enable-sanitizer")
-            .output()
-            .unwrap()
+        std::process::Command::new("./configure").current_dir(out_path.clone())
+                                                 .arg("--enable-sanitizer")
+                                                 .output()
+                                                 .unwrap()
     } else {
-        std::process::Command::new("./configure")
-            .current_dir(out_path.clone())
-            .output()
-            .unwrap()
+        std::process::Command::new("./configure").current_dir(out_path.clone())
+                                                 .output()
+                                                 .unwrap()
     };
 
     std::io::stderr().write_all(&r.stderr).unwrap();
@@ -63,32 +58,30 @@ fn main() {
 
     println!("configured liburing repo");
 
-    let r = std::process::Command::new("make")
-        .args(["library", "-j12"])
-        .current_dir(out_path.clone())
-        .output()
-        .unwrap();
+    let r = std::process::Command::new("make").args(["library", "-j12"])
+                                              .current_dir(out_path.clone())
+                                              .output()
+                                              .unwrap();
 
     std::io::stderr().write_all(&r.stderr).unwrap();
     assert!(r.status.success());
 
     println!("completed `make library` call");
 
-    let bindings = bindgen::Builder::default()
-        .clang_arg(format!("-I{}/src/include", out_path.to_str().unwrap()))
-        .clang_arg("-std=gnu11")
-        .header("liburing-rs/include/liburing_wrapper.h")
-        .anon_fields_prefix("__liburing_anon_")
-        .prepend_enum_name(false)
-        .derive_default(true)
-        .generate()
-        .expect("Unable to generate bindings");
+    let bindings = bindgen::Builder::default().clang_arg(format!("-I{}/src/include",
+                                                                 out_path.to_str().unwrap()))
+                                              .clang_arg("-std=gnu11")
+                                              .header("liburing-rs/include/liburing_wrapper.h")
+                                              .anon_fields_prefix("__liburing_anon_")
+                                              .prepend_enum_name(false)
+                                              .derive_default(true)
+                                              .generate()
+                                              .expect("Unable to generate bindings");
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
 
-    bindings
-        .write_to_file(out_path.join("liburing_bindings.rs"))
-        .expect("Couldn't write bindings!");
+    bindings.write_to_file(out_path.join("liburing_bindings.rs"))
+            .expect("Couldn't write bindings!");
 
     println!("generated bindings");
 
