@@ -301,7 +301,7 @@ jobs:
       - name: Setup Alpine Environment
         uses: jirutka/setup-alpine@v1
         with:
-          branch: v3.15
+          branch: v3.22
 
       - name: Display Alpine version
         shell: alpine.sh {0}
@@ -315,7 +315,7 @@ jobs:
       - name: Install liburing-rs build dependencies
         shell: alpine.sh --root {0}
         run: |
-          apk add --no-cache curl clang;
+          apk add --no-cache curl clang rust-bindgen llvm20-libs llvm20-dev clang20-dev;
 
       - name: Install Rust
         shell: alpine.sh {0}
@@ -337,8 +337,8 @@ jobs:
       - name: Build liburing-rs
         shell: alpine.sh {0}
         run: |
-          cargo +stable build --target x86_64-unknown-linux-musl;
-          make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
+          cargo +stable build --features=bindgen-cli --target x86_64-unknown-linux-musl;
+          make -j$(nproc) V=1 CARGO_FLAGS="--features=bindgen-cli --profile release-with-debug --target x86_64-unknown-linux-musl" CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" -C test liburing_rs_tests;
 
       - name: Test install command
         shell: alpine.sh --root {0}
@@ -348,7 +348,8 @@ jobs:
       - name: Test crate packaging
         shell: alpine.sh {0}
         run: |
-           cargo +stable package --target x86_64-unknown-linux-musl;
+           cargo +stable package --features=bindgen-cli --target x86_64-unknown-linux-musl;
+
       - name: Test build against the installed liburing
         shell: alpine.sh {0}
         run: |

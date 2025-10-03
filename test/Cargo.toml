@@ -13,6 +13,7 @@ path = "lib.rs"
 
 [features]
 sanitizers = []
+bindgen-cli = ["axboe-liburing/bindgen-cli"]
 
 [dependencies]
 axboe-liburing = { path = ".." }

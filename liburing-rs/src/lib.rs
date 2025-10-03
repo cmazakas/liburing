@@ -6,7 +6,8 @@
          clippy::cast_possible_truncation,
          clippy::cast_possible_wrap,
          clippy::cast_ptr_alignment,
-         clippy::used_underscore_items)]
+         clippy::used_underscore_items,
+         clippy::unnecessary_cast)]
 
 mod uring;
 
@@ -809,7 +810,7 @@ pub unsafe fn io_uring_prep_recv_multishot(sqe: *mut io_uring_sqe, sockfd: c_int
 pub unsafe fn io_uring_recvmsg_validate(buf: *mut c_void, buf_len: c_int, msgh: *mut msghdr)
                                         -> *mut io_uring_recvmsg_out
 {
-    let header = (*msgh).msg_controllen
+    let header = (*msgh).msg_controllen as usize
                  + (*msgh).msg_namelen as usize
                  + mem::size_of::<io_uring_recvmsg_out>();
 
@@ -850,7 +851,7 @@ pub unsafe fn io_uring_recvmsg_cmsg_nexthdr(o: *mut io_uring_recvmsg_out, msgh: 
         ((len) + mem::size_of::<usize>() - 1) & !(mem::size_of::<usize>() - 1)
     }
 
-    if (*cmsg).cmsg_len < mem::size_of::<cmsghdr>() {
+    if ((*cmsg).cmsg_len as usize) < mem::size_of::<cmsghdr>() {
         return ptr::null_mut();
     }
 
@@ -858,14 +859,14 @@ pub unsafe fn io_uring_recvmsg_cmsg_nexthdr(o: *mut io_uring_recvmsg_out, msgh: 
                                                      .add((*o).controllen as _);
 
     let cmsg = cmsg.cast::<u8>()
-                   .add(CMSG_ALIGN((*cmsg).cmsg_len))
+                   .add(CMSG_ALIGN((*cmsg).cmsg_len as usize))
                    .cast::<cmsghdr>();
 
     if cmsg.add(1).cast::<u8>() > end {
         return ptr::null_mut();
     }
 
-    if cmsg.cast::<u8>().add(CMSG_ALIGN((*cmsg).cmsg_len)) > end {
+    if cmsg.cast::<u8>().add(CMSG_ALIGN((*cmsg).cmsg_len as usize)) > end {
         return ptr::null_mut();
     }
 
@@ -877,7 +878,7 @@ pub unsafe fn io_uring_recvmsg_payload(o: *mut io_uring_recvmsg_out, msgh: *mut 
                                        -> *mut c_void
 {
     io_uring_recvmsg_name(o).cast::<u8>()
-                            .add((*msgh).msg_namelen as usize + (*msgh).msg_controllen)
+                            .add((*msgh).msg_namelen as usize + (*msgh).msg_controllen as usize)
                             .cast::<c_void>()
 }
 
