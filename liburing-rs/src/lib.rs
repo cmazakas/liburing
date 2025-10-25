@@ -1460,7 +1460,7 @@ unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *m
     }
 
     io_uring_cq_advance(ring, io_uring_cqe_nr(cqe));
-    *err != 0
+    *err == 0
 }
 
 /*
