@@ -78,7 +78,7 @@ struct IoContextFrame
 {
     ring: io_uring,
     buf_rings: HashMap<u16, BufRing>,
-    params: IoContextParams,
+    _params: IoContextParams,
 }
 
 #[derive(Default, Clone, Copy)]
@@ -124,7 +124,7 @@ impl IoContext
         let ring = unsafe { std::mem::zeroed::<io_uring>() };
         let pframe = Rc::new(UnsafeCell::new(IoContextFrame { ring,
                                                               buf_rings: HashMap::new(),
-                                                              params: *params }));
+                                                              _params: *params }));
 
         let ring = unsafe { &raw mut (*pframe.get()).ring };
 
