@@ -48,6 +48,7 @@ jobs:
             objcopy: x86_64-linux-gnu-objcopy
             sanitize: 0
             cargo_toolchain: x86_64-unknown-linux-gnu
+            tsan: 0
 
           # x86-64 gcc asan
           - arch: x86_64
@@ -58,6 +59,7 @@ jobs:
             objcopy: x86_64-linux-gnu-objcopy
             sanitize: 1
             cargo_toolchain: x86_64-unknown-linux-gnu
+            tsan: 0
 
           # x86-64 clang asan
           - arch: x86_64
@@ -66,6 +68,16 @@ jobs:
             cc: clang
             cxx: clang++
             sanitize: 1
+            tsan: 0
+
+          # x86-64 clang tsan
+          - arch: x86_64
+            cc_pkg: clang
+            cxx_pkg: clang
+            cc: clang
+            cxx: clang++
+            sanitize: 0
+            tsan: 1
 
           # x86-64 clang
           - arch: x86_64
@@ -78,6 +90,7 @@ jobs:
             extra_flags: -Wmissing-prototypes -Wstrict-prototypes -Wunreachable-code-loop-increment -Wunreachable-code -Wmissing-variable-declarations -Wextra-semi-stmt
             sanitize: 0
             cargo_toolchain: x86_64-unknown-linux-gnu
+            tsan: 0
 
           # x86 (32-bit) gcc
           - arch: i686
@@ -89,6 +102,7 @@ jobs:
             # leave disabled because of this bug in bindgen:
             # https://github.com/rust-lang/rust-bindgen/issues/2991
             # cargo_toolchain: i686-unknown-linux-gnu
+            tsan: 0
 
           # aarch64 gcc
           - arch: aarch64
@@ -99,6 +113,7 @@ jobs:
             objcopy: aarch64-linux-gnu-objcopy
             sanitize: 0
             cargo_toolchain: aarch64-unknown-linux-gnu
+            tsan: 0
 
           # arm (32-bit) gcc
           - arch: arm
@@ -109,6 +124,7 @@ jobs:
             objcopy: arm-linux-gnueabi-objcopy
             sanitize: 0
             cargo_toolchain: arm-unknown-linux-gnueabi
+            tsan: 0
 
           # riscv64
           - arch: riscv64
@@ -119,6 +135,7 @@ jobs:
             objcopy: riscv64-linux-gnu-objcopy
             sanitize: 0
             cargo_toolchain: riscv64gc-unknown-linux-gnu
+            tsan: 0
 
           # powerpc64
           - arch: powerpc64
@@ -129,6 +146,7 @@ jobs:
             objcopy: powerpc64-linux-gnu-objcopy
             sanitize: 0
             cargo_toolchain: powerpc64-unknown-linux-gnu
+            tsan: 0
 
           # powerpc
           - arch: powerpc
@@ -139,6 +157,7 @@ jobs:
             objcopy: powerpc-linux-gnu-objcopy
             sanitize: 0
             cargo_toolchain: powerpc-unknown-linux-gnu
+            tsan: 0
 
           # alpha
           - arch: alpha
@@ -147,6 +166,7 @@ jobs:
             cc: alpha-linux-gnu-gcc
             cxx: alpha-linux-gnu-g++
             sanitize: 0
+            tsan: 0
 
           # mips64
           - arch: mips64
@@ -155,6 +175,7 @@ jobs:
             cc: mips64-linux-gnuabi64-gcc
             cxx: mips64-linux-gnuabi64-g++
             sanitize: 0
+            tsan: 0
 
           # mips
           - arch: mips
@@ -163,6 +184,7 @@ jobs:
             cc: mips-linux-gnu-gcc
             cxx: mips-linux-gnu-g++
             sanitize: 0
+            tsan: 0
 
           # hppa
           - arch: hppa
@@ -171,11 +193,13 @@ jobs:
             cc: hppa-linux-gnu-gcc
             cxx: hppa-linux-gnu-g++
             sanitize: 0
+            tsan: 0
 
     env:
       FLAGS: -g -O3 -Wall -Wextra -Werror -Wno-sign-compare ${{matrix.build_args.extra_flags}}
       SANITIZE: ${{matrix.build_args.sanitize}}
       CARGO_TOOLCHAIN: ${{matrix.build_args.cargo_toolchain}}
+      THREAD_SANITIZE: ${{matrix.build_args.tsan}}
 
       # Flags for building sources in src/ dir only.
       LIBURING_CFLAGS: ${{matrix.build_args.liburing_extra_flags}}
@@ -226,7 +250,7 @@ jobs:
           rustup component add rust-std --toolchain nightly --target ${{matrix.build_args.cargo_toolchain}};
 
       - name: Build
-        if: ${{matrix.build_args.sanitize == '0'}}
+        if: ${{matrix.build_args.sanitize == '0' && matrix.build_args.tsan == '0'}}
         run: |
           ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}};
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
@@ -235,6 +259,12 @@ jobs:
         if: ${{matrix.build_args.sanitize == '1'}}
         run: |
           ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}} --enable-sanitizer;
+          make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
+
+      - name: Build
+        if: ${{matrix.build_args.tsan == '1'}}
+        run: |
+          ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}} --enable-tsan;
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
 
       - name: Build liburing-rs
@@ -271,6 +301,8 @@ jobs:
           export TEST_FILE=".github/workflows/test_build.c";
           if [ "$SANITIZE" -eq "1" ]; then
             export SANITIZE_FLAGS="-fsanitize=address,undefined";
+          elif [ "$THREAD_SANITIZE" -eq "1" ]; then
+            export SANITIZE_FLAGS="-fsanitize=thread";
           else
             export SANITIZE_FLAGS="";
           fi;

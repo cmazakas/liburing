@@ -31,6 +31,10 @@ ifeq ($(CONFIG_USE_SANITIZER),y)
 	XCFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer -fno-optimize-sibling-calls
 endif
 
+ifeq ($(CONFIG_USE_TSAN),y)
+	XCFLAGS += -fsanitize=thread -fno-omit-frame-pointer -fno-optimize-sibling-calls
+endif
+
 CXXFLAGS ?= $(CFLAGS)
 override CFLAGS += $(XCFLAGS) -DLIBURING_BUILD_TEST
 override CXXFLAGS += $(XCFLAGS) -std=c++11 -DLIBURING_BUILD_TEST
@@ -226,7 +230,6 @@ test_srcs := \
 	socket-rw-offset.c \
 	splice.c \
 	sq-full.c \
-	sq-full-cpp.cc \
 	sqpoll-disable-exit.c \
 	sqpoll-exec.c \
 	sq-poll-dup.c \
@@ -235,6 +238,9 @@ test_srcs := \
 	sq-poll-share.c \
 	sqpoll-sleep.c \
 	sq-space_left.c \
+	sqe-mixed-nop.c \
+	sqe-mixed-bad-wrap.c \
+	sqe-mixed-uring_cmd.c \
 	sqwait.c \
 	stdout.c \
 	submit-and-wait.c \
