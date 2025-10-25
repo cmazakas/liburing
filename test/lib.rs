@@ -228,6 +228,12 @@ pub unsafe extern "C" fn io_uring_prep_nop(sqe: *mut io_uring_sqe)
 }
 
 #[unsafe(no_mangle)]
+pub unsafe extern "C" fn io_uring_prep_nop128(sqe: *mut io_uring_sqe)
+{
+    liburing_rs::io_uring_prep_nop128(sqe)
+}
+
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_prep_timeout(sqe: *mut io_uring_sqe, ts: *mut __kernel_timespec,
                                                count: c_uint, flags: c_uint)
 {
@@ -776,6 +782,19 @@ pub unsafe extern "C" fn io_uring_prep_socket_direct_alloc(sqe: *mut io_uring_sq
 }
 
 #[unsafe(no_mangle)]
+pub unsafe extern "C" fn io_uring_prep_uring_cmd(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: c_int)
+{
+    liburing_rs::io_uring_prep_uring_cmd(sqe, cmd_op, fd);
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn io_uring_prep_uring_cmd128(sqe: *mut io_uring_sqe, cmd_op: c_int,
+                                                    fd: c_int)
+{
+    liburing_rs::io_uring_prep_uring_cmd128(sqe, cmd_op, fd);
+}
+
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn io_uring_prep_cmd_sock(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: c_int,
                                                 level: c_int, optname: c_int, optval: *mut c_void,
                                                 optlen: c_int)
@@ -974,4 +993,10 @@ pub unsafe extern "C" fn io_uring_buf_ring_available(ring: *mut io_uring,
 pub unsafe extern "C" fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
     liburing_rs::io_uring_get_sqe(ring)
+}
+
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn io_uring_get_sqe128(ring: *mut io_uring) -> *mut io_uring_sqe
+{
+    liburing_rs::io_uring_get_sqe128(ring)
 }

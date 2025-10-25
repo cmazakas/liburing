@@ -658,6 +658,9 @@ void io_uring_prep_fsync(struct io_uring_sqe *sqe, int fd,
 void io_uring_prep_nop(struct io_uring_sqe *sqe)
 	LIBURING_NOEXCEPT;
 
+void io_uring_prep_nop128(struct io_uring_sqe *sqe)
+	LIBURING_NOEXCEPT;
+
 void io_uring_prep_timeout(struct io_uring_sqe *sqe,
 					 struct __kernel_timespec *ts,
 					 unsigned count, unsigned flags)
@@ -1026,6 +1029,16 @@ void io_uring_prep_socket_direct_alloc(struct io_uring_sqe *sqe,
 						     unsigned int flags)
 	LIBURING_NOEXCEPT;
 
+void io_uring_prep_uring_cmd(struct io_uring_sqe *sqe,
+					   int cmd_op,
+					   int fd)
+	LIBURING_NOEXCEPT;
+
+void io_uring_prep_uring_cmd128(struct io_uring_sqe *sqe,
+					      int cmd_op,
+					      int fd)
+	LIBURING_NOEXCEPT;
+
 /*
  * Prepare commands for sockets
  */
@@ -1325,6 +1338,9 @@ struct io_uring_sqe *io_uring_get_sqe(struct io_uring *ring)
 #else
 struct io_uring_sqe *io_uring_get_sqe(struct io_uring *ring);
 #endif
+
+struct io_uring_sqe *io_uring_get_sqe128(struct io_uring *ring)
+	LIBURING_NOEXCEPT;
 
 ssize_t io_uring_mlock_size(unsigned entries, unsigned flags)
 	LIBURING_NOEXCEPT;

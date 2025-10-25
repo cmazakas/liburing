@@ -466,6 +466,12 @@ pub unsafe fn io_uring_prep_nop(sqe: *mut io_uring_sqe)
 }
 
 #[inline]
+pub unsafe fn io_uring_prep_nop128(sqe: *mut io_uring_sqe)
+{
+    io_uring_prep_rw(IORING_OP_NOP128, sqe, -1, ptr::null_mut(), 0, 0);
+}
+
+#[inline]
 pub unsafe fn io_uring_prep_timeout(sqe: *mut io_uring_sqe, ts: *const __kernel_timespec,
                                     count: c_uint, flags: c_uint)
 {
@@ -1164,6 +1170,29 @@ pub unsafe fn io_uring_prep_socket_direct_alloc(sqe: *mut io_uring_sqe, domain: 
     __io_uring_set_target_fixed_file(sqe, (IORING_FILE_INDEX_ALLOC - 1) as _);
 }
 
+#[inline]
+pub unsafe fn __io_uring_prep_uring_cmd(sqe: *mut io_uring_sqe, op: c_int, cmd_op: u32, fd: c_int)
+{
+    (*sqe).opcode = op as _;
+    (*sqe).fd = fd;
+    (*sqe).__liburing_anon_1.__liburing_anon_1.cmd_op = cmd_op;
+    (*sqe).__liburing_anon_1.__liburing_anon_1.__pad1 = 0;
+    (*sqe).__liburing_anon_2.addr = 0;
+    (*sqe).len = 0;
+}
+
+#[inline]
+pub unsafe fn io_uring_prep_uring_cmd(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: c_int)
+{
+    __io_uring_prep_uring_cmd(sqe, IORING_OP_URING_CMD as _, cmd_op as _, fd);
+}
+
+#[inline]
+pub unsafe fn io_uring_prep_uring_cmd128(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: c_int)
+{
+    __io_uring_prep_uring_cmd(sqe, IORING_OP_URING_CMD128 as _, cmd_op as _, fd);
+}
+
 /*
  * Prepare commands for sockets
  */
@@ -1172,7 +1201,7 @@ pub unsafe fn io_uring_prep_cmd_sock(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: 
                                      level: c_int, optname: c_int, optval: *mut c_void,
                                      optlen: c_int)
 {
-    io_uring_prep_rw(IORING_OP_URING_CMD, sqe, fd, ptr::null_mut(), 0, 0);
+    io_uring_prep_uring_cmd(sqe, cmd_op as _, fd);
 
     *(*sqe).__liburing_anon_6.optval.as_mut() = optval as usize as _;
     (*sqe).__liburing_anon_2.__liburing_anon_1.optname = optname as _;
@@ -1235,12 +1264,11 @@ pub unsafe fn io_uring_prep_ftruncate(sqe: *mut io_uring_sqe, fd: c_int, len: c_
 #[inline]
 pub unsafe fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, nbytes: u64)
 {
-    io_uring_prep_rw(IORING_OP_URING_CMD, sqe, fd, ptr::null_mut(), 0, 0);
-
     // TODO: really someday fix this
     // We need bindgen to actually evaluate this macro's value during generation.
-    // No idea is hard-coding this value like this is viable in practice.
-    (*sqe).__liburing_anon_1.__liburing_anon_1.cmd_op = (0x12) << 8; // BLOCK_URING_CMD_DISCARD;
+    // No idea if hard-coding this value like this is viable in practice.
+    io_uring_prep_uring_cmd(sqe, ((0x12) << 8) as _ /* BLOCK_URING_CMD_DISCARD */, fd);
+
     (*sqe).__liburing_anon_2.addr = offset;
     (*sqe).__liburing_anon_6.__liburing_anon_1.as_mut().addr3 = nbytes;
 }
@@ -1623,6 +1651,53 @@ pub unsafe fn io_uring_buf_ring_available(ring: *mut io_uring, br: *mut io_uring
 pub unsafe fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
     _io_uring_get_sqe(ring)
+}
+
+/*
+ * Return a 128B sqe to fill. Applications must later call io_uring_submit()
+ * when it's ready to tell the kernel about it. The caller may call this
+ * function multiple times before calling io_uring_submit().
+ *
+ * Returns a vacant 128B sqe, or NULL if we're full. If the current tail is the
+ * last entry in the ring, this function will insert a nop + skip complete such
+ * that the 128b entry wraps back to the beginning of the queue for a
+ * contiguous big sq entry. It's up to the caller to use a 128b opcode in order
+ * for the kernel to know how to advance its sq head pointer.
+ */
+#[inline]
+pub unsafe fn io_uring_get_sqe128(ring: *mut io_uring) -> *mut io_uring_sqe
+{
+    let sq = &raw mut (*ring).sq;
+
+    let head = io_uring_load_sq_head(ring);
+    let mut tail = (*sq).sqe_tail;
+
+    if (*ring).flags & IORING_SETUP_SQE128 != 0 {
+        return io_uring_get_sqe(ring);
+    }
+
+    if (*ring).flags & IORING_SETUP_SQE_MIXED == 0 {
+        return ptr::null_mut();
+    }
+
+    let mut sqe: *mut io_uring_sqe;
+    if (tail + 1) & (*sq).ring_mask == 0 {
+        if (tail + 2) - head >= (*sq).ring_entries {
+            return ptr::null_mut();
+        }
+
+        sqe = _io_uring_get_sqe(ring);
+        io_uring_prep_nop(sqe);
+        (*sqe).flags |= IOSQE_CQE_SKIP_SUCCESS as u8;
+        tail = (*sq).sqe_tail;
+    } else if (tail + 1) - head >= (*sq).ring_entries {
+        return ptr::null_mut();
+    }
+
+    sqe = &raw mut *(*sq).sqes.add((tail & (*sq).ring_mask) as usize);
+    (*sq).sqe_tail = tail + 2;
+    io_uring_initialize_sqe(sqe);
+    sqe
 }
 
 //-----------------------------------------------------------------------------
