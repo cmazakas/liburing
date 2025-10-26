@@ -12,7 +12,7 @@ name = "uring_rs_test"
 path = "lib.rs"
 
 [features]
-sanitizers = []
+sanitizers = ["axboe-liburing/sanitizers"]
 bindgen-cli = ["axboe-liburing/bindgen-cli"]
 
 [dependencies]
