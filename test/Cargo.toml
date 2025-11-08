@@ -3,7 +3,7 @@ name = "liburing-rs-tests"
 version = "0.1.0"
 edition = "2024"
 description = "Test crate for liburing-rs"
-license = "MIT OR LGPL"
+license = "MIT OR LGPL-2.1-only"
 repository = "https://github.com/cmazakas/liburing"
 
 [lib]
