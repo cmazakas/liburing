@@ -285,7 +285,7 @@ static int io_uring_alloc_huge(unsigned entries, struct io_uring_params *p,
 					MAP_SHARED|MAP_ANONYMOUS|map_hugetlb,
 					-1, 0);
 		if (IS_ERR(ptr)) {
-			__sys_munmap(sq->sqes, 1);
+			__sys_munmap(sq->sqes, buf_size);
 			return PTR_ERR(ptr);
 		}
 		sq->ring_ptr = ptr;
@@ -330,7 +330,7 @@ int __io_uring_queue_init_params(unsigned entries, struct io_uring *ring,
 	if (fd < 0) {
 		if ((p->flags & IORING_SETUP_NO_MMAP) &&
 		    !(ring->int_flags & INT_FLAG_APP_MEM)) {
-			__sys_munmap(ring->sq.sqes, 1);
+			__sys_munmap(ring->sq.sqes, ret);
 			io_uring_unmap_rings(&ring->sq, &ring->cq);
 		}
 		return fd;
@@ -630,6 +630,7 @@ static struct io_uring_buf_ring *br_setup(struct io_uring *ring,
 			MAP_SHARED | MAP_POPULATE, ring->ring_fd, off);
 	if (IS_ERR(br)) {
 		*err = PTR_ERR(br);
+		io_uring_unregister_buf_ring(ring, bgid);
 		return NULL;
 	}
 
