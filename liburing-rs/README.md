@@ -1,5 +1,11 @@
 # axboe-liburing
 
+Rust bindings for io_uring via a transliteration of Jens Axboe's liburing.
+
+[![Crates.io](https://img.shields.io/crates/v/axboe-liburing.svg)](https://crates.io/crates/axboe-liburing)
+[![lib.rs](https://img.shields.io/badge/lib.rs-axboe--liburing-blue)](https://lib.rs/crates/axboe-liburing)
+[![Documentation](https://docs.rs/axboe-liburing/badge.svg)](https://docs.rs/axboe-liburing)
+
 Building this crate successfully may require the following in your `.cargo/config.toml`:
 
 ```toml

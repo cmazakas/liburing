@@ -3,12 +3,12 @@ name = "axboe-liburing"
 version = "2.13.0"
 edition = "2024"
 build = "liburing-rs/build.rs"
-description = "A Rust transliteration of axboe's liburing"
+description = "Low-level io_uring interface, transliterated from Jens Axboe's liburing."
 license = "MIT OR LGPL-2.1-only"
 repository = "https://github.com/cmazakas/liburing"
 readme = "liburing-rs/README.md"
-keywords = ["io_uring", "liburing", "linux"]
-categories = ["asynchronous", "network-programming", "filesystem"]
+keywords = ["io_uring", "io-uring", "uring", "liburing", "linux-io", "async-io"]
+categories = ["asynchronous", "network-programming", "filesystem", "api-bindings"]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
 
 include = [
