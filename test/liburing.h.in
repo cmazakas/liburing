@@ -1051,6 +1051,12 @@ void io_uring_prep_cmd_sock(struct io_uring_sqe *sqe,
 					  int optlen)
 	LIBURING_NOEXCEPT;
 
+void io_uring_prep_cmd_getsockname(struct io_uring_sqe *sqe,
+						 int fd, struct sockaddr *sockaddr,
+						 socklen_t *sockaddr_len,
+						 int peer)
+	LIBURING_NOEXCEPT;
+
 void io_uring_prep_waitid(struct io_uring_sqe *sqe,
 					idtype_t idtype,
 					id_t id,

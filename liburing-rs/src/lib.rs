@@ -1211,6 +1211,18 @@ pub unsafe fn io_uring_prep_cmd_sock(sqe: *mut io_uring_sqe, cmd_op: c_int, fd: 
 }
 
 #[inline]
+pub unsafe fn io_uring_prep_cmd_getsockname(sqe: *mut io_uring_sqe, fd: c_int,
+                                            sockaddr: *mut sockaddr, sockaddr_len: *mut socklen_t,
+                                            peer: c_int)
+{
+    io_uring_prep_uring_cmd(sqe, SOCKET_URING_OP_GETSOCKNAME as _, fd);
+
+    (*sqe).__liburing_anon_2.addr = sockaddr as _;
+    (*sqe).__liburing_anon_6.__liburing_anon_1.as_mut().addr3 = sockaddr_len as _;
+    (*sqe).__liburing_anon_5.optlen = peer as _;
+}
+
+#[inline]
 pub unsafe fn io_uring_prep_waitid(sqe: *mut io_uring_sqe, idtype: idtype_t, id: id_t,
                                    infop: *mut siginfo_t, options: c_int, flags: c_uint)
 {
