@@ -7,7 +7,7 @@ description = "Low-level io_uring interface, transliterated from Jens Axboe's li
 license = "MIT OR LGPL-2.1-only"
 repository = "https://github.com/cmazakas/liburing"
 readme = "liburing-rs/README.md"
-keywords = ["io_uring", "io-uring", "uring", "liburing", "linux-io", "async-io"]
+keywords = ["io_uring", "io-uring", "liburing", "linux-io", "async-io"]
 categories = ["asynchronous", "network-programming", "filesystem", "api-bindings"]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
 
