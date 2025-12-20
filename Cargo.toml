@@ -1,6 +1,6 @@
 [package]
 name = "axboe-liburing"
-version = "2.13.0"
+version = "2.14.0"
 edition = "2024"
 build = "liburing-rs/build.rs"
 description = "Low-level io_uring interface, transliterated from Jens Axboe's liburing."
