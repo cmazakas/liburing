@@ -31,6 +31,7 @@ include = [
   "/liburing-rs/Cargo.lock",
   "/liburing-rs/build.rs",
   "/liburing-rs/tests",
+  "/liburing-rs/benches",
 ]
 
 [lib]
