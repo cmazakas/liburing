@@ -1,3 +1,4 @@
+#![no_std]
 #![allow(unsafe_op_in_unsafe_fn, non_snake_case)]
 #![warn(clippy::pedantic)]
 #![allow(clippy::missing_safety_doc,
@@ -11,9 +12,9 @@
 
 mod uring;
 
-use std::{
+use core::{
+    ffi::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void},
     mem::{self, zeroed},
-    os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void},
     ptr,
     sync::atomic::{
         AtomicU16, AtomicU32,

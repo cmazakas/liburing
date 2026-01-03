@@ -94,6 +94,7 @@ fn main()
                                                        "__liburing_anon_",
                                                        "--no-prepend-enum-name",
                                                        "--with-derive-default",
+                                                       "--use-core",
                                                        "--rust-edition", "2024",
                                                        "--rust-target", rustc_version,
                                                        "--output",
@@ -118,6 +119,7 @@ fn main()
                                                   .anon_fields_prefix("__liburing_anon_")
                                                   .prepend_enum_name(false)
                                                   .derive_default(true)
+                                                  .use_core()
                                                   .generate()
                                                   .expect("Unable to generate bindings");
 
