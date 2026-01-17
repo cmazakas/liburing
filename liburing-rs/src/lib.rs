@@ -596,8 +596,8 @@ pub unsafe fn io_uring_prep_epoll_wait(sqe: *mut io_uring_sqe, fd: c_int,
 }
 
 #[inline]
-pub unsafe fn io_uring_prep_files_update(sqe: *mut io_uring_sqe, fds: *const c_int,
-                                         nr_fds: c_uint, offset: c_int)
+pub unsafe fn io_uring_prep_files_update(sqe: *mut io_uring_sqe, fds: *mut c_int, nr_fds: c_uint,
+                                         offset: c_int)
 {
     io_uring_prep_rw(IORING_OP_FILES_UPDATE, sqe, -1, fds.cast(), nr_fds, offset as u64);
 }
