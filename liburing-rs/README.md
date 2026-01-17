@@ -1,4 +1,4 @@
-# axboe-liburing
+# liburing-rs
 
 Rust bindings for io_uring via a transliteration of Jens Axboe's liburing.
 

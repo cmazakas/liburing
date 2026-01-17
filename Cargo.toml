@@ -10,7 +10,6 @@ readme = "liburing-rs/README.md"
 keywords = ["io_uring", "io-uring", "liburing", "linux-io", "async-io"]
 categories = ["asynchronous", "network-programming", "filesystem", "api-bindings"]
 documentation = "https://man.archlinux.org/listing/extra/liburing/"
-
 include = [
   "/src/arch",
   "/src/*.c",
@@ -38,26 +37,26 @@ include = [
 name = "liburing_rs"
 path = "liburing-rs/src/lib.rs"
 
-[[test]]
-name = "liburing-rs-tests"
-path = "liburing-rs/tests/main.rs"
-
-[features]
-sanitizers = []
-bindgen-cli = []
-
-[target.'cfg(unix)'.build-dependencies]
+[build-dependencies]
 bindgen = "0.71.1"
-
-[profile.release-with-debug]
-inherits = "release"
-debug = "full"
 
 [dev-dependencies]
 io-uring = "0.7.4"
 criterion = "0.5.1"
 rand = "0.9.0"
 nix = { version = "0.29.0", features = ["net"] }
+
+[features]
+sanitizers = []
+bindgen-cli = []
+
+[profile.release-with-debug]
+inherits = "release"
+debug = "full"
+
+[[test]]
+name = "liburing-rs-tests"
+path = "liburing-rs/tests/main.rs"
 
 [[bench]]
 name = "nop"

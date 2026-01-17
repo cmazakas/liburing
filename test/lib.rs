@@ -1,11 +1,9 @@
 #![allow(clippy::missing_safety_doc, unsafe_op_in_unsafe_fn)]
 
-extern crate liburing_rs;
-
-pub use liburing_rs::{
+use liburing_rs::{
     __kernel_timespec, AT_FDCWD, cmsghdr, epoll_event, futex_waitv, id_t, idtype_t, io_uring,
-    io_uring_buf_ring, io_uring_cqe, io_uring_cqe_iter, io_uring_probe, io_uring_recvmsg_out,
-    io_uring_sqe, iovec, mode_t, msghdr, off_t, open_how, siginfo_t, sockaddr, socklen_t, statx,
+    io_uring_buf_ring, io_uring_cqe, io_uring_probe, io_uring_recvmsg_out, io_uring_sqe, iovec,
+    mode_t, msghdr, off_t, open_how, siginfo_t, sockaddr, socklen_t, statx,
 };
 
 use std::os::raw::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void};
