@@ -3,7 +3,7 @@
 .\"
 .\" SPDX-License-Identifier: LGPL-2.0-or-later
 .\"
-.TH io_uring_enter 2 2019-01-22 "Linux" "Linux Programmer's Manual"
+.TH io_uring_enter 2 "January 22, 2019" "Linux" "Linux Programmer's Manual"
 .SH NAME
 io_uring_enter \- initiate and/or complete asynchronous I/O
 .SH SYNOPSIS
@@ -1593,6 +1593,35 @@ which overrides a potentially set
 flag set on the initial file.
 
 Available since 6.8.
+
+.TP
+.B IORING_OP_PIPE
+This operation is used to create a pipe, a set of file descriptors that can be
+used for communication. The pipe may either be created as a set of normal
+file descriptors, or it can be created as fixed/direct descriptors.
+.I addr
+must contain a pointer to an array of two integers, where upon successful
+completion of the request, index 0 will contain the read side and index 1 the
+write side of the pipe.
+.I pipe_flags
+may contain flags associated with pipe creation. Currently
+.B O_CLOEXEC | O_NONBLOCK | O_DIRECT | O_NOTIFICATION_PIPE
+are supported.
+.I file_index
+may contain the the desired starting point for a fixed descriptor pipe
+creation. If this is set to
+.B 0,
+then regular file descriptors are used. If set to
+.B IORING_FILE_INDEX_ALLOC,
+then the kernel will allocate descriptors from the previously registered
+direct descriptor table. If set to any non-zero value, then it sets the
+exact direct descriptor value for index 0 of the pipe, and index 1 will be
+the following integer value.
+
+If used with direct descriptors rather than normal file descriptors, a
+direct descriptor table must have been previously registered with the kernel.
+
+Available since 6.16.
 
 .PP
 The

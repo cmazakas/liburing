@@ -4,7 +4,7 @@
 .\"
 .\" SPDX-License-Identifier: LGPL-2.0-or-later
 .\"
-.TH io_uring_setup 2 2019-01-29 "Linux" "Linux Programmer's Manual"
+.TH io_uring_setup 2 "January 29, 2019" "Linux" "Linux Programmer's Manual"
 .SH NAME
 io_uring_setup \- setup a context for performing asynchronous I/O
 .SH SYNOPSIS
@@ -252,7 +252,9 @@ use cases, setting this flag will improve performance. Available since 5.19.
 .TP
 .B IORING_SETUP_TASKRUN_FLAG
 Used in conjunction with
-.BR IORING_SETUP_COOP_TASKRUN ,
+.BR IORING_SETUP_COOP_TASKRUN
+or
+.BR IORING_SETUP_DEFER_TASKRUN ,
 this provides a flag,
 .BR IORING_SQ_TASKRUN ,
 which is set in the SQ ring
