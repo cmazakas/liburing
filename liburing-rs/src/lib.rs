@@ -1561,8 +1561,12 @@ unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
     let sq = &raw mut (*ring).sq;
 
-    let head = io_uring_load_sq_head(ring);
+    let mut head = 0;
     let tail = (*sq).sqe_tail;
+
+    if (*ring).flags & IORING_SETUP_SQ_REWIND == 0 {
+        head = io_uring_load_sq_head(ring);
+    }
 
     if tail - head >= (*sq).ring_entries {
         return ptr::null_mut();
