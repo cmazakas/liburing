@@ -6,6 +6,7 @@
 #include "liburing.h"
 #include "setup.h"
 #include "int_flags.h"
+#include "liburing/io_uring/bpf_filter.h"
 #include "liburing/io_uring.h"
 #include "liburing/sanitize.h"
 
@@ -513,4 +514,15 @@ int io_uring_set_iowait(struct io_uring *ring, bool enable_iowait)
 	else
 		ring->int_flags |= INT_FLAG_NO_IOWAIT;
 	return 0;
+}
+
+int io_uring_register_bpf_filter(struct io_uring *ring,
+				 struct io_uring_bpf *bpf)
+{
+	return do_register(ring, IORING_REGISTER_BPF_FILTER, bpf, 1);
+}
+
+int io_uring_register_bpf_filter_task(struct io_uring_bpf *bpf)
+{
+	return __sys_io_uring_register(-1, IORING_REGISTER_BPF_FILTER, bpf, 1);
 }

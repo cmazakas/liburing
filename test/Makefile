@@ -54,6 +54,7 @@ test_srcs := \
 	a4c0b3decb33.c \
 	accept.c \
 	accept-link.c \
+	accept-mshot-stress.c \
 	accept-non-empty.c \
 	accept-reuse.c \
 	accept-test.c \
@@ -63,7 +64,11 @@ test_srcs := \
 	bind-listen.c \
 	buf-ring.c \
 	buf-ring-nommap.c \
+	buf-ring-mshot.c \
 	buf-ring-put.c \
+	buf-ring-stress.c \
+	cancel-race.c \
+	cbpf_filter.c \
 	ce593a6c480a.c \
 	close-opath.c \
 	conn-unreach.c \
@@ -105,6 +110,7 @@ test_srcs := \
 	fifo-nonblock-read.c \
 	fifo-futex-poll.c \
 	file-exit-unreg.c \
+	file-alloc-range-hint.c \
 	file-register.c \
 	files-exit-hang-poll.c \
 	files-exit-hang-timeout.c \
@@ -156,6 +162,7 @@ test_srcs := \
 	no-mmap-inval.c \
 	nop-all-sizes.c \
 	nop.c \
+	nop-flags.c \
 	nop32.c \
 	nop32-overflow.c \
 	ooo-file-unreg.c \
@@ -166,6 +173,7 @@ test_srcs := \
 	personality.c \
 	pipe.c \
 	pipe-bug.c \
+	pipe-direct-fixed.c \
 	pipe-eof.c \
 	pipe-reuse.c \
 	poll.c \
@@ -193,6 +201,7 @@ test_srcs := \
 	recv-inc-ooo.c \
 	recv-msgall.c \
 	recv-msgall-stream.c \
+	recv-mshot-drain.c \
 	recv-mshot-fair.c \
 	recv-multishot.c \
 	reg-fd-only.c \
@@ -254,6 +263,7 @@ test_srcs := \
 	submit-reuse.c \
 	symlink.c \
 	sync-cancel.c \
+	task-restrict.c \
 	teardowns.c \
 	thread-exit.c \
 	timerfd-short-read.c \
