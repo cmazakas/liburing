@@ -131,8 +131,9 @@ pub unsafe fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
     1 << shift
 }
 
+#[must_use]
 #[inline]
-unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
+pub unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
 {
     io_uring_cqe_iter { cqes: (*ring).cq.cqes,
                         mask: (*ring).cq.ring_mask,
@@ -143,8 +144,8 @@ unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
 }
 
 #[inline]
-unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe)
-                                 -> bool
+pub unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe)
+                                     -> bool
 {
     if (*iter).head == (*iter).tail {
         return false;

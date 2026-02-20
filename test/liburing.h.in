@@ -433,32 +433,13 @@ struct io_uring_cqe_iter {
 	unsigned tail;
 };
 
-_LOCAL_INLINE struct io_uring_cqe_iter
+struct io_uring_cqe_iter
 io_uring_cqe_iter_init(const struct io_uring *ring)
-	LIBURING_NOEXCEPT
-{
-	return (struct io_uring_cqe_iter) {
-		.cqes = ring->cq.cqes,
-		.mask = ring->cq.ring_mask,
-		.shift = io_uring_cqe_shift(ring),
-		.head = *ring->cq.khead,
-		/* Acquire ordering ensures tail is loaded before any CQEs */
-		.tail = io_uring_smp_load_acquire(ring->cq.ktail),
-	};
-}
+	LIBURING_NOEXCEPT;
 
-_LOCAL_INLINE bool io_uring_cqe_iter_next(struct io_uring_cqe_iter *iter,
-					  struct io_uring_cqe **cqe)
-	LIBURING_NOEXCEPT
-{
-	if (iter->head == iter->tail)
-		return false;
-
-	*cqe = &iter->cqes[(iter->head++ & iter->mask) << iter->shift];
-	if ((*cqe)->flags & IORING_CQE_F_32)
-		iter->head++;
-	return true;
-}
+bool io_uring_cqe_iter_next(struct io_uring_cqe_iter *iter,
+			    struct io_uring_cqe **cqe)
+	LIBURING_NOEXCEPT;
 
 /*
  * NOTE: we should just get rid of the '__head__' being passed in here, it doesn't
