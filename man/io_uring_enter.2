@@ -665,6 +665,22 @@ must not be used with
 .in
 .PP
 
+.PP
+.in +7
+Since kernel 7.1,
+.B IORING_TIMEOUT_IMMEDIATE_ARG
+can be set in
+.IR timeout_flags ,
+which causes the
+.I addr
+field to be interpreted as a timeout value in nanoseconds rather than a
+pointer to a
+.B struct __kernel_timespec.
+This avoids the need to keep a timespec structure valid in user memory until
+the request is submitted.
+.in
+.PP
+
 .TP
 .B IORING_OP_TIMEOUT_REMOVE
 If
