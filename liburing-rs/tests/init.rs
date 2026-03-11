@@ -5,7 +5,8 @@ use std::{mem::zeroed, ptr, time::Duration};
 use liburing_rs::*;
 
 #[test]
-pub fn queue_init() {
+pub fn queue_init()
+{
     // Setup the ring.
     //
     // We create a stack-local instance of `struct io_uring` and use
@@ -61,7 +62,8 @@ pub fn queue_init() {
 }
 
 #[test]
-fn for_each_cqe() {
+fn for_each_cqe()
+{
     let mut ring = unsafe { zeroed::<io_uring>() };
     let ring = &raw mut ring;
     let r = unsafe { io_uring_queue_init(64, ring, 0) };
