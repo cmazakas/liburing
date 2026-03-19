@@ -1,6 +1,13 @@
 prefix ?= /usr
 datadir ?= $(prefix)/share
 
+CLANG ?= clang
+BPFTOOL ?= $(or $(shell command -v bpftool 2>/dev/null), \
+		$(shell command -v /usr/sbin/bpftool 2>/dev/null), \
+		bpfool)
+BPF_PROGS_DIR = bpf-progs
+BPF_OUTPUT = output/bpf
+
 INSTALL=install
 
 ifneq ($(MAKECMDGOALS),clean)
@@ -135,6 +142,7 @@ test_srcs := \
 	iopoll.c \
 	iopoll-leak.c \
 	iopoll-overflow.c \
+	iopoll-sync.c \
 	io_uring_enter.c \
 	io_uring_passthrough.c \
 	io_uring_register.c \
@@ -158,6 +166,7 @@ test_srcs := \
 	msg-ring-fd.c \
 	msg-ring-flags.c \
 	msg-ring-overflow.c \
+	mshot-shutdown-race.c \
 	multicqes_drain.c \
 	napi-test.c \
 	no-mmap-inval.c \
@@ -254,6 +263,7 @@ test_srcs := \
 	sq-poll-share.c \
 	sqpoll-sleep.c \
 	sq-space_left.c \
+	sqe-mixed-boundary.c \
 	sqe-mixed-nop.c \
 	sqe-mixed-bad-wrap.c \
 	sqe-mixed-uring_cmd.c \
@@ -311,6 +321,13 @@ ifdef CONFIG_HAVE_CXX
 endif
 all_targets += sq-full-cpp.t
 
+bpf_test_srcs := bpf_nops.c bpf_cp.c
+bpf_progs := $(patsubst bpf_%.c, %.bpf.c, $(bpf_test_srcs))
+bpf_test_targets :=
+
+ifeq ($(bpf_toolchain),y)
+	bpf_test_targets := $(patsubst %.c,%.tt,$(bpf_test_srcs))
+endif
 
 test_targets := $(patsubst %.c,%,$(test_srcs))
 test_targets := $(patsubst %.cc,%,$(test_targets))
@@ -318,6 +335,7 @@ rust_test_targets := $(patsubst %,%.rt,$(test_targets))
 run_test_targets := $(patsubst %,%.run_test,$(test_targets))
 run_rust_test_targets := $(patsubst %,rust-%.run_test,$(test_targets))
 test_targets := $(patsubst %,%.t,$(test_targets))
+test_targets += $(bpf_test_targets)
 all_targets += $(test_targets)
 helpers = helpers.o
 
@@ -341,6 +359,9 @@ LIBURING := $(shell if [ -e ../src/liburing.a ]; then echo ../src/liburing.a; fi
 %.t: %.c $(helpers) helpers.h $(LIBURING)
 	$(QUIET_CC)$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ $< $(helpers) $(LDFLAGS)
 
+bpf_%.tt: bpf_%.c $(helpers) helpers.h $(LIBURING) $(BPF_OUTPUT)/%.bpf.o $(BPF_OUTPUT)/%.skel.h
+	$(QUIET_CC)$(CC) $(CPPFLAGS) $(CFLAGS) -I$(BPF_OUTPUT) -o $@ $< $(helpers) $(LDFLAGS) -lbpf
+
 #
 # Clang++ is not happy with -Wmissing-prototypes:
 #
@@ -353,6 +374,20 @@ LIBURING := $(shell if [ -e ../src/liburing.a ]; then echo ../src/liburing.a; fi
 	$(patsubst -Wmissing-prototypes,,$(CXXFLAGS)) \
 	-o $@ $< $(helpers) $(LDFLAGS)
 
+CLANG_BPF_SYS_INCLUDES ?= $(shell $(CLANG) -v -E - </dev/null 2>&1 \
+	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)|-idirafter \1|p }')
+
+# Build BPF code
+$(BPF_OUTPUT)/%.bpf.o: $(BPF_PROGS_DIR)/%.bpf.c $(wildcard %.h)
+	mkdir -p ${BPF_OUTPUT}
+	$(QUIET_CC)$(CLANG) -g -O2 -target bpf \
+		     -I$(BPF_OUTPUT) $(CLANG_BPF_SYS_INCLUDES) \
+		     -Wno-missing-declarations \
+		     -c $(filter %.c,$^) -o $(patsubst %.bpf.o,%.tmp.bpf.o,$@) -mcpu=v4
+	$(BPFTOOL) gen object $@ $(patsubst %.bpf.o,%.tmp.bpf.o,$@)
+
+$(BPF_OUTPUT)/%.skel.h: $(BPF_OUTPUT)/%.bpf.o
+	$(BPFTOOL) gen skeleton $< > $@
 
 install: $(test_targets) runtests.sh runtests-loop.sh
 	$(INSTALL) -D -d -m 755 $(datadir)/liburing-test/
@@ -364,7 +399,7 @@ uninstall:
 	@rm -rf $(datadir)/liburing-test/
 
 clean:
-	@rm -f $(all_targets) $(rust_test_targets) $(asan_rust_test_targets) helpers.o output/* liburing_rs.a liburing_rs.rlib
+	@rm -f $(all_targets) $(rust_test_targets) $(asan_rust_test_targets) helpers.o output/* liburing_rs.a liburing_rs.rlib output/*
 	@rm -rf output/
 
 runtests: all
