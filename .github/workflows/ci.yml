@@ -262,13 +262,13 @@ jobs:
           ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}};
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
 
-      - name: Build
+      - name: Build (Asan)
         if: ${{matrix.build_args.sanitize == '1'}}
         run: |
           ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}} --enable-sanitizer;
           make -j$(nproc) V=1 CPPFLAGS="-Werror" CFLAGS="$FLAGS" CXXFLAGS="$FLAGS";
 
-      - name: Build
+      - name: Build (Tsan)
         if: ${{matrix.build_args.tsan == '1'}}
         run: |
           ./configure --cc=${{matrix.build_args.cc}} --cxx=${{matrix.build_args.cxx}} --enable-tsan;
