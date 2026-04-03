@@ -13,7 +13,7 @@
 mod uring;
 
 use core::{
-    ffi::{c_char, c_int, c_longlong, c_uint, c_ushort, c_void},
+    ffi::{c_char, c_int, c_longlong, c_uint, c_ulong, c_ushort, c_void},
     mem::{self, zeroed},
     ptr,
     sync::atomic::{
@@ -818,11 +818,19 @@ pub unsafe fn io_uring_prep_recv_multishot(sqe: *mut io_uring_sqe, sockfd: c_int
 pub unsafe fn io_uring_recvmsg_validate(buf: *mut c_void, buf_len: c_int, msgh: *mut msghdr)
                                         -> *mut io_uring_recvmsg_out
 {
-    let header = (*msgh).msg_controllen as usize
-                 + (*msgh).msg_namelen as usize
-                 + mem::size_of::<io_uring_recvmsg_out>();
+    let ulen = c_ulong::from(buf_len as c_uint);
+    let hdr = size_of::<io_uring_recvmsg_out>() as c_ulong;
+    let namelen = c_ulong::from((*msgh).msg_namelen);
+    let controllen = (*msgh).msg_controllen as c_ulong;
 
-    if buf_len < 0 || (buf_len as usize) < header {
+    if buf_len < 0 || ulen < hdr {
+        return ptr::null_mut();
+    }
+    /* check each addition separately to avoid integer overflow */
+    if namelen > ulen - hdr {
+        return ptr::null_mut();
+    }
+    if controllen > ulen - hdr - namelen {
         return ptr::null_mut();
     }
 
@@ -895,8 +903,16 @@ pub unsafe fn io_uring_recvmsg_payload_length(o: *mut io_uring_recvmsg_out, buf_
                                               msgh: *mut msghdr)
                                               -> c_uint
 {
+    if buf_len < 0 {
+        return 0;
+    }
+
     let payload_start = io_uring_recvmsg_payload(o, msgh) as usize;
     let payload_end = o as usize + buf_len as usize;
+    if payload_start >= payload_end {
+        return 0;
+    }
+
     (payload_end - payload_start) as _
 }
 
