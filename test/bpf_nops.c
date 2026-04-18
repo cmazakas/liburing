@@ -45,8 +45,9 @@ static int setup_ring_ops(struct io_uring *ring)
 
 	skel->struct_ops.nops_ops->ring_fd = ring->ring_fd;
 	skel->bss->reqs_to_run = NR_ITERS;
-	skel->rodata->sq_hdr_offset = params.sq_off.head;
-	skel->rodata->cq_hdr_offset = params.cq_off.head;
+	skel->rodata->cq_head_offset = params.cq_off.head;
+	skel->rodata->cq_tail_offset = params.cq_off.tail;
+
 	skel->rodata->cqes_offset = params.cq_off.cqes;
 	skel->rodata->cq_entries = CQ_ENTRIES;
 	skel->rodata->sq_entries = SQ_ENTRIES;
@@ -69,11 +70,14 @@ static int setup_ring_ops(struct io_uring *ring)
 	return T_EXIT_PASS;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
 	struct io_uring ring;
 	unsigned left;
 	int ret;
+
+	if (argc > 1)
+		return T_EXIT_SKIP;
 
 	ret = setup_ring_ops(&ring);
 	if (ret != T_EXIT_PASS)
