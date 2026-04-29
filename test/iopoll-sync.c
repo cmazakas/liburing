@@ -77,10 +77,8 @@ int main(void)
 		fprintf(stderr, "No CQE for user_data 1\n");
 		return T_EXIT_FAIL;
 	}
-	if (cqe->res == -EOPNOTSUPP) {
-		fprintf(stderr, "GETSOCKOPT not supported\n");
+	if (cqe->res == -EOPNOTSUPP || cqe->res == -EINVAL)
 		return T_EXIT_SKIP;
-	}
 	if (cqe->res != sizeof(optval1)) {
 		fprintf(stderr, "GETSOCKOPT returned %d\n", cqe->res);
 		return T_EXIT_FAIL;

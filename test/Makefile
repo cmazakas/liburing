@@ -157,6 +157,7 @@ test_srcs := \
 	io-wq-unused-exit.c \
 	iowait.c \
 	kallsyms.c \
+	large-resize.c \
 	lfs-openat.c \
 	lfs-openat-write.c \
 	link.c \
@@ -200,6 +201,7 @@ test_srcs := \
 	poll-many.c \
 	poll-mshot-overflow.c \
 	poll-mshot-update.c \
+	poll-mshot-wake.c \
 	poll-race.c \
 	poll-race-mshot.c \
 	poll-ring.c \
@@ -388,6 +390,7 @@ CLANG_BPF_SYS_INCLUDES ?= $(shell $(CLANG) -v -E - </dev/null 2>&1 \
 $(BPF_OUTPUT)/%.bpf.o: $(BPF_PROGS_DIR)/%.bpf.c $(wildcard %.h)
 	mkdir -p ${BPF_OUTPUT}
 	$(QUIET_CC)$(CLANG) -g -O2 -target bpf \
+		     -I../src/include/ \
 		     -I$(BPF_OUTPUT) $(CLANG_BPF_SYS_INCLUDES) \
 		     -Wno-missing-declarations \
 		     -c $(filter %.c,$^) -o $(patsubst %.bpf.o,%.tmp.bpf.o,$@) -mcpu=v4

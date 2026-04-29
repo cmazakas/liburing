@@ -52,6 +52,7 @@
 
 /test/*.t
 /test/*.rt
+/test/*.tt
 /test/*.dmesg
 /test/output/
 /test/liburing_rs*
