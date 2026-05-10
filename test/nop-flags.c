@@ -659,6 +659,8 @@ int main(int argc, char *argv[])
 
 	ret = io_uring_queue_init(8, &ring, IORING_SETUP_SUBMIT_ALL);
 	if (ret) {
+		if (ret == -EINVAL)
+			return T_EXIT_SKIP;
 		fprintf(stderr, "ring setup failed: %d\n", ret);
 		return T_EXIT_FAIL;
 	}

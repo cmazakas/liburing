@@ -281,13 +281,11 @@ static int test_io(const char *file, int tc, int read, int sqthread,
 		return 0;
 
 	ret = t_create_ring(128, &ring, ring_flags);
-	if (ret == T_SETUP_SKIP)
-		return 0;
+	if (ret == T_SETUP_SKIP) {
+		no_pt = 1;
+		return T_SETUP_SKIP;
+	}
 	if (ret != T_SETUP_OK) {
-		if (ret == -EINVAL) {
-			no_pt = 1;
-			return T_SETUP_SKIP;
-		}
 		fprintf(stderr, "ring create failed: %d\n", ret);
 		return 1;
 	}

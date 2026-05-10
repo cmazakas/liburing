@@ -223,6 +223,7 @@ test_srcs := \
 	recv-mshot-drain.c \
 	recv-mshot-fair.c \
 	recv-multishot.c \
+	recvmsg-inc-tail.c \
 	reg-fd-only.c \
 	reg-hint.c \
 	reg-reg-ring.c \
@@ -286,6 +287,7 @@ test_srcs := \
 	task-restrict.c \
 	teardowns.c \
 	thread-exit.c \
+	timens-abs-timer.c \
 	timerfd-short-read.c \
 	timeout.c \
 	timeout-new.c \

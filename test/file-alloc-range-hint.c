@@ -199,7 +199,9 @@ int main(int argc, char *argv[])
 		return T_EXIT_SKIP;
 
 	ret = test_hint_below_range();
-	if (ret) {
+	if (ret == T_EXIT_SKIP) {
+		return T_EXIT_SKIP;
+	} else if (ret) {
 		fprintf(stderr, "test_hint_below_range failed\n");
 		return T_EXIT_FAIL;
 	}
