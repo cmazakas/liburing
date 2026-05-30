@@ -27,6 +27,7 @@
 #define RQ_ENTRIES_SMALL	16
 #define AREA_SZ			(4096 * 132)
 #define HUGEPAGE_AREA_SZ	(16 << 20)
+
 #define T_ALIGN_UP(v, align) (((v) + (align) - 1) & ~((align) - 1))
 
 struct zcrx_reg {
@@ -49,11 +50,32 @@ static long page_size;
 static void *def_rq_mem;
 static void *def_area_mem;
 static void *def_hugepage_area_mem;
+static void *ro_param_mem;
+static size_t ro_param_mem_size;
 
 enum {
 	CONFIG_HUGEPAGE		= 1 << 0,
 	CONFIG_SMALL_RQ		= 1 << 1,
 };
+
+static void *write_ro_params(void *src, size_t bytes)
+{
+	int ret;
+
+	if (bytes > ro_param_mem_size)
+		t_error(0, 1, "write_to_ro: too large");
+	ret = mprotect(ro_param_mem, ro_param_mem_size, PROT_READ | PROT_WRITE);
+	if (ret)
+		t_error(0, errno, "mprotect failed");
+
+	memcpy(ro_param_mem, src, bytes);
+
+	ret = mprotect(ro_param_mem, ro_param_mem_size, PROT_READ);
+	if (ret)
+		t_error(0, errno, "mprotect read failed");
+
+	return ro_param_mem;
+}
 
 static struct io_uring_cqe *submit_and_wait_one(struct io_uring *ring)
 {
@@ -370,27 +392,17 @@ static int test_area(void)
 
 static int test_ro_params(void)
 {
-	size_t size = T_ALIGN_UP(sizeof (struct zcrx_reg), page_size);
-	struct zcrx_reg *reg;
-	void *mem;
+	struct zcrx_reg __reg, *reg;
 	int ret;
 
-	mem = mmap(NULL, size, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (mem == MAP_FAILED)
-		t_error(0, 1, "Can't allocate buffer");
-
-	reg = mem;
-	default_reg(reg, 0);
-	mprotect(mem, size, PROT_READ);
+	default_reg(&__reg, 0);
+	reg = write_ro_params(&__reg, sizeof(__reg));
 
 	ret = try_register_zcrx(&reg->zcrx);
 	if (ret != -EFAULT) {
 		fprintf(stderr, "registered unaligned area ptr\n");
 		return ret;
 	}
-
-	munmap(mem, size);
 	return 0;
 }
 
@@ -698,7 +710,7 @@ static int test_zcrx_invalid_clone(void)
 {
 	struct io_uring_zcrx_ifq_reg import;
 	struct io_uring r1, r2;
-	struct zcrx_ctrl ctrl;
+	struct zcrx_ctrl ctrl, *pctrl;
 	struct zcrx_reg reg;
 	unsigned box_fd;
 	int ret;
@@ -750,12 +762,24 @@ static int test_zcrx_invalid_clone(void)
 		fprintf(stderr, "Can't register zcrx\n");
 		return ret;
 	}
+
 	ctrl = (struct zcrx_ctrl) {
-		.zcrx_id = 0,
+		.zcrx_id = reg.zcrx.zcrx_id,
 		.op = ZCRX_CTRL_EXPORT,
 	};
-	box_fd = ctrl.zc_export.zcrx_fd;
+	pctrl = write_ro_params(&ctrl, sizeof(ctrl));
+	ret = t_zcrx_ctrl(&r1, pctrl);
+	if (ret == 0) {
+		fprintf(stderr, "exported with ro params\n");
+		return ret;
+	}
+
+	ctrl = (struct zcrx_ctrl) {
+		.zcrx_id = reg.zcrx.zcrx_id,
+		.op = ZCRX_CTRL_EXPORT,
+	};
 	ret = t_zcrx_ctrl(&r1, &ctrl);
+	box_fd = ctrl.zc_export.zcrx_fd;
 	if (ret < 0 || (int)box_fd < 0) {
 		fprintf(stderr, "Can'r export zcrx %i\n", ret);
 		return -1;
@@ -895,6 +919,88 @@ static int test_recv(void)
 	return 0;
 }
 
+static int test_abnormal_exit(bool iowq, bool pin_zcrx)
+{
+	struct io_uring_sqe *sqe;
+	struct io_uring ring;
+	struct zcrx_reg reg;
+	char buf[16] = {};
+	char *refill_queue_ptr;
+	int ret, fds[2];
+	int box_fd = -1;
+
+	ret = t_create_ring(16, &ring, RING_FLAGS);
+	if (ret != T_SETUP_OK) {
+		fprintf(stderr, "ring create failed: %d\n", ret);
+		return -1;
+	}
+
+	default_reg(&reg, 0);
+	refill_queue_ptr = (char *)(uintptr_t)reg.rq_region.user_addr;
+	memset(refill_queue_ptr, 0, get_rq_size(0));
+
+	ret = io_uring_register_ifq(&ring, &reg.zcrx);
+	if (ret) {
+		fprintf(stderr, "Can't register zcrx %i\n", ret);
+		return ret;
+	}
+
+	ret = t_create_socket_pair(fds, true);
+	if (ret) {
+		fprintf(stderr, "t_create_socket_pair failed: %d\n", ret);
+		return ret;
+	}
+
+	if (pin_zcrx) {
+		struct zcrx_ctrl export_ctrl = {
+			.zcrx_id = reg.zcrx.zcrx_id,
+			.op = ZCRX_CTRL_EXPORT,
+		};
+
+		ret = t_zcrx_ctrl(&ring, &export_ctrl);
+		box_fd = export_ctrl.zc_export.zcrx_fd;
+		if (ret < 0) {
+			fprintf(stderr, "Export failed %i %i\n", ret, box_fd);
+			return ret;
+		}
+	}
+
+	if (!iowq) {
+		sqe = io_uring_get_sqe(&ring);
+		test_io_uring_prep_zcrx(sqe, fds[0], reg.zcrx.zcrx_id);
+		ret = io_uring_submit(&ring);
+		if (ret != 1)
+			t_error(1, ret, "zcrx submit fail\n");
+
+		/* try to queue a task_work for the rx request */
+		ret = send(fds[1], buf, sizeof(buf), 0);
+		if (ret <= 0)
+			t_error(1, ret, "Send failed\n");
+		/* unregister zcrx with inflight request */
+	} else {
+		ret = send(fds[1], buf, sizeof(buf), 0);
+		if (ret <= 0)
+			t_error(1, ret, "Send failed\n");
+
+		sqe = io_uring_get_sqe(&ring);
+		test_io_uring_prep_zcrx(sqe, fds[0], reg.zcrx.zcrx_id);
+		sqe->flags |= IOSQE_ASYNC;
+		ret = io_uring_submit(&ring);
+		if (ret != 1)
+			t_error(1, ret, "zcrx submit fail\n");
+		/* unregister zcrx while io-wq processes a request */
+	}
+
+	io_uring_queue_exit(&ring);
+	/* give it time to exit before shutting the socket */
+	usleep(300);
+	close(fds[0]);
+	close(fds[1]);
+	if (box_fd != -1)
+		close(box_fd);
+	return 0;
+}
+
 static int flush_invalid(struct t_executor *ctx, struct io_uring_zcrx_rqe *rqes,
 			 unsigned nr)
 {
@@ -1023,6 +1129,7 @@ static int test_area_ro(void)
 static int run_tests(void)
 {
 	int ret;
+	int i;
 
 	ret = test_register_basic();
 	if (ret == -EPERM) {
@@ -1118,6 +1225,19 @@ static int run_tests(void)
 		return T_EXIT_FAIL;
 	}
 
+	for (i = 0; i < 4; i++) {
+		bool iowq = i & 1;
+		bool pin_zcrx = i & 2;
+
+		if (pin_zcrx && !(query.register_flags & ZCRX_REG_IMPORT))
+			continue;
+		ret = test_abnormal_exit(iowq, pin_zcrx);
+		if (ret) {
+			fprintf(stderr, "test_abnormal_exit(%i, %i) %i\n", iowq, pin_zcrx, ret);
+			return T_EXIT_FAIL;
+		}
+	}
+
 	return T_EXIT_PASS;
 }
 
@@ -1153,6 +1273,14 @@ static void setup(void)
 	if (def_area_mem == MAP_FAILED)
 		t_error(1, 0, "mmap(): refill ring");
 	madvise(def_area_mem, AREA_SZ, MADV_NOHUGEPAGE);
+
+	ro_param_mem_size = T_ALIGN_UP(4096 * 2, page_size);
+	ro_param_mem = mmap(NULL, ro_param_mem_size, PROT_READ | PROT_WRITE,
+		    MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (ro_param_mem == MAP_FAILED) {
+		fprintf(stderr, "null ro\n");
+		t_error(0, 1, "read-only mmap setup failed");
+	}
 }
 
 int main(int argc, char *argv[])
