@@ -32,6 +32,7 @@
 /examples/kdigest
 /examples/reg-wait
 /examples/zcrx
+/examples/echo-server
 
 /examples/io_uring-close-test-rs
 /examples/io_uring-cp-rs

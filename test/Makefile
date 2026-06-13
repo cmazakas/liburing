@@ -93,6 +93,7 @@ test_srcs := \
 	cq-full.c \
 	cq-overflow.c \
 	cq-peek-batch.c \
+	cq-peek-batch-mixed.c \
 	cq-ready.c \
 	cq-size.c \
 	d4ae271dfaae.c \
@@ -216,6 +217,7 @@ test_srcs := \
 	read-mshot-empty.c \
 	read-mshot-stdin.c \
 	read-write.c \
+	recv-bundle-buf-len.c \
 	recv-bundle-short-ooo.c \
 	recv-inc-ooo.c \
 	recv-msgall.c \

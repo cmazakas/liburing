@@ -214,7 +214,7 @@ void io_uring_free_probe(struct io_uring_probe *probe) LIBURING_NOEXCEPT;
 IOURINGINLINE int io_uring_opcode_supported(const struct io_uring_probe *p,
 					    int op) LIBURING_NOEXCEPT
 {
-	if (op > p->last_op)
+	if (op < 0 || op > p->last_op)
 		return 0;
 	return (p->ops[op].flags & IO_URING_OP_SUPPORTED) != 0;
 }
@@ -354,6 +354,8 @@ int io_uring_unregister_napi(struct io_uring *ring, struct io_uring_napi *napi)
 	LIBURING_NOEXCEPT;
 int io_uring_register_ifq(struct io_uring *ring,
 			  struct io_uring_zcrx_ifq_reg *reg) LIBURING_NOEXCEPT;
+int io_uring_register_zcrx_ctrl(struct io_uring *ring, struct zcrx_ctrl *ctrl)
+	LIBURING_NOEXCEPT;
 
 int io_uring_register_clock(struct io_uring *ring,
 			    struct io_uring_clock_register *arg)
@@ -362,6 +364,8 @@ int io_uring_register_bpf_filter(struct io_uring *ring,
 				 struct io_uring_bpf *bpf) LIBURING_NOEXCEPT;
 int io_uring_register_bpf_filter_task(struct io_uring_bpf *bpf)
 				 LIBURING_NOEXCEPT;
+
+int io_uring_register_query(struct io_uring_query_hdr *query) LIBURING_NOEXCEPT;
 
 int io_uring_get_events(struct io_uring *ring) LIBURING_NOEXCEPT;
 int io_uring_submit_and_get_events(struct io_uring *ring) LIBURING_NOEXCEPT;
@@ -1877,11 +1881,13 @@ IOURINGINLINE int __io_uring_peek_cqe(struct io_uring *ring,
 	do {
 		unsigned tail = io_uring_smp_load_acquire(ring->cq.ktail);
 
-		/**
-		 * A load_acquire on the head prevents reordering with the
-		 * cqe load below, ensuring that we see the correct cq entry.
+		/*
+		 * The acquire ordering on the tail load pairs with the kernel
+		 * side publishing CQEs, and guarantees the contents of any
+		 * entry in [head, tail). The CQ head is only ever written by
+		 * the application, so a plain load is sufficient.
 		 */
-		unsigned head = io_uring_smp_load_acquire(ring->cq.khead);
+		unsigned head = *ring->cq.khead;
 
 		cqe = NULL;
 		available = tail - head;
@@ -1889,8 +1895,16 @@ IOURINGINLINE int __io_uring_peek_cqe(struct io_uring *ring,
 			break;
 
 		cqe = &ring->cq.cqes[(head & mask) << shift];
-		if (!io_uring_skip_cqe(ring, cqe, &err))
+		if (!io_uring_skip_cqe(ring, cqe, &err)) {
+			/*
+			 * If an error was set, the CQE was an internal
+			 * timeout and has already been consumed - don't
+			 * return a pointer to it.
+			 */
+			if (err)
+				cqe = NULL;
 			break;
+		}
 		cqe = NULL;
 	} while (1);
 
@@ -1908,8 +1922,20 @@ IOURINGINLINE int io_uring_peek_cqe(struct io_uring *ring,
 				    struct io_uring_cqe **cqe_ptr)
 	LIBURING_NOEXCEPT
 {
-	if (!__io_uring_peek_cqe(ring, cqe_ptr, NULL) && *cqe_ptr)
-		return 0;
+	if (!__io_uring_peek_cqe(ring, cqe_ptr, NULL)) {
+		if (*cqe_ptr)
+			return 0;
+		/*
+		 * If the CQ is empty and there's nothing the kernel could
+		 * flush to it (no IOPOLL completions to reap, no overflown
+		 * CQEs, no pending task work), avoid the round trip into
+		 * the full get_cqe machinery.
+		 */
+		if (!(ring->flags & IORING_SETUP_IOPOLL) &&
+		    !(IO_URING_READ_ONCE(*ring->sq.kflags) &
+		      (IORING_SQ_CQ_OVERFLOW | IORING_SQ_TASKRUN)))
+			return -EAGAIN;
+	}
 
 	return io_uring_wait_cqe_nr(ring, cqe_ptr, 0);
 }
