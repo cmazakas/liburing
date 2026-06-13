@@ -97,7 +97,7 @@ unsafe fn uring_ptr_to_u64(ptr: *const c_void) -> u64
 #[inline]
 pub unsafe fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_int
 {
-    if op > (*p).last_op.into() {
+    if op < 0 || op > (*p).last_op.into() {
         return 0;
     }
 
@@ -1514,10 +1514,12 @@ unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_c
         let tail = io_uring_smp_load_acquire((*ring).cq.ktail);
 
         /*
-         * A load_acquire on the head prevents reordering with the
-         * cqe load below, ensuring that we see the correct cq entry.
+         * The acquire ordering on the tail load pairs with the kernel
+         * side publishing CQEs, and guarantees the contents of any
+         * entry in [head, tail). The CQ head is only ever written by
+         * the application, so a plain load is sufficient.
          */
-        let head = io_uring_smp_load_acquire((*ring).cq.khead);
+        let head = *((*ring).cq.khead);
 
         cqe = ptr::null_mut();
         available = tail - head;
@@ -1527,6 +1529,14 @@ unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_c
 
         cqe = &raw mut *(*ring).cq.cqes.add(((head & mask) << shift) as usize);
         if !io_uring_skip_cqe(ring, cqe, &raw mut err) {
+            /*
+             * If an error was set, the CQE was an internal
+             * timeout and has already been consumed - don't
+             * return a pointer to it.
+             */
+            if err != 0 {
+                cqe = ptr::null_mut();
+            }
             break;
         }
     }
@@ -1545,8 +1555,23 @@ unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_c
 #[inline]
 pub unsafe fn io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe) -> c_int
 {
-    if __io_uring_peek_cqe(ring, cqe_ptr, ptr::null_mut()) == 0 && !(*cqe_ptr).is_null() {
-        return 0;
+    if __io_uring_peek_cqe(ring, cqe_ptr, ptr::null_mut()) == 0 {
+        if !(*cqe_ptr).is_null() {
+            return 0;
+        }
+
+        /*
+         * If the CQ is empty and there's nothing the kernel could
+         * flush to it (no IOPOLL completions to reap, no overflown
+         * CQEs, no pending task work), avoid the round trip into
+         * the full get_cqe machinery.
+         */
+        if ((*ring).flags & IORING_SETUP_IOPOLL) == 0
+           && (IO_URING_READ_ONCE((*ring).sq.kflags) & (IORING_SQ_CQ_OVERFLOW | IORING_SQ_TASKRUN))
+              == 0
+        {
+            return -(EAGAIN as c_int);
+        }
     }
 
     io_uring_wait_cqe_nr(ring, cqe_ptr, 0)
