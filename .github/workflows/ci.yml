@@ -26,7 +26,6 @@ jobs:
           git config core.abbrev 12;
           ( \
             ( \
-              git log --pretty="%h" --reverse "${FIRST_EVENT_COMMIT}^...${CURRENT_SHA}" || \
               (printf "%s" "$CURRENT_SHA" | head -c 12) \
             ) | awk '{ print "id" NR "=" $1 }' \
           ) > "$GITHUB_OUTPUT";
