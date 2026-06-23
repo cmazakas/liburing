@@ -25,6 +25,25 @@ void *__uring_memset(void *s, int c, size_t n)
 	return s;
 }
 
+int __uring_memcmp(const void *s1, const void *s2, size_t n)
+{
+	size_t i;
+	const unsigned char *p1 = s1, *p2 = s2;
+
+	for (i = 0; i < n; i++) {
+		if (p1[i] != p2[i])
+			return p1[i] - p2[i];
+
+		/*
+		 * An empty inline ASM to avoid auto-vectorization
+		 * because it's too bloated for liburing.
+		 */
+		__asm__ volatile ("");
+	}
+
+	return 0;
+}
+
 struct uring_heap {
 	size_t		len;
 	char		user_p[] __attribute__((__aligned__));

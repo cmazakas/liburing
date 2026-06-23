@@ -41,10 +41,12 @@
 void *__uring_memset(void *s, int c, size_t n);
 void *__uring_malloc(size_t len);
 void __uring_free(void *p);
+int __uring_memcmp(const void *s1, const void *s2, size_t n);
 
 #define malloc(LEN)		__uring_malloc(LEN)
 #define free(PTR)		__uring_free(PTR)
 #define memset(PTR, C, LEN)	__uring_memset(PTR, C, LEN)
+#define memcmp(S1, S2, LEN)	__uring_memcmp(S1, S2, LEN)
 #endif
 
 #endif /* #ifndef LIBURING_LIB_H */
