@@ -1,5 +1,3 @@
-# liburing-rs
-
 Rust bindings for io_uring via a transliteration of Jens Axboe's liburing.
 
 [![Crates.io](https://img.shields.io/crates/v/axboe-liburing.svg)](https://crates.io/crates/axboe-liburing)
@@ -13,6 +11,10 @@ Building this crate successfully may require the following in your `.cargo/confi
 CLANG_PATH = "/usr/bin/clang-20"
 LIBCLANG_PATH = "/usr/lib/llvm-20/lib"
 ```
+
+in order for bindgen to successfully generate the required struct defintions.
+
+---
 
 This crate implements an almost pure Rust version of Jens Axboe's [liburing](https://github.com/axboe/liburing).
 All the good names were taken so the package's name is axboe-liburing but the imported crate is `liburing_rs`.
@@ -78,9 +80,9 @@ make -C test liburing_rs_tests -j$(nproc)
 ## Docs
 
 For documentation, see the man pages for the liburing package itself. The Arch Linux pages have relatively up-to-date
-docs: https://man.archlinux.org/listing/extra/liburing/.
+docs: <https://man.archlinux.org/listing/extra/liburing/>.
 
-Examples can be found in the main repo: https://github.com/axboe/liburing/tree/master/examples
+Examples can be found in the main repo: <https://github.com/axboe/liburing/tree/master/examples>
 
 ## Example
 
