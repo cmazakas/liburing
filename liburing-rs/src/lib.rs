@@ -10,6 +10,7 @@
          clippy::used_underscore_items,
          clippy::unnecessary_cast)]
 
+#[doc(hidden)]
 mod uring;
 
 use core::{
@@ -23,7 +24,50 @@ use core::{
     time::Duration,
 };
 
+#[doc(hidden)]
 pub use uring::*;
+
+pub use uring::{
+    io_uring, io_uring_bpf, io_uring_buf_reg, io_uring_buf_ring, io_uring_buf_ring_head,
+    io_uring_clock_register, io_uring_clone_buffers, io_uring_clone_buffers_offset,
+    io_uring_close_ring_fd, io_uring_cqe, io_uring_enable_rings, io_uring_enter, io_uring_enter2,
+    io_uring_free_buf_ring, io_uring_free_probe, io_uring_get_events, io_uring_get_probe,
+    io_uring_get_probe_ring, io_uring_mem_region_reg, io_uring_napi, io_uring_params,
+    io_uring_peek_batch_cqe, io_uring_probe, io_uring_query_hdr, io_uring_queue_exit,
+    io_uring_queue_init, io_uring_queue_init_mem, io_uring_queue_init_params, io_uring_queue_mmap,
+    io_uring_reg_wait, io_uring_register, io_uring_register_bpf_filter,
+    io_uring_register_bpf_filter_task, io_uring_register_buf_ring, io_uring_register_buffers,
+    io_uring_register_buffers_sparse, io_uring_register_buffers_tags,
+    io_uring_register_buffers_update_tag, io_uring_register_clock, io_uring_register_eventfd,
+    io_uring_register_eventfd_async, io_uring_register_file_alloc_range, io_uring_register_files,
+    io_uring_register_files_sparse, io_uring_register_files_tags, io_uring_register_files_update,
+    io_uring_register_files_update_tag, io_uring_register_ifq, io_uring_register_iowq_max_workers,
+    io_uring_register_napi, io_uring_register_personality, io_uring_register_probe,
+    io_uring_register_query, io_uring_register_region, io_uring_register_restrictions,
+    io_uring_register_ring_fd, io_uring_register_sync_cancel, io_uring_register_sync_msg,
+    io_uring_register_wait_reg, io_uring_register_zcrx_ctrl, io_uring_resize_rings,
+    io_uring_restriction, io_uring_ring_dontfork, io_uring_setup, io_uring_setup_buf_ring,
+    io_uring_sqe, io_uring_submit, io_uring_submit_and_get_events, io_uring_submit_and_wait,
+    io_uring_submit_and_wait_min_timeout, io_uring_submit_and_wait_reg,
+    io_uring_submit_and_wait_timeout, io_uring_sync_cancel_reg, io_uring_unregister_buf_ring,
+    io_uring_unregister_buffers, io_uring_unregister_eventfd, io_uring_unregister_files,
+    io_uring_unregister_iowq_aff, io_uring_unregister_napi, io_uring_unregister_personality,
+    io_uring_unregister_ring_fd, io_uring_wait_cqe_timeout, io_uring_wait_cqes,
+    io_uring_wait_cqes_min_timeout, io_uring_zcrx_ifq_reg,
+};
+
+unsafe extern "C" {
+    pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
+                                             mask: *const cpu_set_t);
+}
+
+pub const IOSQE_FIXED_FILE: u32 = 1 << IOSQE_FIXED_FILE_BIT;
+pub const IOSQE_IO_DRAIN: u32 = 1 << IOSQE_IO_DRAIN_BIT;
+pub const IOSQE_IO_LINK: u32 = 1 << IOSQE_IO_LINK_BIT;
+pub const IOSQE_IO_HARDLINK: u32 = 1 << IOSQE_IO_HARDLINK_BIT;
+pub const IOSQE_ASYNC: u32 = 1 << IOSQE_ASYNC_BIT;
+pub const IOSQE_BUFFER_SELECT: u32 = 1 << IOSQE_BUFFER_SELECT_BIT;
+pub const IOSQE_CQE_SKIP_SUCCESS: u32 = 1 << IOSQE_CQE_SKIP_SUCCESS_BIT;
 
 const LIBURING_UDATA_TIMEOUT: u64 = u64::MAX;
 
@@ -419,7 +463,7 @@ pub unsafe fn io_uring_prep_sendmsg(sqe: *mut io_uring_sqe, fd: c_int, msg: *con
 
 #[must_use]
 #[inline]
-pub fn __io_uring_prep_poll_mask(poll_mask: c_uint) -> c_uint
+fn __io_uring_prep_poll_mask(poll_mask: c_uint) -> c_uint
 {
     poll_mask.to_le()
 }
@@ -1189,7 +1233,7 @@ pub unsafe fn io_uring_prep_socket_direct_alloc(sqe: *mut io_uring_sqe, domain: 
 }
 
 #[inline]
-pub unsafe fn __io_uring_prep_uring_cmd(sqe: *mut io_uring_sqe, op: c_int, cmd_op: u32, fd: c_int)
+unsafe fn __io_uring_prep_uring_cmd(sqe: *mut io_uring_sqe, op: c_int, cmd_op: u32, fd: c_int)
 {
     (*sqe).opcode = op as _;
     (*sqe).fd = fd;
