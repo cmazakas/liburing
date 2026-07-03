@@ -12,7 +12,7 @@ CLANG_PATH = "/usr/bin/clang-20"
 LIBCLANG_PATH = "/usr/lib/llvm-20/lib"
 ```
 
-in order for bindgen to successfully generate the required struct defintions.
+in order for bindgen to successfully generate the required struct definitions.
 
 ---
 
