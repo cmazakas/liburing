@@ -47,9 +47,9 @@ pub use uring::{
     io_uring_register_probe, io_uring_register_query, io_uring_register_region,
     io_uring_register_restrictions, io_uring_register_ring_fd, io_uring_register_sync_cancel,
     io_uring_register_sync_msg, io_uring_register_wait_reg, io_uring_register_zcrx_ctrl,
-    io_uring_resize_rings, io_uring_restriction, io_uring_ring_dontfork, io_uring_setup,
-    io_uring_setup_buf_ring, io_uring_sqe, io_uring_submit, io_uring_submit_and_get_events,
-    io_uring_submit_and_wait, io_uring_submit_and_wait_min_timeout, io_uring_submit_and_wait_reg,
+    io_uring_resize_rings, io_uring_restriction, io_uring_ring_dontfork, io_uring_setup_buf_ring,
+    io_uring_sqe, io_uring_submit, io_uring_submit_and_get_events, io_uring_submit_and_wait,
+    io_uring_submit_and_wait_min_timeout, io_uring_submit_and_wait_reg,
     io_uring_submit_and_wait_timeout, io_uring_sync_cancel_reg, io_uring_unregister_buf_ring,
     io_uring_unregister_buffers, io_uring_unregister_eventfd, io_uring_unregister_files,
     io_uring_unregister_iowq_aff, io_uring_unregister_napi, io_uring_unregister_personality,
@@ -62,6 +62,9 @@ pub use uring::io_uring_enter;
 
 #[doc = include_str!("../docs/io_uring_enter.md")]
 pub use uring::io_uring_enter2;
+
+#[doc = include_str!("../docs/io_uring_setup.md")]
+pub use uring::io_uring_setup;
 
 unsafe extern "C" {
     pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
