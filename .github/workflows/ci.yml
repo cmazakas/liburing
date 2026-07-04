@@ -284,7 +284,7 @@ jobs:
       - name: Build liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
         run: |
-          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable build --target ${{matrix.build_args.cargo_toolchain}};
+          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable build --target ${{matrix.build_args.cargo_toolchain}} --features gnu;
 
       - name: Build liburing_rs_tests
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '0'}}
@@ -294,7 +294,7 @@ jobs:
       - name: Build sanitized liburing-rs
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '1'}}
         run: |
-          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +nightly build --target ${{matrix.build_args.cargo_toolchain}} -Zbuild-std --features sanitizers;
+          CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +nightly build  --target ${{matrix.build_args.cargo_toolchain}} -Zbuild-std --features sanitizers,gnu;
 
       - name: Build sanitized liburing_rs_tests
         if: ${{matrix.build_args.cargo_toolchain && matrix.build_args.sanitize == '1'}}
@@ -308,7 +308,7 @@ jobs:
       - name: Test crate packaging
         if: ${{matrix.build_args.cargo_toolchain}}
         run: |
-           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable package --target ${{matrix.build_args.cargo_toolchain}};
+           CC=${{matrix.build_args.cc}} CXX=${{matrix.build_args.cxx}} cargo +stable package --target ${{matrix.build_args.cargo_toolchain}} --features gnu;
 
       - name: Test build against the installed liburing
         run: |

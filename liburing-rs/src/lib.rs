@@ -97,6 +97,7 @@ pub use uring::__io_uring_clone_buffers_offset;
 #[doc = include_str!("../docs/io_uring_close_ring_fd.md")]
 pub use uring::io_uring_close_ring_fd;
 
+#[cfg(feature = "gnu")]
 unsafe extern "C" {
     pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
                                              mask: *const cpu_set_t);
