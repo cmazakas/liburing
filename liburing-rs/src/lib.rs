@@ -1698,6 +1698,7 @@ pub unsafe fn io_uring_buf_ring_init(br: *mut io_uring_buf_ring)
 /*
  * Assign 'buf' with the addr/len/buffer ID supplied
  */
+#[doc = include_str!("../docs/io_uring_buf_ring_add.md")]
 #[inline]
 pub unsafe fn io_uring_buf_ring_add(br: *mut io_uring_buf_ring, addr: *mut c_void, len: c_uint,
                                     bid: c_ushort, mask: c_int, buf_offset: c_int)
