@@ -31,29 +31,28 @@ pub use uring::*;
 
 pub use uring::{
     io_uring_bpf, io_uring_buf_reg, io_uring_buf_ring, io_uring_buf_ring_head,
-    io_uring_clock_register, io_uring_close_ring_fd, io_uring_cqe, io_uring_enable_rings,
-    io_uring_free_buf_ring, io_uring_free_probe, io_uring_get_events, io_uring_get_probe,
-    io_uring_get_probe_ring, io_uring_mem_region_reg, io_uring_napi, io_uring_params,
-    io_uring_peek_batch_cqe, io_uring_probe, io_uring_query_hdr, io_uring_queue_exit,
-    io_uring_queue_init, io_uring_queue_init_mem, io_uring_queue_init_params, io_uring_queue_mmap,
-    io_uring_reg_wait, io_uring_register_bpf_filter, io_uring_register_bpf_filter_task,
-    io_uring_register_buf_ring, io_uring_register_buffers, io_uring_register_buffers_sparse,
-    io_uring_register_buffers_tags, io_uring_register_buffers_update_tag, io_uring_register_clock,
-    io_uring_register_eventfd, io_uring_register_eventfd_async, io_uring_register_file_alloc_range,
-    io_uring_register_files, io_uring_register_files_sparse, io_uring_register_files_tags,
-    io_uring_register_files_update, io_uring_register_files_update_tag, io_uring_register_ifq,
-    io_uring_register_iowq_max_workers, io_uring_register_napi, io_uring_register_personality,
-    io_uring_register_probe, io_uring_register_query, io_uring_register_region,
-    io_uring_register_restrictions, io_uring_register_ring_fd, io_uring_register_sync_cancel,
-    io_uring_register_sync_msg, io_uring_register_wait_reg, io_uring_register_zcrx_ctrl,
-    io_uring_resize_rings, io_uring_restriction, io_uring_ring_dontfork, io_uring_setup_buf_ring,
-    io_uring_sqe, io_uring_submit, io_uring_submit_and_get_events,
-    io_uring_submit_and_wait_min_timeout, io_uring_submit_and_wait_reg,
-    io_uring_submit_and_wait_timeout, io_uring_sync_cancel_reg, io_uring_unregister_buf_ring,
-    io_uring_unregister_buffers, io_uring_unregister_eventfd, io_uring_unregister_files,
-    io_uring_unregister_iowq_aff, io_uring_unregister_napi, io_uring_unregister_personality,
-    io_uring_unregister_ring_fd, io_uring_wait_cqe_timeout, io_uring_wait_cqes,
-    io_uring_wait_cqes_min_timeout, io_uring_zcrx_ifq_reg,
+    io_uring_clock_register, io_uring_cqe, io_uring_enable_rings, io_uring_free_buf_ring,
+    io_uring_free_probe, io_uring_get_events, io_uring_get_probe, io_uring_get_probe_ring,
+    io_uring_mem_region_reg, io_uring_napi, io_uring_params, io_uring_peek_batch_cqe,
+    io_uring_probe, io_uring_query_hdr, io_uring_queue_exit, io_uring_queue_init,
+    io_uring_queue_init_mem, io_uring_queue_init_params, io_uring_queue_mmap, io_uring_reg_wait,
+    io_uring_register_bpf_filter, io_uring_register_bpf_filter_task, io_uring_register_buf_ring,
+    io_uring_register_buffers, io_uring_register_buffers_sparse, io_uring_register_buffers_tags,
+    io_uring_register_buffers_update_tag, io_uring_register_clock, io_uring_register_eventfd,
+    io_uring_register_eventfd_async, io_uring_register_file_alloc_range, io_uring_register_files,
+    io_uring_register_files_sparse, io_uring_register_files_tags, io_uring_register_files_update,
+    io_uring_register_files_update_tag, io_uring_register_ifq, io_uring_register_iowq_max_workers,
+    io_uring_register_napi, io_uring_register_personality, io_uring_register_probe,
+    io_uring_register_query, io_uring_register_region, io_uring_register_restrictions,
+    io_uring_register_ring_fd, io_uring_register_sync_cancel, io_uring_register_sync_msg,
+    io_uring_register_wait_reg, io_uring_register_zcrx_ctrl, io_uring_resize_rings,
+    io_uring_restriction, io_uring_ring_dontfork, io_uring_setup_buf_ring, io_uring_sqe,
+    io_uring_submit, io_uring_submit_and_get_events, io_uring_submit_and_wait_min_timeout,
+    io_uring_submit_and_wait_reg, io_uring_submit_and_wait_timeout, io_uring_sync_cancel_reg,
+    io_uring_unregister_buf_ring, io_uring_unregister_buffers, io_uring_unregister_eventfd,
+    io_uring_unregister_files, io_uring_unregister_iowq_aff, io_uring_unregister_napi,
+    io_uring_unregister_personality, io_uring_unregister_ring_fd, io_uring_wait_cqe_timeout,
+    io_uring_wait_cqes, io_uring_wait_cqes_min_timeout, io_uring_zcrx_ifq_reg,
 };
 
 #[doc = include_str!("../docs/io_uring.md")]
@@ -94,6 +93,9 @@ pub use uring::__io_uring_clone_buffers;
 
 #[doc = include_str!("../docs/io_uring_clone_buffers.md")]
 pub use uring::__io_uring_clone_buffers_offset;
+
+#[doc = include_str!("../docs/io_uring_close_ring_fd.md")]
+pub use uring::io_uring_close_ring_fd;
 
 unsafe extern "C" {
     pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
@@ -260,6 +262,7 @@ pub unsafe fn io_uring_for_each_cqe<F>(ring: *mut io_uring, mut f: F)
 /*
  * Must be called after io_uring_for_each_cqe()
  */
+#[doc = include_str!("../docs/io_uring_cq_advance.md")]
 #[inline]
 pub unsafe fn io_uring_cq_advance(ring: *mut io_uring, nr: c_uint)
 {
@@ -1482,6 +1485,7 @@ pub unsafe fn io_uring_sqring_wait(ring: *mut io_uring) -> c_int
 /*
  * Returns how many unconsumed entries are ready in the CQ ring
  */
+#[doc = include_str!("../docs/io_uring_cq_ready.md")]
 #[inline]
 pub unsafe fn io_uring_cq_ready(ring: *mut io_uring) -> c_uint
 {
@@ -1492,6 +1496,7 @@ pub unsafe fn io_uring_cq_ready(ring: *mut io_uring) -> c_uint
  * Returns true if there are overflow entries waiting to be flushed onto
  * the CQ ring
  */
+#[doc = include_str!("../docs/io_uring_cq_has_overflow.md")]
 #[inline]
 pub unsafe fn io_uring_cq_has_overflow(ring: *mut io_uring) -> bool
 {
@@ -1501,6 +1506,7 @@ pub unsafe fn io_uring_cq_has_overflow(ring: *mut io_uring) -> bool
 /*
  * Returns true if the eventfd notification is currently enabled
  */
+#[doc = include_str!("../docs/io_uring_cq_eventfd_enabled.md")]
 #[inline]
 pub unsafe fn io_uring_cq_eventfd_enabled(ring: *mut io_uring) -> bool
 {
@@ -1514,6 +1520,7 @@ pub unsafe fn io_uring_cq_eventfd_enabled(ring: *mut io_uring) -> bool
  * Toggle eventfd notification on or off, if an eventfd is registered with
  * the ring.
  */
+#[doc = include_str!("../docs/io_uring_cq_eventfd_toggle.md")]
 #[inline]
 pub unsafe fn io_uring_cq_eventfd_toggle(ring: *mut io_uring, enabled: bool) -> c_int
 {
