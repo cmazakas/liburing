@@ -30,7 +30,7 @@ use core::{
 pub use uring::*;
 
 pub use uring::{
-    io_uring, io_uring_bpf, io_uring_buf_reg, io_uring_buf_ring, io_uring_buf_ring_head,
+    io_uring_bpf, io_uring_buf_reg, io_uring_buf_ring, io_uring_buf_ring_head,
     io_uring_clock_register, io_uring_clone_buffers, io_uring_clone_buffers_offset,
     io_uring_close_ring_fd, io_uring_cqe, io_uring_enable_rings, io_uring_free_buf_ring,
     io_uring_free_probe, io_uring_get_events, io_uring_get_probe, io_uring_get_probe_ring,
@@ -56,6 +56,9 @@ pub use uring::{
     io_uring_unregister_ring_fd, io_uring_wait_cqe_timeout, io_uring_wait_cqes,
     io_uring_wait_cqes_min_timeout, io_uring_zcrx_ifq_reg,
 };
+
+#[doc = include_str!("../docs/io_uring.md")]
+pub use uring::io_uring;
 
 #[doc = include_str!("../docs/io_uring_enter.md")]
 pub use uring::io_uring_enter;
