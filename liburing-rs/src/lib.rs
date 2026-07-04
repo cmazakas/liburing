@@ -1746,6 +1746,7 @@ unsafe fn __io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_
  * avoiding an extra atomic when needing to increment both the CQ ring and
  * the ring buffer index at the same time.
  */
+#[doc = include_str!("../docs/io_uring_buf_ring_cq_advance.md")]
 #[inline]
 pub unsafe fn io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_uring_buf_ring,
                                            count: c_int)
