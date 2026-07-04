@@ -1682,6 +1682,7 @@ unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 /*
  * Return the appropriate mask for a buffer ring of size 'ring_entries'
  */
+#[doc = include_str!("../docs/io_uring_buf_ring_mask.md")]
 #[must_use]
 #[inline]
 pub fn io_uring_buf_ring_mask(ring_entries: u32) -> c_int
