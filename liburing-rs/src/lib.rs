@@ -74,6 +74,15 @@ pub use uring::io_uring_register;
 #[doc = include_str!("../docs/io_uring_submit_and_wait.md")]
 pub use uring::io_uring_submit_and_wait;
 
+#[doc = include_str!("../docs/io_uring_check_version.md")]
+pub use uring::io_uring_check_version;
+
+#[doc = include_str!("../docs/io_uring_check_version.md")]
+pub use uring::io_uring_major_version;
+
+#[doc = include_str!("../docs/io_uring_check_version.md")]
+pub use uring::io_uring_minor_version;
+
 unsafe extern "C" {
     pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
                                              mask: *const cpu_set_t);
