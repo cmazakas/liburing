@@ -1689,6 +1689,7 @@ pub fn io_uring_buf_ring_mask(ring_entries: u32) -> c_int
     (ring_entries - 1) as _
 }
 
+#[doc = include_str!("../docs/io_uring_buf_ring_init.md")]
 #[inline]
 pub unsafe fn io_uring_buf_ring_init(br: *mut io_uring_buf_ring)
 {
