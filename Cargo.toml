@@ -32,6 +32,7 @@ include = [
   "/liburing-rs/build.rs",
   "/liburing-rs/tests",
   "/liburing-rs/benches",
+  "/liburing-rs/docs"
 ]
 
 [lib]
