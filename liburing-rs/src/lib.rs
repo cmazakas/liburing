@@ -1753,6 +1753,7 @@ pub unsafe fn io_uring_buf_ring_cq_advance(ring: *mut io_uring, br: *mut io_urin
     __io_uring_buf_ring_cq_advance(ring, br, count, count);
 }
 
+#[doc = include_str!("../docs/io_uring_buf_ring_available.md")]
 #[inline]
 pub unsafe fn io_uring_buf_ring_available(ring: *mut io_uring, br: *mut io_uring_buf_ring,
                                           bgid: c_ushort)
