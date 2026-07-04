@@ -1720,6 +1720,7 @@ pub unsafe fn io_uring_buf_ring_add(br: *mut io_uring_buf_ring, addr: *mut c_voi
  * io_uring_buf_ring_add() has been called 'count' times to fill in new
  * buffers.
  */
+#[doc = include_str!("../docs/io_uring_buf_ring_advance.md")]
 #[inline]
 pub unsafe fn io_uring_buf_ring_advance(br: *mut io_uring_buf_ring, count: c_int)
 {
