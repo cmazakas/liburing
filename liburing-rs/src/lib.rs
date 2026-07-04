@@ -1764,6 +1764,7 @@ pub unsafe fn io_uring_buf_ring_available(ring: *mut io_uring, br: *mut io_uring
     c_int::from((*br).__liburing_anon_1.__liburing_anon_1.as_mut().tail - head)
 }
 
+#[doc = include_str!("../docs/io_uring_get_sqe.md")]
 #[inline]
 pub unsafe fn io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
