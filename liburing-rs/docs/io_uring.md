@@ -141,6 +141,7 @@ them, it has several fields, some packed into unions for space
 efficiency. Here is a simplified version of struct **io_uring_sqe** with
 some of the most often used fields:
 
+```c
     struct io_uring_sqe {
             __u8    opcode;         /* type of operation for this sqe */
             __s32   fd;             /* file descriptor to do IO on */
@@ -151,9 +152,11 @@ some of the most often used fields:
             __u8    flags;          /* IOSQE_ flags */
             ...
     };
+```
 
 Here is struct **io_uring_sqe** in full:
 
+```c
     struct io_uring_sqe {
     	__u8	opcode;		/* type of operation for this sqe */
     	__u8	flags;		/* IOSQE_ flags */
@@ -233,6 +236,7 @@ Here is struct **io_uring_sqe** in full:
     		__u8	cmd[0];
     	};
     };
+```
 
 To submit an I/O request to **io_uring**, you need to acquire a
 submission queue entry (SQE) from the submission queue (SQ), fill it up
@@ -246,6 +250,7 @@ SQEs are added to the tail of the submission queue. The kernel picks up
 SQEs off the head of the SQ. The general algorithm to get the next
 available SQE and update the tail is as follows.
 
+```c
     struct io_uring_sqe *sqe;
     unsigned tail, index;
     tail = *sqring->tail;
@@ -257,6 +262,7 @@ available SQE and update the tail is as follows.
     sqring->array[index] = index;
     tail++;
     atomic_store_explicit(sqring->tail, tail, memory_order_release);
+```
 
 To get the index of an entry, the application must mask the current tail
 index with the size mask of the ring. This holds true for both SQs and
@@ -270,6 +276,7 @@ The following code snippet demonstrates how a read operation, an
 equivalent of a **preadv2**(2) system call is described by filling up an
 SQE with the necessary parameters.
 
+```c
     struct iovec iovecs[16];
      ...
     sqe->opcode = IORING_OP_READV;
@@ -278,6 +285,7 @@ SQE with the necessary parameters.
     sqe->len = 16;
     sqe->off = offset;
     sqe->flags = 0;
+```
 
 ### Memory ordering
 
@@ -349,11 +357,13 @@ only for a return value back from the kernel. This is easily understood
 by looking at the completion queue event structure, struct
 **io_uring_cqe**:
 
+```c
     struct io_uring_cqe {
     	__u64	user_data;  /* sqe->data submission passed back */
     	__s32	res;        /* result code for this event */
     	__u32	flags;
     };
+```
 
 Here, *user_data* is custom data that is passed unchanged from
 submission to completion. That is, from SQEs to CQEs. This field can be
@@ -424,6 +434,7 @@ next CQE the CQ ring must be advanced by twice as much as for a normal
 The general sequence to read completion events off the completion queue
 is as follows:
 
+```c
     unsigned head;
     head = *cqring->head;
     if (head != atomic_load_acquire(cqring->tail)) {
@@ -437,6 +448,7 @@ is as follows:
         head++;
     }
     atomic_store_explicit(cqring->head, head, memory_order_release);
+```
 
 It helps to be reminded that the kernel adds CQEs to the tail of the CQ,
 while you need to dequeue them off the head. To get the index of an
@@ -494,6 +506,7 @@ larger queue depth to parallelize I/O request processing so as to gain
 the kind of performance benefits **io_uring** provides with its
 asynchronous processing of requests.
 
+```c
     #include <stdio.h>
     #include <stdlib.h>
     #include <sys/stat.h>
@@ -742,6 +755,7 @@ asynchronous processing of requests.
 
         return 0;
     }
+```
 
 # SEE ALSO
 

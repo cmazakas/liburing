@@ -63,6 +63,7 @@ aims to have a more extensible ABI.
 *arg* points to a *struct* *io_uring_rsrc_register*, and *nr_args*
 should be set to the number of bytes in the structure.
 
+```c
     struct io_uring_rsrc_register {
         __u32 nr;
         __u32 flags;
@@ -70,6 +71,7 @@ should be set to the number of bytes in the structure.
         __aligned_u64 data;
         __aligned_u64 tags;
     };
+```
 
 The *data* field contains a pointer to a *struct iovec* array of *nr*
 entries. The *tags* field should either be 0, then tagging is disabled,
@@ -104,7 +106,7 @@ the number of descriptors in the passed in arrays. See
 
 <!-- -->
 
-
+```c
     struct io_uring_rsrc_update2 {
         __u32 offset;
         __u32 resv;
@@ -113,6 +115,7 @@ the number of descriptors in the passed in arrays. See
         __u32 nr;
         __u32 resv2;
     };
+```
 
 Available since 5.13.
 
@@ -437,6 +440,7 @@ It looks as follows:
 
 <!-- -->
 
+```c
     struct io_uring_buf_reg {
         __u64 ring_addr;
         __u32 ring_entries;
@@ -445,6 +449,7 @@ It looks as follows:
         __u32 min_left;
         __u32 resv[5];
     };
+```
 
 The *ring_addr* field must contain the address to the memory allocated
 to fit this ring. The memory must be page aligned and hence allocated
@@ -514,11 +519,13 @@ struct io_uring_file_index_range:
 
 <!-- -->
 
+```c
     struct io_uring_file_index_range {
         __u32 off;
         __u32 len;
         __u64 resv;
     };
+```
 
 with *off* being set to the starting value for the range, and *len*
 being set to the number of descriptors. The reserved *resv* field must
@@ -535,11 +542,13 @@ earlier via **IORING_REGISTER_PBUF_RING**. *arg* must point to a
 
 <!-- -->
 
+```c
     struct io_uring_buf_status {
     	__u32	buf_group;	/* input */
     	__u32	head;		/* output */
     	__u32	resv[8];
     };
+```
 
 of which *arg-\>buf_group* should contain the buffer group ID for the
 buffer ring in question, *nr_args* should be set to 1 and *arg-\>resv*
@@ -555,12 +564,14 @@ should point to a
 
 <!-- -->
 
+```c
     struct io_uring_napi {
     	__u32	busy_poll_to;
     	__u8	prefer_busy_poll;
     	__u8	pad[3];
     	__u64	resv;
     };
+```
 
 in which *arg-\>busy_poll_to* should contain the busy poll timeout in
 micro seconds and *arg-\>prefer_busy_poll* should specify whether busy
@@ -609,6 +620,7 @@ follows:
 
 <!-- -->
 
+```c
     struct io_uring_clone_buffers {
         __u32 src_fd;
         __u32 flags;
@@ -617,6 +629,7 @@ follows:
         __u32 nr;
         __u32 pad[3];
     };
+```
 
 where *src_fd* indicates the fd of the source ring, *flags* are modifier
 flags for the operation, *src_off* indicates the offset from where to
@@ -670,17 +683,20 @@ a *struct*io_uring_mem_region_reg structure, which looks as follows:
 
 <!-- -->
 
+```c
     struct io_uring_mem_region_reg {
         __u64 region_uptr;
         __u64 flags;
         __u64 __resv[2];
     };
+```
 
 where *region_uptr* must be set to the region being registered as memory
 regions, *flags* specifies modifier flags (must currently be
 **IORING_MEM_REGION_REG_WAIT_ARG ). The pad fields must all be cleared
 to** **0 .** Each memory regions looks as follows:
 
+```c
     struct io_uring_region_desc {
         __u64 user_addr;
         __u64 size;
@@ -689,11 +705,13 @@ to** **0 .** Each memory regions looks as follows:
         __u64 mmap_offset;
         __u64 __resv[4];
     };
+```
 
 where *user_addr* points to userspace memory mappings, *size* is the
 size of userspace memory. Current supported userspace memory regions
 looks as follows:
 
+```c
     struct io_uring_reg_wait {
         struct __kernel_timespec ts;
         __u32                    min_wait_usec;
@@ -703,6 +721,7 @@ looks as follows:
         __u32                    pad[3];
         __u64                    pad2[2];
     };
+```
 
 where *ts* holds the timeout information for this region *flags* holds
 information about the timeout region, *sigmask* is a pointer to a signal
@@ -739,6 +758,7 @@ be set to 1.
 
 <!-- -->
 
+```c
     struct io_uring_zcrx_ifq_reg {
         __u32 if_idx;
         __u32 if_rxq;
@@ -751,6 +771,7 @@ be set to 1.
         __u32 __resv2;
         __u64 __resv[3];
     };
+```
 
 where *if_idx* is the network interface index, *if_rxq* is the receive
 queue index, *rq_entries* is the number of entries in the refill queue
@@ -779,6 +800,7 @@ io_uring_query_hdr* and *nr_args* must be 0.
 
 <!-- -->
 
+```c
     struct io_uring_query_hdr {
         __u64 next_entry;
         __u64 query_data;
@@ -787,6 +809,7 @@ io_uring_query_hdr* and *nr_args* must be 0.
         __s32 result;
         __u32 __resv[3];
     };
+```
 
 Multiple queries can be chained together via *next_entry* which points
 to the next *struct io_uring_query_hdr* (or 0 for the last entry).
@@ -816,6 +839,7 @@ context. *arg* must point to a *struct zcrx_ctrl* and *nr_args* must be
 
 <!-- -->
 
+```c
     struct zcrx_ctrl {
         __u32 zcrx_id;
         __u32 op;
@@ -825,6 +849,7 @@ context. *arg* must point to a *struct zcrx_ctrl* and *nr_args* must be
             struct zcrx_ctrl_flush_rq   zc_flush;
         };
     };
+```
 
 where *zcrx_id* is the ID of the zero-copy receive context returned from
 **IORING_REGISTER_ZCRX_IFQ**, and *op* specifies the control operation:

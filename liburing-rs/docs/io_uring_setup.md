@@ -13,6 +13,7 @@ when initiating and completing I/O.
 *params* is used by the application to pass options to the kernel, and
 by the kernel to convey information about the ring buffers.
 
+```c
     struct io_uring_params {
         __u32 sq_entries;
         __u32 cq_entries;
@@ -25,6 +26,7 @@ by the kernel to convey information about the ring buffers.
         struct io_sqring_offsets sq_off;
         struct io_cqring_offsets cq_off;
     };
+```
 
 The *flags*, *sq_thread_cpu*, and *sq_thread_idle* fields are used to
 configure the io_uring instance. *flags* is a bit mask of 0 or more of
@@ -78,6 +80,7 @@ If I/O is kept busy, the kernel thread will never sleep. An application
 making use of this feature will need to guard the **io_uring_enter**(2)
 call with the following code sequence:
 
+```c
     /*
      * Ensure that the wakeup flag is read after the tail pointer
      * has been written. It's important to use memory load acquire
@@ -88,6 +91,7 @@ call with the following code sequence:
     unsigned flags = atomic_load_relaxed(sq_ring->flags);
     if (flags & IORING_SQ_NEED_WAKEUP)
         io_uring_enter(fd, 0, 0, IORING_ENTER_SQ_WAKEUP);
+```
 
 where *sq_ring* is a submission queue ring setup using the *struct
 io_sqring_offsets* described below.
@@ -417,12 +421,14 @@ layout is as follows:
 
 <!-- -->
 
+```c
     struct io_uring_getevents_arg {
         __u64 sigmask;
         __u32 sigmask_sz;
         __u32 pad;
         __u64 ts;
     };
+```
 
 and a pointer to this struct must be passed in if
 **IORING_ENTER_EXT_ARG** is set in the flags for the enter system call.
@@ -490,6 +496,7 @@ submission queue, completion queue, and the array of submission queue
 entries. *sq_entries* specifies the number of submission queue entries
 allocated. *sq_off* describes the offsets of various ring buffer fields:
 
+```c
     struct io_sqring_offsets {
         __u32 head;
         __u32 tail;
@@ -501,15 +508,18 @@ allocated. *sq_off* describes the offsets of various ring buffer fields:
         __u32 resv1;
         __u64 user_addr;
     };
+```
 
 Taken together, *sq_entries* and *sq_off* provide all of the information
 necessary for accessing the submission queue ring buffer and the
 submission queue entry array. The submission queue can be mapped with a
 call like:
 
+```c
     ptr = mmap(0, sq_off.array + sq_entries * sizeof(__u32),
                PROT_READ|PROT_WRITE, MAP_SHARED|MAP_POPULATE,
                ring_fd, IORING_OFF_SQ_RING);
+```
 
 where *sq_off* is the *io_sqring_offsets* structure, and *ring_fd* is
 the file descriptor returned from **io_uring_setup**(2). The addition of
@@ -518,7 +528,9 @@ the ring is located at the end of the data structure. As an example, the
 ring buffer head pointer can be accessed by adding *sq_off.head* to the
 address returned from **mmap**(2):
 
+```c
     head = ptr + sq_off.head;
+```
 
 The *flags* field is used by the kernel to communicate state information
 to the application. Currently, it is used to inform the application when
@@ -533,17 +545,22 @@ by the kernel when the I/O has been successfully submitted. Determining
 the index of the head or tail into the ring is accomplished by applying
 a mask:
 
+```c
     index = tail & ring_mask;
+```
 
 The array of submission queue entries is mapped with:
 
+```c
     sqentries = mmap(0, sq_entries * sizeof(struct io_uring_sqe),
                      PROT_READ|PROT_WRITE, MAP_SHARED|MAP_POPULATE,
                      ring_fd, IORING_OFF_SQES);
+```
 
 The completion queue is described by *cq_entries* and *cq_off* shown
 here:
 
+```c
     struct io_cqring_offsets {
         __u32 head;
         __u32 tail;
@@ -555,13 +572,16 @@ here:
         __u32 resv1;
         __u64 user_addr;
     };
+```
 
 The completion queue is simpler, since the entries are not separated
 from the queue itself, and can be mapped with:
 
+```c
     ptr = mmap(0, cq_off.cqes + cq_entries * sizeof(struct io_uring_cqe),
                PROT_READ|PROT_WRITE, MAP_SHARED|MAP_POPULATE, ring_fd,
                IORING_OFF_CQ_RING);
+```
 
 Closing the file descriptor returned by **io_uring_setup**(2) will free
 all resources associated with the io_uring context. Note that this may

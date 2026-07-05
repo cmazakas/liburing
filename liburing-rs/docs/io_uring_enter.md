@@ -44,12 +44,14 @@ is set (supported since kernel 5.11), then *arg* is instead a pointer to
 a *struct io_uring_getevents_arg* and *argsz* must be set to the size of
 this structure. The definition is as follows:
 
+```c
     struct io_uring_getevents_arg {
         __u64 sigmask;
         __u32 sigmask_sz;
         __u32 pad;
         __u64 ts;
     };
+```
 
 which allows passing in both a signal mask as well as pointer to a
 *struct \_\_kernel_timespec* timeout value. If *ts* is set to a valid
@@ -127,13 +129,17 @@ mask by the one pointed to by *sig*, then waits for events to become
 available in the completion queue, and then restores the original signal
 mask. The following **io_uring_enter**(2) call:
 
+```c
     ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, &sig);
+```
 
 is equivalent to *atomically* executing the following calls:
 
+```c
     pthread_sigmask(SIG_SETMASK, &sig, &orig);
     ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, NULL);
     pthread_sigmask(SIG_SETMASK, &orig, NULL);
+```
 
 See the description of **pselect**(2) for an explanation of why the
 *sig* parameter is necessary.
@@ -141,6 +147,7 @@ See the description of **pselect**(2) for an explanation of why the
 Submission queue entries are represented using the following data
 structure:
 
+```c
     /*
      * IO submission data structure (Submission Queue Entry)
      */
@@ -223,6 +230,7 @@ structure:
     		__u8	cmd[0];
     	};
     };
+```
 
 The *opcode* describes the operation to be performed. It can be one of:
 
@@ -1253,6 +1261,7 @@ invoked to initiate the I/O.
 
 Completions use the following data structure:
 
+```c
     /*
      * IO completion data structure (Completion Queue Entry)
      */
@@ -1261,6 +1270,7 @@ Completions use the following data structure:
         __s32    res;       /* result code for this event */
         __u32    flags;
     };
+```
 
 *user_data* is copied from the field of the same name in the submission
 queue entry. The primary use case is to store data that the application
