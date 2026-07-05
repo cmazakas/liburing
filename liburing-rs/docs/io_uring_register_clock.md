@@ -11,10 +11,12 @@ io_uring_clock_register .**
 The *arg* argument must be filled in with the appropriate information.
 It looks as follows:
 
+```c
     struct io_uring_clock_register {
         __u32 clockid;
         __u32 __resv[3];
     };
+```
 
 The *clockid* field must contain the clock source, with valid sources
 being:

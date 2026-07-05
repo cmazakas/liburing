@@ -14,7 +14,7 @@ NULL.
 
 The structure is defined as follows:
 
-
+```c
     struct io_uring_recvmsg_out {
             __u32 namelen;    /* Name byte count as would have been populated
                                * by recvmsg(2) */
@@ -24,17 +24,13 @@ The structure is defined as follows:
             __u32 flags;      /* Flags result as would have been populated
                                * by recvmsg(2) */
     };
+```
 
-    io_uring_recvmsg_name(3)
-    returns a pointer to the name in the buffer.
-    io_uring_recvmsg_cmsg_firsthdr(3)
-    returns a pointer to the first cmsg in the buffer, or NULL.
-    io_uring_recvmsg_cmsg_nexthdr(3)
-    returns a pointer to the next cmsg in the buffer, or NULL.
-    io_uring_recvmsg_payload(3)
-    returns a pointer to the payload in the buffer.
-    io_uring_recvmsg_payload_length(3)
-    Calculates the usable payload length in bytes.
+* [io_uring_recvmsg_name] - returns a pointer to the name in the buffer.
+* [io_uring_recvmsg_cmsg_firsthdr] - returns a pointer to the first cmsg in the buffer, or NULL.
+* [io_uring_recvmsg_cmsg_nexthdr] - returns a pointer to the next cmsg in the buffer, or NULL.
+* [io_uring_recvmsg_payload] - returns a pointer to the payload in the buffer.
+* [io_uring_recvmsg_payload_length] - Calculates the usable payload length in bytes.
 
 # SEE ALSO
 

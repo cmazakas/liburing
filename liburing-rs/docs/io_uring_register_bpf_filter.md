@@ -1,5 +1,4 @@
-io_uring_register_bpf_filter, io_uring_register_bpf_filter_task -
-register classic BPF filters for io_uring operations
+Register classic BPF filters for io_uring operations.
 
 # DESCRIPTION
 
@@ -22,6 +21,7 @@ The *bpf* argument is a pointer to a **struct io_uring_bpf** with
 *cmd_type* set to **IO_URING_BPF_CMD_FILTER**. The embedded **struct
 io_uring_bpf_filter** describes the filter to register:
 
+```c
     struct io_uring_bpf_filter {
         __u32   opcode;      /* io_uring opcode to filter */
         __u32   flags;       /* IO_URING_BPF_FILTER_* */
@@ -31,6 +31,7 @@ io_uring_bpf_filter** describes the filter to register:
         __u64   filter_ptr;  /* pointer to BPF filter */
         __u64   resv2[5];
     };
+```
 
 *opcode* specifies which io_uring operation the filter applies to (e.g.,
 **IORING_OP_SOCKET**, **IORING_OP_NOP**, **IORING_OP_READ**).
@@ -88,6 +89,7 @@ the kernel's.
 The BPF filter receives a context structure that can be inspected using
 **BPF_LD** instructions with absolute addressing. The context layout is:
 
+```c
     struct io_uring_bpf_ctx {
         __u64   user_data;     /* offset 0: user_data from SQE */
         __u8    opcode;        /* offset 8: io_uring opcode */
@@ -107,6 +109,7 @@ The BPF filter receives a context structure that can be inspected using
             } open;
         };
     };
+```
 
 The *pdu_size* field indicates the size in bytes of the
 operation-specific data passed in the union. A filter can check this
@@ -165,6 +168,7 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
 **Deny**\ all NOP operations
 
+```c
     #include <sys/prctl.h>
     #include <linux/filter.h>
     #include <liburing.h>
@@ -191,9 +195,11 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     /* Or register on the task */
     io_uring_register_bpf_filter_task(&bpf);
+```
 
 **Allow**\ only AF_INET sockets
 
+```c
     #include <sys/prctl.h>
     #include <linux/filter.h>
     #include <sys/socket.h>
@@ -225,9 +231,11 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
     io_uring_register_bpf_filter_task(&bpf);
+```
 
 **Allow**\ only NOP, deny everything else
 
+```c
     struct sock_filter allow_filter[] = {
         BPF_STMT(BPF_RET | BPF_K, 1),  /* return 1 (allow) */
     };
@@ -244,12 +252,14 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
     io_uring_register_bpf_filter_task(&bpf);
+```
 
 **Discover**\ kernel pdu_size for an opcode
 
 This example demonstrates how to use the **-EMSGSIZE** write-back to
 discover the kernel's expected payload size.
 
+```c
     struct sock_filter allow[] = {
         BPF_STMT(BPF_RET | BPF_K, 1),
     };
@@ -274,6 +284,7 @@ discover the kernel's expected payload size.
         /* retry with correct size */
         ret = io_uring_register_bpf_filter(&ring, &bpf);
     }
+```
 
 # NOTES
 
@@ -287,7 +298,9 @@ with elevated privileges but under the attacker-controlled filter.
 
 To set the **no_new_privs** attribute, call:
 
+```c
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
+```
 
 Once set, **no_new_privs** cannot be unset and is inherited by child
 processes across [fork](https://man7.org/linux/man-pages/man2/fork.2.html) and preserved across [execve](https://man7.org/linux/man-pages/man2/execve.2.html).

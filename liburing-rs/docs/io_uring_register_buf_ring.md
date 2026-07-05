@@ -13,6 +13,7 @@ type of operations in flight than buffers available.
 The *reg* argument must be filled in with the appropriate information.
 It looks as follows:
 
+```c
     struct io_uring_buf_reg {
         __u64 ring_addr;
         __u32 ring_entries;
@@ -21,6 +22,7 @@ It looks as follows:
         __u32 min_left;
         __u32 resv[5];
     };
+```
 
 The *ring_addr* field must contain the address to the memory allocated
 to fit this ring. The memory must be page aligned and hence allocated
@@ -50,6 +52,7 @@ member. Available since 6.12.
 
 A shared buffer ring looks as follows:
 
+```c
     struct io_uring_buf_ring {
         union {
             struct {
@@ -61,17 +64,20 @@ A shared buffer ring looks as follows:
             struct io_uring_buf bufs[0];
         };
     };
+```
 
 where *tail* is the index at which the application can insert new
 buffers for consumption by requests, and *struct io_uring_buf* is buffer
 definition:
 
+```c
     struct io_uring_buf {
         __u64 addr;
         __u32 len;
         __u16 bid;
         __u16 resv;
     };
+```
 
 where *addr* is the address for the buffer, *len* is the length of the
 buffer in bytes, and *bid* is the buffer ID that will be returned in the
