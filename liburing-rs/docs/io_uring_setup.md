@@ -32,7 +32,7 @@ The *flags*, *sq_thread_cpu*, and *sq_thread_idle* fields are used to
 configure the io_uring instance. *flags* is a bit mask of 0 or more of
 the following values ORed together:
 
-## IORING_SETUP_IOPOLL
+**IORING_SETUP_IOPOLL**\
 
 Perform busy-waiting for an I/O completion, as opposed to getting
 notifications via an asynchronous IRQ (Interrupt Request). The file
@@ -55,7 +55,7 @@ polling queues. The polling queues will be shared appropriately between
 the CPUs in the system, if the number is less than the number of online
 CPU threads.
 
-## IORING_SETUP_HYBRID_IOPOLL
+**IORING_SETUP_HYBRID_IOPOLL**\
 
 This flag must be used with **IORING_SETUP_IOPOLL** flag. Hybrid io
 polling is a feature based on iopoll, it differs from strict polling in
@@ -63,7 +63,7 @@ that it will delay a bit before doing completion side polling, to avoid
 wasting too much CPU resources. Like **IOPOLL** , it requires that
 devices support polling.
 
-## IORING_SETUP_SQPOLL
+**IORING_SETUP_SQPOLL**\
 
 When this flag is specified, a kernel thread is created to perform
 submission queue polling. An io_uring instance configured in this way
@@ -122,7 +122,7 @@ capability. In 5.13 this requirement was also relaxed, and no special
 privileges are needed for SQPOLL in newer kernels. Certain stable
 kernels older than 5.13 may also support unprivileged SQPOLL.
 
-## IORING_SETUP_SQ_AFF
+**IORING_SETUP_SQ_AFF**\
 
 If this flag is specified, then the poll thread will be bound to the cpu
 set in the *sq_thread_cpu* field of the *struct io_uring_params*. This
@@ -130,13 +130,13 @@ flag is only meaningful when **IORING_SETUP_SQPOLL** is specified. When
 cgroup setting *cpuset.cpus* changes (typically in container
 environment), the bounded cpu set may be changed as well.
 
-## IORING_SETUP_CQSIZE
+**IORING_SETUP_CQSIZE**\
 
 Create the completion queue with *struct io_uring_params.cq_entries*
 entries. The value must be greater than *entries*, and may be rounded up
 to the next power-of-two.
 
-## IORING_SETUP_CLAMP
+**IORING_SETUP_CLAMP**\
 
 If this flag is specified, and if *entries* exceeds
 **IORING_MAX_ENTRIES**, then *entries* will be clamped at
@@ -145,7 +145,7 @@ if the value of *struct io_uring_params.cq_entries* exceeds
 **IORING_MAX_CQ_ENTRIES**, then it will be clamped at
 **IORING_MAX_CQ_ENTRIES**.
 
-## IORING_SETUP_ATTACH_WQ
+**IORING_SETUP_ATTACH_WQ**\
 
 This flag should be set in conjunction with *struct
 io_uring_params.wq_fd* being set to an existing io_uring ring file
@@ -154,14 +154,14 @@ asynchronous worker thread backend of the specified io_uring ring,
 rather than create a new separate thread pool. Additionally the sq
 polling thread will be shared, if **IORING_SETUP_SQPOLL** is set.
 
-## IORING_SETUP_R_DISABLED
+**IORING_SETUP_R_DISABLED**\
 
 If this flag is specified, the io_uring ring starts in a disabled state.
 In this state, restrictions can be registered, but submissions are not
 allowed. See **io_uring_register**(2) for details on how to enable the
 ring. Available since 5.10.
 
-## IORING_SETUP_SUBMIT_ALL
+**IORING_SETUP_SUBMIT_ALL**\
 
 Normally io_uring stops submitting a batch of requests, if one of these
 requests results in an error. This can cause submission of less than
@@ -173,7 +173,7 @@ this flag is set at ring creation time, the only difference is if the
 submit sequence is halted or continued when an error is observed.
 Available since 5.18.
 
-## IORING_SETUP_COOP_TASKRUN
+**IORING_SETUP_COOP_TASKRUN**\
 
 By default, io_uring will interrupt a task running in userspace when a
 completion event comes in. This is to ensure that completions run in a
@@ -188,7 +188,7 @@ same ring, where the application waiting on completions isn't the one
 that submitted them. For most other use cases, setting this flag will
 improve performance. Available since 5.19.
 
-## IORING_SETUP_TASKRUN_FLAG
+**IORING_SETUP_TASKRUN_FLAG**\
 
 Used in conjunction with **IORING_SETUP_COOP_TASKRUN** or
 **IORING_SETUP_DEFER_TASKRUN**, this provides a flag,
@@ -200,14 +200,14 @@ kernel to process them, and applications can do the same. This makes
 a peek style operation on the CQ ring to see if anything might be
 pending to reap. Available since 5.19.
 
-## IORING_SETUP_SQE128
+**IORING_SETUP_SQE128**\
 
 If set, io_uring will use 128-byte SQEs rather than the normal 64-byte
 sized variant. This is a requirement for using certain request types, as
 of 5.19 only the **IORING_OP_URING_CMD** passthrough command for NVMe
 passthrough needs this. Available since 5.19.
 
-## IORING_SETUP_CQE32
+**IORING_SETUP_CQE32**\
 
 If set, io_uring will use 32-byte CQEs rather than the normal 16-byte
 sized variant. This is a requirement for using certain request types, as
@@ -215,7 +215,7 @@ of 5.19 only the **IORING_OP_URING_CMD** passthrough command for NVMe
 passthrough needs this. Also see **IORING_SETUP_CQE_MIXED** for an
 alternative to this flag. Available since 5.19.
 
-## IORING_SETUP_SINGLE_ISSUER
+**IORING_SETUP_SINGLE_ISSUER**\
 
 A hint to the kernel that only a single task (or thread) will submit
 requests, which is used for internal optimisations. The submission task
@@ -228,7 +228,7 @@ considered that the polling task is doing all submissions on behalf of
 the userspace and so it always complies with the rule disregarding how
 many userspace tasks do **io_uring_enter**(2). Available since 6.0.
 
-## IORING_SETUP_DEFER_TASKRUN
+**IORING_SETUP_DEFER_TASKRUN**\
 
 By default, io_uring will process all outstanding work at the end of any
 system call or thread interrupt. This can delay the application from
@@ -243,7 +243,7 @@ it is the application's responsibility to periodically trigger work (for
 example via any of the CQE waiting functions) or else completions may
 not be delivered. Available since 6.1.
 
-## IORING_SETUP_NO_MMAP
+**IORING_SETUP_NO_MMAP**\
 
 By default, io_uring allocates kernel memory that callers must
 subsequently **mmap**(2). If this flag is set, io_uring instead uses
@@ -254,7 +254,7 @@ Typically, callers should allocate this memory by using **mmap**(2) to
 allocate a huge page. If this flag is set, a subsequent attempt to
 **mmap**(2) the io_uring file descriptor will fail. Available since 6.5.
 
-## IORING_SETUP_REGISTERED_FD_ONLY
+**IORING_SETUP_REGISTERED_FD_ONLY**\
 
 If this flag is set, io_uring will register the ring file descriptor,
 and return the registered descriptor index, without ever allocating an
@@ -266,7 +266,7 @@ since 6.5.
 
 <!-- -->
 
-## IORING_SETUP_NO_SQARRAY
+**IORING_SETUP_NO_SQARRAY**\
 
 If this flag is set, entries in the submission queue will be submitted
 in order, wrapping around to the first entry after reaching the end of
@@ -279,7 +279,7 @@ io_sqring_offsets* will be set to zero. Available since 6.6.
 
 <!-- -->
 
-## IORING_SETUP_CQE_MIXED
+**IORING_SETUP_CQE_MIXED**\
 
 If this flag is set, the ring supports posting both the normal 16b sized
 CQEs as well as the larger 32b CQEs. Normally a ring is setup to only
@@ -302,7 +302,7 @@ fully transparent. Available since 6.18.
 
 <!-- -->
 
-## IORING_SETUP_SQ_REWIND
+**IORING_SETUP_SQ_REWIND**\
 
 If this flag is set, the kernel ignores the submission queue head and
 tail and instead fetches SQEs starting from index 0. The application
@@ -327,14 +327,14 @@ The *resv* array must be initialized to zero.
 *features* is filled in by the kernel, which specifies various features
 supported by current kernel version.
 
-## IORING_FEAT_SINGLE_MMAP
+**IORING_FEAT_SINGLE_MMAP**\
 
 If this flag is set, the two SQ and CQ rings can be mapped with a single
 **mmap**(2) call. The SQEs must still be allocated separately. This
 brings the necessary **mmap**(2) calls down from three to two. Available
 since kernel 5.4.
 
-## IORING_FEAT_NODROP
+**IORING_FEAT_NODROP**\
 
 If this flag is set, io_uring supports almost never dropping completion
 events. A dropped event can only occur if the kernel runs out of memory,
@@ -354,13 +354,13 @@ completions (since kernel 5.19).
 
 <!-- -->
 
-## IORING_FEAT_SUBMIT_STABLE
+**IORING_FEAT_SUBMIT_STABLE**\
 
 If this flag is set, applications can be certain that any data for async
 offload has been consumed when the kernel has consumed the SQE.
 Available since kernel 5.5.
 
-## IORING_FEAT_RW_CUR_POS
+**IORING_FEAT_RW_CUR_POS**\
 
 If this flag is set, applications can specify *offset* == **-1** with
 **IORING_OP\_{READV,WRITEV}**, **IORING_OP\_{READ,WRITE}\_FIXED**, and
@@ -372,7 +372,7 @@ flight, then the end result will not be as expected. This is similar to
 threads sharing a file descriptor and doing IO using the current file
 position. Available since kernel 5.6.
 
-## IORING_FEAT_CUR_PERSONALITY
+**IORING_FEAT_CUR_PERSONALITY**\
 
 If this flag is set, then io_uring guarantees that both sync and async
 execution of a request assumes the credentials of the task that called
@@ -385,7 +385,7 @@ different personalities through **io_uring_register**(2) with
 **IORING_REGISTER_PERSONALITY** and specify the personality to use in
 the sqe. Available since kernel 5.6.
 
-## IORING_FEAT_FAST_POLL
+**IORING_FEAT_FAST_POLL**\
 
 If this flag is set, then io_uring supports using an internal poll
 mechanism to drive data/space readiness. This means that requests that
@@ -396,21 +396,21 @@ but eliminates the need to do so. If this flag is set, requests waiting
 on space/data consume a lot less resources doing so as they are not
 blocking a thread. Available since kernel 5.7.
 
-## IORING_FEAT_POLL_32BITS
+**IORING_FEAT_POLL_32BITS**\
 
 If this flag is set, the **IORING_OP_POLL_ADD** command accepts the full
 32-bit range of epoll based flags. Most notably **EPOLLEXCLUSIVE** which
 allows exclusive (waking single waiters) behavior. Available since
 kernel 5.9.
 
-## IORING_FEAT_SQPOLL_NONFIXED
+**IORING_FEAT_SQPOLL_NONFIXED**\
 
 If this flag is set, the **IORING_SETUP_SQPOLL** feature no longer
 requires the use of fixed files. Any normal file descriptor can be used
 for IO commands without needing registration. Available since kernel
 5.11.
 
-## IORING_FEAT_EXT_ARG
+**IORING_FEAT_EXT_ARG**\
 
 If this flag is set, then the **io_uring_enter**(2) system call supports
 passing in an extended argument instead of just the *sigset_t* of
@@ -434,7 +434,7 @@ and a pointer to this struct must be passed in if
 **IORING_ENTER_EXT_ARG** is set in the flags for the enter system call.
 Available since kernel 5.11.
 
-## IORING_FEAT_NATIVE_WORKERS
+**IORING_FEAT_NATIVE_WORKERS**\
 
 If this flag is set, io_uring is using native workers for its async
 helpers. Previous kernels used kernel threads that assumed the identity
@@ -442,14 +442,14 @@ of the original io_uring owning task, but later kernels will actively
 create what looks more like regular process threads instead. Available
 since kernel 5.12.
 
-## IORING_FEAT_RSRC_TAGS
+**IORING_FEAT_RSRC_TAGS**\
 
 If this flag is set, then io_uring supports a variety of features
 related to fixed files and buffers. In particular, it indicates that
 registered buffers can be updated in-place, whereas before the full set
 would have to be unregistered first. Available since kernel 5.13.
 
-## IORING_FEAT_CQE_SKIP
+**IORING_FEAT_CQE_SKIP**\
 
 If this flag is set, then io_uring supports setting
 **IOSQE_CQE_SKIP_SUCCESS** in the submitted SQE, indicating that no CQE
@@ -457,7 +457,7 @@ should be generated for this SQE if it executes normally. If an error
 happens processing the SQE, a CQE with the appropriate error value will
 still be generated. Available since kernel 5.17.
 
-## IORING_FEAT_LINKED_FILE
+**IORING_FEAT_LINKED_FILE**\
 
 If this flag is set, then io_uring supports sane assignment of files for
 SQEs that have dependencies. For example, if a chain of SQEs are
@@ -468,13 +468,13 @@ accept, then file assignment needs to happen post execution of that SQE.
 If this flag is set, then the kernel will defer file assignment until
 execution of a given request is started. Available since kernel 5.17.
 
-## IORING_FEAT_REG_REG_RING
+**IORING_FEAT_REG_REG_RING**\
 
 If this flag is set, then io_uring supports calling
 **io_uring_register**(2) using a registered ring fd, via
 **IORING_REGISTER_USE_REGISTERED_RING**. Available since kernel 6.3.
 
-## IORING_FEAT_MIN_TIMEOUT
+**IORING_FEAT_MIN_TIMEOUT**\
 
 If this flag is set, then io_uring supports passing in a minimum batch
 wait timeout. See **io_uring_submit_and_wait_min_timeout**(3) for more
@@ -482,7 +482,7 @@ details.
 
 <!-- -->
 
-## IORING_FEAT_RECVSEND_BUNDLE
+**IORING_FEAT_RECVSEND_BUNDLE**\
 
 If this flag is set, then io_uring supports bundled send and recv
 operations. See **io_uring_prep_send_bundle**(3) for more information.
@@ -600,11 +600,11 @@ on *errno* variable.
 
 # ERRORS
 
-## EFAULT
+**EFAULT**\
 
 *params* is outside your accessible address space.
 
-## EINVAL
+**EINVAL**\
 
 The resv array contains non-zero data, p.flags contains an unsupported
 flag, *entries* is out of bounds, **IORING_SETUP_SQ_AFF** was specified,
@@ -613,32 +613,32 @@ specified, but *io_uring_params.cq_entries* was invalid.
 **IORING_SETUP_REGISTERED_FD_ONLY** was specified, but
 **IORING_SETUP_NO_MMAP** was not.
 
-## EMFILE
+**EMFILE**\
 
 The per-process limit on the number of open file descriptors has been
 reached (see the description of **RLIMIT_NOFILE** in **getrlimit**(2)).
 
-## ENFILE
+**ENFILE**\
 
 The system-wide limit on the total number of open files has been
 reached.
 
-## ENOMEM
+**ENOMEM**\
 
 Insufficient kernel resources are available.
 
-## EPERM
+**EPERM**\
 
 **IORING_SETUP_SQPOLL** was specified, but the effective user ID of the
 caller did not have sufficient privileges.
 
-## EPERM
+**EPERM**\
 
 */proc/sys/kernel/io_uring_disabled* has the value 2, or it has the
 value 1 and the calling process does not hold the **CAP_SYS_ADMIN**
 capability or is not a member of */proc/sys/kernel/io_uring_group*.
 
-## ENXIO
+**ENXIO**\
 
 **IORING_SETUP_ATTACH_WQ** was set, but *params.wq_fd* did not refer to
 an io_uring instance or refers to an instance that is in the process of

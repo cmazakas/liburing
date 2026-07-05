@@ -11,6 +11,11 @@ call and a **io_uring_cq_advance**(3) into one operation. Since updating
 either ring index entails a store memory barrier, doing both at once is
 more efficient.
 
+The **\_\_io_uring_buf_ring_cq_advance**(3) function performs the same
+operation, except it splits the counts into two separate values. It
+advances the CQ ring by *cq_count* entries, and the buffer ring by
+*buf_count* entries rather than increment both by the same value.
+
 # RETURN VALUE
 
 None

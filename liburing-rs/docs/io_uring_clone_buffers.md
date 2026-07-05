@@ -45,7 +45,7 @@ for **\_\_io_uring_clone_buffers**(3) for details.
 
 *flags* may be set to the following value:
 
-## IORING_REGISTER_SRC_REGISTERED
+**IORING_REGISTER_SRC_REGISTERED**\
 
 If the source ring is registered AND the calling thread is the one that
 originally registered its ring fd, then this flag may be set to lookup
@@ -53,7 +53,7 @@ the registered index rather than use the normal file descriptor. If the
 normal file descriptor wasn't closed after registering it, there's no
 need to set this flag.
 
-## IORING_REGISTER_DST_REPLACE
+**IORING_REGISTER_DST_REPLACE**\
 
 If set, cloning may happen for a destination ring that already has a
 buffer table assigned. In that case, existing nodes that overlap with

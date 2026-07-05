@@ -93,7 +93,6 @@ use std::{mem::zeroed, ptr, time::Duration};
 
 use liburing_rs::*;
 
-#[test]
 pub fn queue_init() {
     // Setup the ring.
     //

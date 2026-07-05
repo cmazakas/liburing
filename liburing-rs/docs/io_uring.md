@@ -107,7 +107,7 @@ or posting multiple CQEs for a single SQE for multi shot operations or
 requiring an **io_uring_enter**(2) syscall to make the kernel begin
 processing newly added SQEs when using submission queue polling.
 
-## Submission queue polling
+**Submission**\ queue polling
 
 One of the goals of **io_uring** is to provide a means for efficient
 I/O. To this end, **io_uring** supports a polling mode that lets you
@@ -120,7 +120,7 @@ avoid the overhead of system calls. A designated kernel thread dequeues
 SQEs off the SQ as you add them and dispatches them for asynchronous
 processing.
 
-## Setting up io_uring
+**Setting**\ up io_uring
 
 The main steps in setting up **io_uring** consist of mapping in the
 shared buffers with **mmap**(2) calls. In the example program included
@@ -130,7 +130,7 @@ the 2 **mmap**(2) calls that set up the shared submission and completion
 queues. If your kernel is older than version 5.4, three **mmap(2)**
 calls are required.
 
-## Submitting I/O requests
+**Submitting**\ I/O requests
 
 The process of submitting a request consists of describing the I/O
 operation you need to get done using an **io_uring_sqe** structure
@@ -313,7 +313,7 @@ waiting for a specified count of events to complete. This way, you can
 be sure to find completion events in the completion queue without having
 to poll it for events later.
 
-## SQE pointer lifetimes & data stability
+**SQE**\ pointer lifetimes & data stability
 
 Due to the fixed size of the submission queue entry (SQE) some data you
 provide in order to perform a desired operation will be passed in the
@@ -342,7 +342,7 @@ read or written while the operation is inflight. For example, the
 pointers to a buffer used as part of a **IORING_OP_WRITE** or
 **IORING_OP_READ** operation must remain valid until completion.
 
-## Reading completion events
+**Reading**\ completion events
 
 Similar to the submission queue (SQ), the completion queue (CQ) is a
 shared buffer between the kernel and user space. Whereas you placed
@@ -458,7 +458,7 @@ the head needs to be updated to reflect the consumption of the CQE.
 Attention should be paid to the read and write barriers to ensure
 successful read and update of the head.
 
-## io_uring performance
+**io_uring**\ performance
 
 Because of the shared ring buffers between kernel and user space,
 **io_uring** can be a zero-copy system. Copying buffers to and from

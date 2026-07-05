@@ -15,9 +15,7 @@ into it, *fd* is instead the index of a registered ring fd.
 
 *opcode* can be one of:
 
-## IORING_REGISTER_BUFFERS
-
-*arg* points to a *struct iovec* array of *nr_args* entries. The buffers
+**IORING_REGISTER_BUFFERS**\*arg* points to a *struct iovec* array of *nr_args* entries. The buffers
 associated with the iovecs will be locked in memory and charged against
 the user's **RLIMIT_MEMLOCK** resource limit. See **getrlimit**(2) for
 more information. Additionally, there is a size limit of 1GiB per
@@ -55,8 +53,7 @@ that pages are immediately unpinned in this case. Available since 5.1.
 
 <!-- -->
 
-## IORING_REGISTER_BUFFERS2
-
+**IORING_REGISTER_BUFFERS2**\
 Register buffers for I/O. Similar to **IORING_REGISTER_BUFFERS** but
 aims to have a more extensible ABI.
 
@@ -83,7 +80,8 @@ the specified tag and all other fields zeroed.
 
 The *flags* field supports the following flags:
 
-**IORING_RSRC_REGISTER_SPARSE** If set, io_uring will register *nr*
+**IORING_RSRC_REGISTER_SPARSE**\
+If set, io_uring will register *nr*
 empty buffers, which need to be updated before use. When this flag is
 set, *data* and *tags* must be NULL. Available since 5.19.
 
@@ -93,8 +91,7 @@ might be held alive until all requests using it complete.
 
 Available since 5.13.
 
-## IORING_REGISTER_BUFFERS_UPDATE
-
+**IORING_REGISTER_BUFFERS_UPDATE**\
 Updates registered buffers with new ones, either turning a sparse entry
 into a real one, or replacing an existing entry.
 
@@ -119,16 +116,14 @@ the number of descriptors in the passed in arrays. See
 
 Available since 5.13.
 
-## IORING_UNREGISTER_BUFFERS
-
+**IORING_UNREGISTER_BUFFERS**\
 This operation takes no argument, and *arg* must be passed as NULL. All
 previously registered buffers associated with the io_uring instance will
 be released synchronously. Available since 5.1.
 
 <!-- -->
 
-## IORING_REGISTER_FILES
-
+**IORING_REGISTER_FILES**\
 Register files for I/O. *arg* contains a pointer to an array of
 *nr_args* file descriptors (signed 32 bit integers).
 
@@ -152,8 +147,7 @@ new set of fds. Available since 5.1.
 
 <!-- -->
 
-## IORING_REGISTER_FILES2
-
+**IORING_REGISTER_FILES2**\
 Register files for I/O. Similar to **IORING_REGISTER_FILES**.
 
 *arg* points to a *struct* *io_uring_rsrc_register*, and *nr_args*
@@ -172,8 +166,7 @@ Available since 5.13.
 
 <!-- -->
 
-## IORING_REGISTER_FILES_UPDATE
-
+**IORING_REGISTER_FILES_UPDATE**\
 This operation replaces existing files in the registered file set with
 new ones, either turning a sparse entry (one where fd is equal to
 **-1**) into a real one, removing an existing entry (new one is set to
@@ -190,8 +183,7 @@ associated with the previous fd at that index. Available since 5.12.
 
 <!-- -->
 
-## IORING_REGISTER_FILES_UPDATE2
-
+**IORING_REGISTER_FILES_UPDATE2**\
 Similar to **IORING_REGISTER_FILES_UPDATE**, replaces existing files in
 the registered file set with new ones, either turning a sparse entry
 (one where fd is equal to **-1**) into a real one, removing an existing
@@ -209,16 +201,14 @@ Available since 5.13.
 
 <!-- -->
 
-## IORING_UNREGISTER_FILES
-
+**IORING_UNREGISTER_FILES**\
 This operation requires no argument, and *arg* must be passed as NULL.
 All previously registered files associated with the io_uring instance
 will be unregistered. Available since 5.1.
 
 <!-- -->
 
-## IORING_REGISTER_EVENTFD
-
+**IORING_REGISTER_EVENTFD**\
 It's possible to use **eventfd**(2) to get notified of completion events
 on an io_uring instance. If this is desired, an eventfd file descriptor
 can be registered through this operation. *arg* must contain a pointer
@@ -237,8 +227,7 @@ the *flags* field of the CQ ring. Available since 5.8.
 
 <!-- -->
 
-## IORING_REGISTER_EVENTFD_ASYNC
-
+**IORING_REGISTER_EVENTFD_ASYNC**\
 This works just like **IORING_REGISTER_EVENTFD**, except notifications
 are only posted for events that complete in an async manner. This means
 that events that complete inline while being submitted do not trigger a
@@ -247,8 +236,7 @@ notification event. The arguments supplied are the same as for
 
 <!-- -->
 
-## IORING_UNREGISTER_EVENTFD
-
+**IORING_UNREGISTER_EVENTFD**\
 Unregister an eventfd file descriptor to stop notifications. Since only
 one eventfd descriptor is currently supported, this operation takes no
 argument, and *arg* must be passed as NULL and *nr_args* must be zero.
@@ -256,8 +244,7 @@ Available since 5.2.
 
 <!-- -->
 
-## IORING_REGISTER_PROBE
-
+**IORING_REGISTER_PROBE**\
 This operation returns a structure, io_uring_probe, which contains
 information about the opcodes supported by io_uring on the running
 kernel. *arg* must contain a pointer to a struct io_uring_probe, and
@@ -269,8 +256,7 @@ running kernel. Available since 5.6.
 
 <!-- -->
 
-## IORING_REGISTER_PERSONALITY
-
+**IORING_REGISTER_PERSONALITY**\
 This operation registers credentials of the running application with
 io_uring, and returns an id associated with these credentials.
 Applications wishing to share a ring between separate users/processes
@@ -281,16 +267,14 @@ since 5.6.
 
 <!-- -->
 
-## IORING_UNREGISTER_PERSONALITY
-
+**IORING_UNREGISTER_PERSONALITY**\
 This operation unregisters a previously registered personality with
 io_uring. *nr_args* must be set to the id in question, and *arg* must be
 set to NULL. Available since 5.6.
 
 <!-- -->
 
-## IORING_REGISTER_ENABLE_RINGS
-
+**IORING_REGISTER_ENABLE_RINGS**\
 This operation enables an io_uring ring started in a disabled state
 (**IORING_SETUP_R_DISABLED** was specified in the call to
 **io_uring_setup**(2)). While the io_uring ring is disabled, submissions
@@ -304,8 +288,7 @@ zero. Available since 5.10.
 
 <!-- -->
 
-## IORING_REGISTER_RESTRICTIONS
-
+**IORING_REGISTER_RESTRICTIONS**\
 *arg* points to a *struct io_uring_restriction* array of *nr_args*
 entries.
 
@@ -326,8 +309,7 @@ Available since 5.10.
 
 <!-- -->
 
-## IORING_REGISTER_IOWQ_AFF
-
+**IORING_REGISTER_IOWQ_AFF**\
 By default, async workers created by io_uring will inherit the CPU mask
 of its parent. This is usually all the CPUs in the system, unless the
 parent is being run with a limited set. If this isn't the desired
@@ -339,8 +321,7 @@ Available since 5.14.
 
 <!-- -->
 
-## IORING_UNREGISTER_IOWQ_AFF
-
+**IORING_UNREGISTER_IOWQ_AFF**\
 Undoes a CPU mask previously set with **IORING_REGISTER_IOWQ_AFF**. Must
 not have *arg* or *nr_args* set.
 
@@ -348,8 +329,7 @@ Available since 5.14.
 
 <!-- -->
 
-## IORING_REGISTER_IOWQ_MAX_WORKERS
-
+**IORING_REGISTER_IOWQ_MAX_WORKERS**\
 By default, io_uring limits the unbounded workers created to the maximum
 processor count set by *RLIMIT_NPROC* and the bounded workers is a
 function of the SQ ring size and the number of CPUs in the system.
@@ -370,8 +350,7 @@ Available since 5.15.
 
 <!-- -->
 
-## IORING_REGISTER_RING_FDS
-
+**IORING_REGISTER_RING_FDS**\
 Whenever **io_uring_enter**(2) is called to submit request or wait for
 completions, the kernel must grab a reference to the file descriptor. If
 the application using io_uring is threaded, the file table is marked as
@@ -407,8 +386,7 @@ Available since 5.18.
 
 <!-- -->
 
-## IORING_UNREGISTER_RING_FDS
-
+**IORING_UNREGISTER_RING_FDS**\
 Unregister descriptors previously registered with
 **IORING_REGISTER_RING_FDS**.
 
@@ -428,8 +406,7 @@ Available since 5.18.
 
 <!-- -->
 
-## IORING_REGISTER_PBUF_RING
-
+**IORING_REGISTER_PBUF_RING**\
 Registers a shared buffer ring to be used with provided buffers. This is
 a newer alternative to using **IORING_OP_PROVIDE_BUFFERS** which is more
 efficient, to be used with request types that support the
@@ -472,8 +449,7 @@ rest of the fields are reserved and must be cleared to zero.
 Also see **io_uring_register_buf_ring**(3) for more details. Available
 since 5.19.
 
-## IORING_UNREGISTER_PBUF_RING
-
+**IORING_UNREGISTER_PBUF_RING**\
 Unregister a previously registered provided buffer ring. *arg* must be
 set to the address of a struct io_uring_buf_reg, with just the *bgid*
 field set to the buffer group ID of the previously registered provided
@@ -484,8 +460,7 @@ Available since 5.19.
 
 <!-- -->
 
-## IORING_REGISTER_SYNC_CANCEL
-
+**IORING_REGISTER_SYNC_CANCEL**\
 Performs a synchronous cancelation request, which works in a similar
 fashion to **IORING_OP_ASYNC_CANCEL** except it completes inline. This
 can be useful for scenarios where cancelations should happen
@@ -503,8 +478,7 @@ Available since 6.0.
 
 <!-- -->
 
-## IORING_REGISTER_FILE_ALLOC_RANGE
-
+**IORING_REGISTER_FILE_ALLOC_RANGE**\
 sets the allowable range for fixed file index allocations within the
 kernel. When requests that can instantiate a new fixed file are used
 with **IORING_FILE_INDEX_ALLOC**, the application is asking the kernel
@@ -535,8 +509,7 @@ The application must have registered a file table first.
 
 Available since 6.0.
 
-## IORING_REGISTER_PBUF_STATUS
-
+**IORING_REGISTER_PBUF_STATUS**\
 Can be used to retrieve the current head of a ringbuffer provided
 earlier via **IORING_REGISTER_PBUF_RING**. *arg* must point to a
 
@@ -557,8 +530,7 @@ returned in *arg-\>head*.
 
 Available since 6.8.
 
-## IORING_REGISTER_NAPI
-
+**IORING_REGISTER_NAPI**\
 Registers a napi instance with the io_uring instance of *fd*. *arg*
 should point to a
 
@@ -582,8 +554,7 @@ previously used settings.
 
 Available since 6.9.
 
-## IORING_UNREGISTER_NAPI
-
+**IORING_UNREGISTER_NAPI**\
 Unregisters a napi instance previously registered via
 **IORING_REGISTER_NAPI** to the io_uring instance of *fd*. *arg* should
 point to a *struct* *io_uring_napi*. On successful return the
@@ -594,8 +565,7 @@ Available since 6.9.
 
 <!-- -->
 
-## IORING_REGISTER_CLOCK
-
+**IORING_REGISTER_CLOCK**\
 Specifies which clock id io_uring will use for timers while waiting for
 completion events with **IORING_ENTER_GETEVENTS**. It's only effective
 if the timeout argument in *struct io_uring_getevents_arg* is passed,
@@ -610,8 +580,7 @@ Available since 6.12 and supports **CLOCK_MONOTONIC** and
 
 <!-- -->
 
-## IORING_REGISTER_CLONE_BUFFERS
-
+**IORING_REGISTER_CLONE_BUFFERS**\
 Supports cloning buffers from a source ring to a destination ring,
 duplicating previously registered buffers from source to destination.
 *arg* must be set to a pointer to a *struct io_uring_clone_buffers* and
@@ -646,8 +615,7 @@ table in the destination as well, 6.12 would fail that operation with
 existing table, **IORING_REGISTER_DST_REPLACE** must be set in the
 *flags* member.
 
-## IORING_REGISTER_SEND_MSG_RING
-
+**IORING_REGISTER_SEND_MSG_RING**\
 Supports sending of the equivalent of a **IORING_OP_MSG_RING** request,
 but without having a source ring available. Takes a pointer to a
 *struct*io_uring_sqe which must be prepared with
@@ -656,8 +624,7 @@ but without having a source ring available. Takes a pointer to a
 
 <!-- -->
 
-## IORING_REGISTER_RESIZE_RINGS
-
+**IORING_REGISTER_RESIZE_RINGS**\
 Supports resizing the SQ and CQ rings. Takes a pointer to a
 *struct*io_uring_params as the argument, where *sq_entries* and
 *cq_entries* may be set to the desired values. Only supports a limited
@@ -674,8 +641,7 @@ Available since kernel 6.13.
 
 <!-- -->
 
-## IORING_REGISTER_MEM_REGION
-
+**IORING_REGISTER_MEM_REGION**\
 Supports registering multiple purposes memory regions, avoiding
 unnecessary copying in of *struct*io_uring_getevents_arg for wait
 operations that specify a timeout or minimum timeout. Takes a pointer to
@@ -747,8 +713,7 @@ unregistered. It lives for the life of the ring. Individual wait region
 offset may be modified before any **io_uring_enter**(2) system call.
 Available since kernel 6.13.
 
-## IORING_REGISTER_ZCRX_IFQ
-
+**IORING_REGISTER_ZCRX_IFQ**\
 Registers a zero-copy receive interface queue for network receive
 operations. Zero-copy receive allows the kernel to place incoming
 network data directly into application-provided memory without copying,
@@ -790,8 +755,7 @@ The io_uring ring must have been created with
 
 Available since kernel 6.15.
 
-## IORING_REGISTER_QUERY
-
+**IORING_REGISTER_QUERY**\
 Queries io_uring capabilities and feature support. This operation does
 not require an io_uring ring and can be called with *fd* set to -1. It
 provides information about supported opcodes, flags, and
@@ -831,8 +795,7 @@ error code.
 
 Available since kernel 6.15.
 
-## IORING_REGISTER_ZCRX_CTRL
-
+**IORING_REGISTER_ZCRX_CTRL**\
 Performs control operations on a previously registered zero-copy receive
 context. *arg* must point to a *struct zcrx_ctrl* and *nr_args* must be
 0.
@@ -869,85 +832,85 @@ is returned. The caller should not rely on the *errno* variable.
 
 # ERRORS
 
-## EACCES
+**EACCES**\
 The *opcode* field is not allowed due to registered restrictions.
 
-## EBADF
+**EBADF**\
 One or more fds in the *fd* array are invalid.
 
-## EBADFD
+**EBADFD**\
 **IORING_REGISTER_ENABLE_RINGS** or **IORING_REGISTER_RESTRICTIONS** was
 specified, but the io_uring ring is not disabled.
 
-## EBUSY
+**EBUSY**\
 **IORING_REGISTER_BUFFERS** or **IORING_REGISTER_FILES** or
 **IORING_REGISTER_RESTRICTIONS** was specified, but there were already
 buffers, files, or restrictions registered.
 
-## EEXIST
+**EEXIST**\
 The thread performing the registration is invalid.
 
-## EFAULT
+**EFAULT**\
 buffer is outside of the process' accessible address space, or *iov_len*
 is greater than 1GiB.
 
-## EINVAL
+**EINVAL**\
 **IORING_REGISTER_BUFFERS** or **IORING_REGISTER_FILES** was specified,
 but *nr_args* is 0.
 
-## EINVAL
+**EINVAL**\
 **IORING_REGISTER_BUFFERS** was specified, but *nr_args* exceeds
 **UIO_MAXIOV**
 
-## EINVAL
+**EINVAL**\
 **IORING_UNREGISTER_BUFFERS** or **IORING_UNREGISTER_FILES** was
 specified, and *nr_args* is non-zero or *arg* is non-NULL.
 
-## EINVAL
+**EINVAL**\
 **IORING_REGISTER_RESTRICTIONS** was specified, but *nr_args* exceeds
 the maximum allowed number of restrictions or restriction *opcode* is
 invalid.
 
-## EMFILE
+**EMFILE**\
 **IORING_REGISTER_FILES** was specified and *nr_args* exceeds the
 maximum allowed number of files in a fixed file set.
 
-## EMFILE
+**EMFILE**\
 **IORING_REGISTER_FILES** was specified and adding *nr_args* file
 references would exceed the maximum allowed number of files the user is
 allowed to have according to the **RLIMIT_NOFILE** resource limit and
 the caller does not have **CAP_SYS_RESOURCE** capability. Note that this
 is a per user limit, not per process.
 
-## ENOMEM
+**ENOMEM**\
 Insufficient kernel resources are available, or the caller had a
 non-zero **RLIMIT_MEMLOCK** soft resource limit, but tried to lock more
 memory than the limit permitted. This limit is not enforced if the
 process is privileged (**CAP_IPC_LOCK**).
 
-## ENXIO
+**ENXIO**\
 **IORING_UNREGISTER_BUFFERS** or **IORING_UNREGISTER_FILES** was
 specified, but there were no buffers or files registered.
 
-## ENXIO
+**ENXIO**\
 Attempt to register files or buffers on an io_uring instance that is
 already undergoing file or buffer registration, or is being torn down.
 
-## EOPNOTSUPP
+**EOPNOTSUPP**\
 User buffers point to file-backed memory.
 
-## EFAULT
+**EFAULT**\
 User buffers point to file-backed memory (newer kernels).
 
-## ENOENT
+**ENOENT**\
 **IORING_REGISTER_PBUF_STATUS** was specified, but *buf_group* did not
 refer to a currently valid buffer group.
 
-## EINVAL
+**EINVAL**\
 **IORING_REGISTER_PBUF_STATUS** was specified, but the valid buffer
 group specified by *buf_group* did not refer to a buffer group
 registered via **IORING_REGISTER_PBUF_RING**.
 
-## EINVAL
+**EINVAL**\
 **IORING_REGISTER_NAPI** was specified, but the ring associated with
 *fd* has not been created with **IORING_SETUP_IOPOLL**.
