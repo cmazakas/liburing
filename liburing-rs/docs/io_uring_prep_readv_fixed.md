@@ -13,7 +13,7 @@ at index *buf_index*, previously registered with
 [io_uring_register_buffers].
 
 The *flags* argument can contain any per-request flags, such as
-**RWF_NOWAIT** or other flags supported by [preadv2].
+**RWF_NOWAIT** or other flags supported by [preadv2](https://man7.org/linux/man-pages/man2/readv.2.html).
 
 Using fixed buffers avoids the overhead of mapping buffers for each I/O
 operation, improving performance for applications that reuse the same

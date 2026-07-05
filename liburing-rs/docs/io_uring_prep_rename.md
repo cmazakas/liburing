@@ -14,9 +14,9 @@ submission queue entry *sqe* is setup to use the old path pointed to by
 *oldpath* with the new path pointed to by *newpath*, both relative to
 the current working directory and using the specified flags in *flags*.
 
-These functions prepare an async [renameat2] or [rename]
+These functions prepare an async [renameat2](https://man7.org/linux/man-pages/man2/rename.2.html) or [rename](https://man7.org/linux/man-pages/man2/rename.2.html)
 request. If *flags* is zero, then this call is similar to the
-[renameat] system call. See those man pages for details.
+[renameat](https://man7.org/linux/man-pages/man2/rename.2.html) system call. See those man pages for details.
 
 # RETURN VALUE
 
@@ -43,5 +43,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [renameat],
-[renameat2], [rename]
+[io_uring_get_sqe], [io_uring_submit], [renameat](https://man7.org/linux/man-pages/man2/rename.2.html),
+[renameat2](https://man7.org/linux/man-pages/man2/rename.2.html), [rename](https://man7.org/linux/man-pages/man2/rename.2.html)

@@ -6,7 +6,7 @@ The [io_uring_prep_epoll_ctl] function prepares an epoll control
 request. The submission queue entry *sqe* is setup to use the epoll
 instance referred to by *epfd*, performing the operation *op* on the
 file descriptor *fd*. The *ev* argument points to an *epoll_event*
-structure as defined in [epoll_ctl].
+structure as defined in [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html).
 
 The *op* argument can be one of:
 
@@ -19,7 +19,7 @@ Modify the settings for *fd*.
 **EPOLL_CTL_DEL**\
 Remove *fd* from the epoll instance. *ev* is ignored for this operation.
 
-This function prepares an async [epoll_ctl] request. See that man
+This function prepares an async [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -30,9 +30,9 @@ None
 
 The CQE *res* field will contain the result of the operation, 0 on
 success. On error, a negative errno value is returned. See
-[epoll_ctl] for possible error values.
+[epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html) for possible error values.
 
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit],
-[io_uring_prep_epoll_wait], [epoll_ctl]
+[io_uring_prep_epoll_wait], [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html)

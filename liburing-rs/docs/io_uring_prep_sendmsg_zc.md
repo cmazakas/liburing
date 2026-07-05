@@ -49,7 +49,7 @@ returns the negated *errno* directly in the CQE *res* field. Some common
 error cases are:
 
 **-ENOMEM**\
-The [ulimit] -l setting is too low to support the size of the
+The [ulimit](https://man7.org/linux/man-pages/man3/ulimit.3.html) -l setting is too low to support the size of the
 attempted zero copy send. Increasing the limit may help
 
 **-ENOMEM**\

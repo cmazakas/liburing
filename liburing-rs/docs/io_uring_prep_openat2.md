@@ -37,7 +37,7 @@ Note that old kernels don't check the SQE *file_index* field, which is
 not a problem for liburing helpers, but users of the raw io_uring
 interface need to zero SQEs to avoid unexpected behavior.
 
-These functions prepare an async [openat2] request. See that man
+These functions prepare an async [oepnat2](https://man7.org/linux/man-pages/man2/openat2.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -66,4 +66,4 @@ can test for this behavior by inspecting the
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit],
-[io_uring_register], [openat2]
+[io_uring_register], [oepnat2](https://man7.org/linux/man-pages/man2/openat2.2.html)

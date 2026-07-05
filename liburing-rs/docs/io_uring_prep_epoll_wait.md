@@ -7,7 +7,7 @@ request. The submission queue entry *sqe* is setup to wait on a maximum
 of *maxevents* events on the epoll file descriptor indicated by *fd*,
 and filling the received events into the memory pointed to by *events*.
 
-This function prepares an async [epoll_wait] request. See that man
+This function prepares an async [epoll_wait](https://man7.org/linux/man-pages/man2/epoll_wait.2.html) request. See that man
 page for details. The use case is mostly for legacy event loops, where
 certain file descriptors may still be using epoll for readiness
 notifications. Normally this would necessitate using epoll_wait with the
@@ -31,4 +31,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [epoll_wait]
+[io_uring_get_sqe], [io_uring_submit], [epoll_wait](https://man7.org/linux/man-pages/man2/epoll_wait.2.html)

@@ -27,7 +27,7 @@ None
 # ERRORS
 
 The CQE *res* field will contain the result of the operation, which is a
-bitmask of the events notified. See the [poll] man page for
+bitmask of the events notified. See the [poll](https://man7.org/linux/man-pages/man2/poll.2.html) man page for
 details. Note that where synchronous system calls will return **-1** on
 failure and set *errno* to the actual error value, io_uring never uses
 *errno*. Instead it returns the negated *errno* directly in the CQE
@@ -35,5 +35,5 @@ failure and set *errno* to the actual error value, io_uring never uses
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [poll],
-[epoll_ctl]
+[io_uring_get_sqe], [io_uring_submit], [poll](https://man7.org/linux/man-pages/man2/poll.2.html),
+[epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html)

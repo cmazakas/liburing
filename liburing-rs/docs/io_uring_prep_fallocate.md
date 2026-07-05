@@ -7,7 +7,7 @@ request. The submission queue entry *sqe* is setup to use the file
 descriptor pointed to by *fd* to start a fallocate operation described
 by *mode* at offset *offset* and *len* length in bytes.
 
-This function prepares an async [fallocate] request. See that man
+This function prepares an async [fallocate](https://man7.org/linux/man-pages/man2/fallocate.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -24,4 +24,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [fallocate]
+[io_uring_get_sqe], [io_uring_submit], [fallocate](https://man7.org/linux/man-pages/man2/fallocate.2.html)

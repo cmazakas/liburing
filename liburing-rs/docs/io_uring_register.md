@@ -1,26 +1,27 @@
-Register files or user buffers for asynchronous I/O
+Register files or user buffers for asynchronous I/O.
 
 # DESCRIPTION
 
-The **io_uring_register**(2) system call registers resources (e.g. user
+The [io_uring_register] system call registers resources (e.g. user
 buffers, files, eventfd, personality, restrictions) for use in an
-**io_uring**(7) instance referenced by *fd*. Registering files or user
+[io_uring] instance referenced by *fd*. Registering files or user
 buffers allows the kernel to take long term references to internal data
 structures or create long term mappings of application memory, greatly
 reducing per-I/O overhead.
 
-*fd* is the file descriptor returned by a call to **io_uring_setup**(2).
+*fd* is the file descriptor returned by a call to [io_uring_setup].
 If *opcode* has the flag **IORING_REGISTER_USE_REGISTERED_RING** ored
 into it, *fd* is instead the index of a registered ring fd.
 
 *opcode* can be one of:
 
-**IORING_REGISTER_BUFFERS**\*arg* points to a *struct iovec* array of *nr_args* entries. The buffers
+**IORING_REGISTER_BUFFERS**\
+*arg* points to a *struct iovec* array of *nr_args* entries. The buffers
 associated with the iovecs will be locked in memory and charged against
-the user's **RLIMIT_MEMLOCK** resource limit. See **getrlimit**(2) for
+the user's **RLIMIT_MEMLOCK** resource limit. See [getrlimit](https://man7.org/linux/man-pages/man2/getrlimit.2.html) for
 more information. Additionally, there is a size limit of 1GiB per
 buffer. Currently, the buffers must be anonymous, non-file-backed
-memory, such as that returned by **malloc**(3) or **mmap**(2) with the
+memory, such as that returned by [malloc](https://man7.org/linux/man-pages/man3/malloc.3.html) or [mmap](https://man7.org/linux/man-pages/man2/mmap.2.html) with the
 **MAP_ANONYMOUS** flag set. It is expected that this limitation will be
 lifted in the future. Huge pages are supported as well. Note that the
 entire huge page will be pinned in the kernel, even if only a portion of
@@ -30,7 +31,7 @@ After a successful call, the supplied buffers are mapped into the kernel
 and eligible for I/O. To make use of them, the application must specify
 the **IORING_OP_READ_FIXED** or **IORING_OP_WRITE_FIXED** opcodes in the
 submission queue entry (see the *struct io_uring_sqe* definition in
-**io_uring_enter**(2)), and set the *buf_index* field to the desired
+[io_uring_enter]), and set the *buf_index* field to the desired
 buffer index. The memory range described by the submission queue entry's
 *addr* and *len* fields must fall within the indexed buffer.
 
@@ -40,7 +41,7 @@ region.
 
 An application can increase or decrease the size or number of registered
 buffers by first unregistering the existing buffers, and then issuing a
-new call to **io_uring_register**(2) with the new buffers.
+new call to [io_uring_register] with the new buffers.
 
 Note that before 5.13 registering buffers would wait for the ring to
 idle. If the application currently has requests in-flight, the
@@ -209,7 +210,7 @@ will be unregistered. Available since 5.1.
 <!-- -->
 
 **IORING_REGISTER_EVENTFD**\
-It's possible to use **eventfd**(2) to get notified of completion events
+It's possible to use [eventfd](https://man7.org/linux/man-pages/man2/eventfd.2.html) to get notified of completion events
 on an io_uring instance. If this is desired, an eventfd file descriptor
 can be registered through this operation. *arg* must contain a pointer
 to the eventfd file descriptor, and *nr_args* must be 1. Note that while
@@ -277,7 +278,7 @@ set to NULL. Available since 5.6.
 **IORING_REGISTER_ENABLE_RINGS**\
 This operation enables an io_uring ring started in a disabled state
 (**IORING_SETUP_R_DISABLED** was specified in the call to
-**io_uring_setup**(2)). While the io_uring ring is disabled, submissions
+[io_uring_setup]). While the io_uring ring is disabled, submissions
 are not allowed and registrations are not restricted.
 
 After the execution of this operation, the io_uring ring is enabled:
@@ -292,18 +293,18 @@ zero. Available since 5.10.
 *arg* points to a *struct io_uring_restriction* array of *nr_args*
 entries.
 
-With an entry it is possible to allow an **io_uring_register**(2)
+With an entry it is possible to allow an [io_uring_register]
 *opcode*, or specify which *opcode* and *flags* of the submission queue
 entry are allowed, or require certain *flags* to be specified (these
 flags must be set on each submission queue entry).
 
 All the restrictions must be submitted with a single
-**io_uring_register**(2) call and they are handled as an allowlist
+[io_uring_register] call and they are handled as an allowlist
 (opcodes and flags not registered, are not allowed).
 
 Restrictions can be registered only if the io_uring ring started in a
 disabled state (**IORING_SETUP_R_DISABLED** must be specified in the
-call to **io_uring_setup**(2)).
+call to [io_uring_setup]).
 
 Available since 5.10.
 
@@ -351,7 +352,7 @@ Available since 5.15.
 <!-- -->
 
 **IORING_REGISTER_RING_FDS**\
-Whenever **io_uring_enter**(2) is called to submit request or wait for
+Whenever [io_uring_enter] is called to submit request or wait for
 completions, the kernel must grab a reference to the file descriptor. If
 the application using io_uring is threaded, the file table is marked as
 shared, and the reference grab and put of the file descriptor count is
@@ -359,7 +360,7 @@ more expensive than it is for a non-threaded application.
 
 Similarly to how io_uring allows registration of files, this allow
 registration of the ring file descriptor itself. This reduces the
-overhead of the **io_uring_enter**(2) system call.
+overhead of the [io_uring_enter] system call.
 
 *arg* must be set to a pointer to an array of type *struct
 io_uring_rsrc_update* of *nr_args* number of entries. The **data** field
@@ -368,10 +369,10 @@ of this struct must contain an io_uring file descriptor, and the
 the registered file descriptor value. If **-1** is used, then upon
 successful return of this system call, the field will contain the value
 of the registered file descriptor to be used for future
-**io_uring_enter**(2) system calls.
+[io_uring_enter] system calls.
 
 On successful completion of this request, the returned descriptors may
-be used instead of the real file descriptor for **io_uring_enter**(2),
+be used instead of the real file descriptor for [io_uring_enter],
 provided that **IORING_ENTER_REGISTERED_RING** is set in the *flags* for
 the system call. This flag tells the kernel that a registered descriptor
 is used rather than a real file descriptor.
@@ -380,8 +381,7 @@ Each thread or process using a ring must register the file descriptor
 directly by issuing this request.
 
 The maximum number of supported registered ring descriptors is currently
-limited to **16.**
-
+limited to **16.**\
 Available since 5.18.
 
 <!-- -->
@@ -430,7 +430,7 @@ It looks as follows:
 
 The *ring_addr* field must contain the address to the memory allocated
 to fit this ring. The memory must be page aligned and hence allocated
-appropriately using eg **posix_memalign**(3) or similar. The size of the
+appropriately using eg [posix_memalign](https://man7.org/linux/man-pages/man3/posix_memalign.3.html) or similar. The size of the
 ring is the product of *ring_entries* and the size of *struct
 io_uring_buf*. *ring_entries* is the desired size of the ring, and must
 be a power-of-2 in size. The maximum size allowed is 2^15 (32768).
@@ -446,7 +446,7 @@ rest of the fields are reserved and must be cleared to zero.
 
 *nr_args* must be set to 1.
 
-Also see **io_uring_register_buf_ring**(3) for more details. Available
+Also see [io_uring_register_buf_ring] for more details. Available
 since 5.19.
 
 **IORING_UNREGISTER_PBUF_RING**\
@@ -469,7 +469,7 @@ completion of that specific CQE.
 
 *arg* must be set to a pointer to a struct io_uring_sync_cancel_reg
 structure, with the details filled in for what request(s) to target for
-cancelation. See **io_uring_register_sync_cancel**(3) for details on
+cancelation. See [io_uring_register_sync_cancel] for details on
 that. The return values are the same, except they are passed back
 synchronously rather than through the CQE *res* field. *nr_args* must be
 set to 1.
@@ -619,7 +619,7 @@ existing table, **IORING_REGISTER_DST_REPLACE** must be set in the
 Supports sending of the equivalent of a **IORING_OP_MSG_RING** request,
 but without having a source ring available. Takes a pointer to a
 *struct*io_uring_sqe which must be prepared with
-**io_uring_prep_msg_ring**(3) before being submitted. Only supports
+[io_uring_prep_msg_ring] before being submitted. Only supports
 **IORING_MSG_DATA** type of requests. Available since kernel 6.13.
 
 <!-- -->
@@ -630,7 +630,7 @@ Supports resizing the SQ and CQ rings. Takes a pointer to a
 *cq_entries* may be set to the desired values. Only supports a limited
 set of flags set in the *struct*io_uring_params argument, notably
 **IORING_SETUP_CQSIZE** and **IORING_SETUP_CLAMP** to modify the CQ ring
-sizing. See **io_uring_resize_rings**(3) for details. Note that while
+sizing. See [io_uring_resize_rings] for details. Note that while
 liburing takes care of the ring unmap and mapping for a resize
 operation, manual users of this register syscall must perform those
 operations, similarly to when a new ring is created. The
@@ -699,9 +699,9 @@ of *struct*io_uring_region_desc must be set to an address of
 *struct*io_uring_reg_wait members, an up to a page size can be mapped.
 At the size of 64 bytes per region, that allows at least 64 individual
 regions on a 4k page size system. The offsets of these regions are used
-for an **io_uring_enter**(2) system call, with the first one being 0,
+for an [io_uring_enter] system call, with the first one being 0,
 second one 1, and so forth. After registration of the wait regions,
-**io_uring_enter**(2) may be used with the enter flag of
+[io_uring_enter] may be used with the enter flag of
 **IORING_ENTER_EXT_ARG_REG and an** *argp* set to the wait region
 offset, rather than a pointer to a *struct*io_uring_getevent_arg
 structure. If used with **IORING_ENTER_GETEVENTS ,** then the wait
@@ -710,7 +710,7 @@ than needing a io_uring_getevent_arg structure copied for each
 operation. For high frequency waits, this can save considerable CPU
 cycles. Note: once a region has been registered, it cannot get
 unregistered. It lives for the life of the ring. Individual wait region
-offset may be modified before any **io_uring_enter**(2) system call.
+offset may be modified before any [io_uring_enter] system call.
 Available since kernel 6.13.
 
 **IORING_REGISTER_ZCRX_IFQ**\
@@ -826,7 +826,7 @@ Available since kernel 6.15.
 
 # RETURN VALUE
 
-On success, **io_uring_register**(2) returns either 0 or a positive
+On success, [io_uring_register] returns either 0 or a positive
 value, depending on the *opcode* used. On error, a negative error value
 is returned. The caller should not rely on the *errno* variable.
 

@@ -46,6 +46,6 @@ if __name__ == "__main__":
         p = Path(path)
         original = p.read_text()
         cleaned = process(original)
-        print(cleaned)
+        # print(cleaned)
         p.write_text(cleaned)
         print(f"Processed {p}")

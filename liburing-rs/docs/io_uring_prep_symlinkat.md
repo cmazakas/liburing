@@ -11,9 +11,9 @@ The [io_uring_prep_symlink] function prepares a symlink request.
 The submission queue entry *sqe* is setup to symlink the target path
 pointed to by *target* to the new destination indicated by *linkpath*
 relative to the current working directory. This function prepares an
-async [symlink] request. See that man page for details.
+async [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html) request. See that man page for details.
 
-These functions prepare an async [symlinkat] or [symlink]
+These functions prepare an async [symlinkat](https://man7.org/linux/man-pages/man2/symlink.2.html) or [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html)
 request. See those man pages for details.
 
 # RETURN VALUE
@@ -41,5 +41,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [symlinkat],
-[symlink]
+[io_uring_get_sqe], [io_uring_submit], [symlinkat](https://man7.org/linux/man-pages/man2/symlink.2.html),
+[symlink](https://man7.org/linux/man-pages/man2/symlink.2.html)

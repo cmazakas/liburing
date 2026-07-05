@@ -12,7 +12,7 @@ submission queue entry *sqe* is setup to start an unlinkat operation on
 the path identified by *path* relative to the current working directory
 and using the flags given in *flags*.
 
-These functions prepare an async [unlinkat] or [unlink]
+These functions prepare an async [unlinkat](https://man7.org/linux/man-pages/man2/unlink.2.html) or [unlink](https://man7.org/linux/man-pages/man2/unlink.2.html)
 request. See those man pages for details.
 
 # RETURN VALUE
@@ -40,5 +40,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [unlinkat],
-[unlink]
+[io_uring_get_sqe], [io_uring_submit], [unlinkat](https://man7.org/linux/man-pages/man2/unlink.2.html),
+[unlink](https://man7.org/linux/man-pages/man2/unlink.2.html)
