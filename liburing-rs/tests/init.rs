@@ -96,3 +96,13 @@ fn for_each_cqe()
 
     assert_eq!(x, 23);
 }
+
+#[test]
+fn version()
+{
+    let major = unsafe { io_uring_major_version() };
+    let minor = unsafe { io_uring_minor_version() };
+
+    assert_eq!(major, 2);
+    assert_eq!(minor, 15);
+}
