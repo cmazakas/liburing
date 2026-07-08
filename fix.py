@@ -47,6 +47,8 @@ def process(text: str) -> str:
     #    **symbol**(3) → [symbol]
     def fix_see_also(match):
         symbol = match.group(1)
+        if symbol == "io_uring_clone_buffers":
+            return f"[{symbol}()]"
         return f'[{symbol}]'
 
     text = re.sub(
