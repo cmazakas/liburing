@@ -53,6 +53,10 @@ sanitizers = []
 bindgen-cli = []
 gnu = []
 
+[package.metadata.docs.rs]
+features = ["gnu"]
+rustdoc-args = ["--cfg", "docsrs"]
+
 [profile.release-with-debug]
 inherits = "release"
 debug = "full"

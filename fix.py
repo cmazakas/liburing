@@ -6,6 +6,26 @@ from pathlib import Path
 import subprocess
 import os.path
 
+_CODE = re.compile(
+    r"(?P<esc>\\.)"                  # backslash escape: \[  \]  \`  \*  ...
+    r"|(?P<fence>^```.*?^```\s*$)"   # fenced code block
+    r"|(?P<inline>`[^`\n]*`)",       # inline code span
+    re.DOTALL | re.MULTILINE,
+)
+
+def fixup_links_skipping_code(md: str, fixup) -> str:
+    """Run `fixup` (your existing [text] -> [text](url) function) on prose only."""
+    out = []
+    last = 0
+    for m in _CODE.finditer(md):
+        # prose before this code region: safe to transform
+        out.append(fixup(md[last:m.start()]))
+        # code region: pass through untouched
+        out.append(m.group(0))
+        last = m.end()
+    out.append(fixup(md[last:]))   # trailing prose
+    return "".join(out)
+
 def fix_man_link(match: re.Match) -> str:
     fn_name = match.group(1)
 
@@ -27,13 +47,12 @@ def process(text: str) -> str:
 
     # 2. Extract the short description line:
     #    e.g. "io_uring_for_each_cqe - iterate pending completion events"
-    m = re.search(r'^(.*?)\s*-\s*(.*)$', text, flags=re.MULTILINE)
+    m = re.search(r'\A(.*?)\s*-\s*(.*)$', text, flags=re.MULTILINE)
     if m:
         short = m.group(2).strip()
-        # Capitalize first word
-        short = short[0].upper() + short[1:]
-        # Replace the whole line with just the cleaned short description
-        text = re.sub(r'^.*? - .*$', short, text, flags=re.MULTILINE)
+        if not short.startswith('io_uring'):
+                short = short[0].upper() + short[1:]
+        text = text[:m.start()] + short + text[m.end():]
 
     # 3. Remove everything from "# SYNOPSIS" up to "# DESCRIPTION"
     text = re.sub(
@@ -57,7 +76,10 @@ def process(text: str) -> str:
         text
     )
 
-    text = fix_man_links(text)
+    text = fixup_links_skipping_code(text, fix_man_links)
+#     text = fix_man_links(text)
+    text = re.sub(r'\*\*  ', r'**\\', text)
+
     return text
 
 if __name__ == "__main__":
@@ -66,7 +88,7 @@ if __name__ == "__main__":
         name = p.name.rsplit('.')[0]
 
         out_name = f"liburing-rs/docs/{name}.md"
-        subprocess.run(['pandoc', '-f', 'man', '-t', 'commonmark', '-o', out_name, path], stdout=True)
+        subprocess.run(['pandoc',  '-f', 'man', '-t', 'commonmark', '--lua-filter=tag-c.lua', '-o', out_name, path], stdout=True)
 
         p = Path(out_name)
         original = p.read_text()
