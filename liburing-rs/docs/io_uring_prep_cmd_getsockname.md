@@ -1,4 +1,4 @@
-Prepare a getsockname or getpeername.
+Prepare a getsockname or getpeername
 request
 
 # DESCRIPTION
@@ -12,7 +12,7 @@ a region of size *sockaddr_len* where the output is written.
 bytes were written. The output address is the locally bound address if
 *peer* is set to **0** or the peer address if *peer* is set to **1**.
 
-This function prepares an async [getsockname] or [getpeername]
+This function prepares an async [getsockname](https://man7.org/linux/man-pages/man2/getsockname.2.html) or [getpeername](https://man7.org/linux/man-pages/man2/getpeername.2.html)
 request. See those man pages for details.
 
 # RETURN VALUE
@@ -32,5 +32,5 @@ operation on a non-socket file descriptor, the CQE error result is
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [getsockname],
-[getpeername]
+[io_uring_get_sqe], [io_uring_submit], [getsockname](https://man7.org/linux/man-pages/man2/getsockname.2.html),
+[getpeername](https://man7.org/linux/man-pages/man2/getpeername.2.html)

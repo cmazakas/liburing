@@ -1,4 +1,4 @@
-Register file descriptors.
+Register file descriptors
 
 # DESCRIPTION
 

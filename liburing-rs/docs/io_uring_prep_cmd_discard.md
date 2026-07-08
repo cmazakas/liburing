@@ -1,4 +1,4 @@
-Prepare a discard command.
+Prepare a discard command
 
 # DESCRIPTION
 

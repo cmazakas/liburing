@@ -1,4 +1,4 @@
-Prepare a uring_cmd request.
+Prepare a uring_cmd request
 
 # DESCRIPTION
 

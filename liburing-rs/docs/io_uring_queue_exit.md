@@ -1,4 +1,4 @@
-Tear down io_uring submission and completion.
+Tear down io_uring submission and completion
 queues
 
 # DESCRIPTION

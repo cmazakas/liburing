@@ -1,4 +1,4 @@
-Prepare a listen request.
+Prepare a listen request
 
 # DESCRIPTION
 
@@ -8,7 +8,7 @@ descriptor pointed by *sockfd* into a state to accept incoming
 connections. The parameter *backlog*, defines the maximum length of the
 queue of pending connections.
 
-This function prepares an async [listen] request. See that man page
+This function prepares an async [listen](https://man7.org/linux/man-pages/man2/listen.2.html) request. See that man page
 for details.
 
 # RETURN VALUE
@@ -25,4 +25,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [listen]
+[io_uring_get_sqe], [io_uring_submit], [listen](https://man7.org/linux/man-pages/man2/listen.2.html)

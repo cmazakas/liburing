@@ -1,4 +1,4 @@
-Wait for one or more io_uring completion events.
+Wait for one or more io_uring completion events
 
 # DESCRIPTION
 
@@ -9,13 +9,11 @@ necessary or until the timeout *ts* expires.
 The *sigmask* specifies the set of signals to block. If set, it is
 equivalent to atomically executing the following calls:
 
-```c
     sigset_t origmask;
 
     pthread_sigmask(SIG_SETMASK, &sigmask, &origmask);
     ret = io_uring_wait_cqes(ring, cqe, wait_nr, ts, NULL);
     pthread_sigmask(SIG_SETMASK, &origmask, NULL);
-```
 
 The *cqe_ptr* param is filled in on success with the first CQE. Callers
 of this function should use [io_uring_for_each_cqe] to iterate all

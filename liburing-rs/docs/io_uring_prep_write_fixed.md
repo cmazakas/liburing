@@ -1,4 +1,4 @@
-Prepare I/O write request with registered.
+Prepare I/O write request with registered
 buffer
 
 # DESCRIPTION

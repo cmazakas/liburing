@@ -1,4 +1,4 @@
-Free space in the SQ ring.
+Free space in the SQ ring
 
 # DESCRIPTION
 

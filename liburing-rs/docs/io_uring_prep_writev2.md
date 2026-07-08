@@ -1,4 +1,4 @@
-Prepare vector I/O write request with flags.
+Prepare vector I/O write request with flags
 
 # DESCRIPTION
 
@@ -10,24 +10,24 @@ The submission queue entry *sqe* is setup to use the file descriptor
 
 Supported values for *flags* are:
 
-**RWF_HIPRI**\
+**RWF_HIPRI**  
 High priority request, poll if possible
 
-**RWF_DSYNC**\
+**RWF_DSYNC**  
 per-IO O_DSYNC
 
-**RWF_SYNC**\
+**RWF_SYNC**  
 per-IO O_SYNC
 
-**RWF_NOWAIT**\
+**RWF_NOWAIT**  
 per-IO, return **-EAGAIN** if operation would block
 
-**RWF_APPEND**\
+**RWF_APPEND**  
 per-IO O_APPEND
 
 On files that support seeking, if the offset is set to **-1**, the write
 operation commences at the file offset, and the file offset is
-incremented by the number of bytes written. See [write] for more
+incremented by the number of bytes written. See [write](https://man7.org/linux/man-pages/man2/write.2.html) for more
 details. Note that for an async API, reading and updating the current
 file offset may result in unpredictable behavior, unless access to the
 file is serialized. It is not encouraged to use this feature if it's

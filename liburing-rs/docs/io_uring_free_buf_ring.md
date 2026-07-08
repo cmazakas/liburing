@@ -1,4 +1,5 @@
-Register and free a buffer ring for provided buffers.
+Register and free a buffer ring for provided
+buffers
 
 # DESCRIPTION
 

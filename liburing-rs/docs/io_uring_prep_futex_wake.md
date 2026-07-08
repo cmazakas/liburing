@@ -1,11 +1,11 @@
-Prepare a futex wake request.
+Prepare a futex wake request
 
 # DESCRIPTION
 
 The [io_uring_prep_futex_wake] function prepares a futex wake
 request. The submission queue entry *sqe* is setup for waking any
 waiters on the futex indicated by *futex* and at most *val* futexes.
-*futex_flags* indicates the [futex2](https://man7.org/linux/man-pages/man2/futex.2.html) modifier flags, and io_uring
+*futex_flags* indicates the [futex2](https://man7.org/linux/man-pages/man2/futex2.2.html) modifier flags, and io_uring
 futex flags of *flags .*
 
 If a given bitset for who to wake is desired, then that must be set in
@@ -39,4 +39,4 @@ failure and set *errno* to the actual error value, io_uring never uses
 
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_prep_futex_wait], [io_uring_prep_futex_waitv],
-[futex](https://man7.org/linux/man-pages/man2/futex.2.html) [futex2](https://man7.org/linux/man-pages/man2/futex.2.html)
+[futex](https://man7.org/linux/man-pages/man2/futex.2.html) [futex2](https://man7.org/linux/man-pages/man2/futex2.2.html)

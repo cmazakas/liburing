@@ -1,4 +1,4 @@
-Set buf group for submission queue event.
+Set buf group for submission queue event
 
 # DESCRIPTION
 
@@ -15,4 +15,4 @@ None
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_cqe_get_data]
+[io_uring_get_sqe], [io_uring_cqe_set_data]

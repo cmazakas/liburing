@@ -1,4 +1,4 @@
-Prepare a pipe creation request.
+Prepare a pipe creation request
 
 # DESCRIPTION
 
@@ -22,11 +22,11 @@ these must be currently unused, or the operation will fail. Also see
 for details on the *file_index* parameter.
 
 For both the direct and normal file descriptor pipe request, the
-resulting input/read side of the pipe will be stored in *fds\[0\]* and
-the output/write side of the pipe will be stored in *fds\[1\]* upon
+resulting input/read side of the pipe will be stored in *fds\[0\](https://man7.org/linux/man-pages/man2/0\.2.html)* and
+the output/write side of the pipe will be stored in *fds\[1\](https://man7.org/linux/man-pages/man2/1\.2.html)* upon
 successful completion of this request.
 
-This function prepares an async [pipe2](https://man7.org/linux/man-pages/man2/pipe.2.html) request. See that man page
+This function prepares an async [pipe2](https://man7.org/linux/man-pages/man2/pipe2.2.html) request. See that man page
 for details.
 
 # RETURN VALUE
@@ -43,5 +43,5 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [pipe2](https://man7.org/linux/man-pages/man2/pipe.2.html),
+[io_uring_get_sqe], [io_uring_submit], [pipe2](https://man7.org/linux/man-pages/man2/pipe2.2.html),
 [io_uring_prep_accept_direct], [io_uring_prep_socket_direct]

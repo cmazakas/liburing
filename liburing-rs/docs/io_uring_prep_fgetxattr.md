@@ -1,4 +1,4 @@
-Prepare a request to.
+Prepare a request to
 get an extended attribute value
 
 # DESCRIPTION

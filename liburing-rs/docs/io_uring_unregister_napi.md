@@ -1,4 +1,4 @@
-Unregister NAPI busy poll settings.
+Unregister NAPI busy poll settings
 
 # DESCRIPTION
 

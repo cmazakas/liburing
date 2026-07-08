@@ -1,4 +1,4 @@
-Prepare a connect request.
+Prepare a connect request
 
 # DESCRIPTION
 
@@ -7,7 +7,7 @@ The submission queue entry *sqe* is setup to use the file descriptor
 *sockfd* to start connecting to the destination described by the socket
 address at *addr* and of structure length *addrlen*.
 
-This function prepares an async [connect] request. See that man
+This function prepares an async [connect](https://man7.org/linux/man-pages/man2/connect.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -35,4 +35,4 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [connect]
+[io_uring_get_sqe], [io_uring_submit], [connect](https://man7.org/linux/man-pages/man2/connect.2.html)

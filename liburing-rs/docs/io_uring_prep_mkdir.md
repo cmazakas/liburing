@@ -1,4 +1,4 @@
-Prepare an mkdirat request.
+Prepare an mkdirat request
 
 # DESCRIPTION
 
@@ -12,7 +12,7 @@ submission queue entry *sqe* is setup to use the current working
 directory to start a mkdir operation on the path identified by *path*
 with the mode given in *mode*.
 
-These functions prepare an async [mkdir] or [mkdirat] request.
+These functions prepare an async [mkdir](https://man7.org/linux/man-pages/man2/mkdir.2.html) or [mkdirat](https://man7.org/linux/man-pages/man2/mkdirat.2.html) request.
 See those man pages for details.
 
 # RETURN VALUE
@@ -40,5 +40,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [mkdirat],
-[mkdir]
+[io_uring_get_sqe], [io_uring_submit], [mkdirat](https://man7.org/linux/man-pages/man2/mkdirat.2.html),
+[mkdir](https://man7.org/linux/man-pages/man2/mkdir.2.html)

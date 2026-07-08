@@ -1,4 +1,4 @@
-Get probe instance.
+Get probe instance
 
 # DESCRIPTION
 

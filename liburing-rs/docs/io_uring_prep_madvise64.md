@@ -1,4 +1,4 @@
-Prepare a madvise request.
+Prepare a madvise request
 
 # DESCRIPTION
 

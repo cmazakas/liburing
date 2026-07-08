@@ -1,4 +1,4 @@
-Prepare I/O read request.
+Prepare I/O read request
 
 # DESCRIPTION
 

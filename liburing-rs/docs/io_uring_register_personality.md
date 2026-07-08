@@ -1,4 +1,4 @@
-Register credentials with io_uring.
+Register credentials with io_uring
 
 # DESCRIPTION
 

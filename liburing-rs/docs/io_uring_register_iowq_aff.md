@@ -1,4 +1,4 @@
-Register async worker CPU affinities.
+Register async worker CPU affinities
 
 # DESCRIPTION
 
@@ -22,14 +22,14 @@ this helper, as *cpu_set_t* will not be defined without it.
 Returns **0** on success, or any of the following values in case of
 error.
 
-**-EFAULT**\
+**-EFAULT**  
 The kernel was unable to copy the memory pointer to by *mask* as it was
 invalid.
 
-**-ENOMEM**\
+**-ENOMEM**  
 The kernel was unable to allocate memory for the new CPU mask.
 
-**-EINVAL**\
+**-EINVAL**  
 *cpusz* or *mask* was NULL/0, or any other value specified was invalid.
 
 # SEE ALSO

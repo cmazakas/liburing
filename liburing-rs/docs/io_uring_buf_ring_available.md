@@ -1,8 +1,9 @@
-Return number of unconsumed provided ring buffer entries.
+Return number of unconsumed provided ring
+buffer entries
 
 # DESCRIPTION
 
-The **io_uring_buf_ring_available**(3) helper returns the number of
+The [io_uring_buf_ring_available] helper returns the number of
 unconsumed (by the kernel) entries in the *br* provided buffer group
 belonging to the io_uring *ring* and identified by the buffer group ID
 *bgid.*

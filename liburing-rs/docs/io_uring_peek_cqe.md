@@ -1,4 +1,4 @@
-Check if an io_uring completion event is available.
+Check if an io_uring completion event is available
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Prepare a statx request.
+Prepare a statx request
 
 # DESCRIPTION
 
@@ -8,7 +8,7 @@ descriptor pointed to by *dirfd* to start a statx operation on the path
 identified by *path* and using the flags given in *flags* for the fields
 specified by *mask* and into the buffer located at *statxbuf*.
 
-This function prepares an async [statx] request. See that man page
+This function prepares an async [statx](https://man7.org/linux/man-pages/man2/statx.2.html) request. See that man page
 for details.
 
 # RETURN VALUE
@@ -36,4 +36,4 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [statx]
+[io_uring_get_sqe], [io_uring_submit], [statx](https://man7.org/linux/man-pages/man2/statx.2.html)

@@ -1,4 +1,4 @@
-Prepare a zerocopy send request.
+Prepare a zerocopy send request
 
 # DESCRIPTION
 
@@ -37,7 +37,7 @@ Note that using **IOSQE_IO_LINK** with this request type requires the
 setting of **MSG_WAITALL** in the *flags* argument, as a short send
 isn't considered an error condition without that being set.
 
-These functions prepare an async zerocopy [send] request. See that
+These functions prepare an async zerocopy [send](https://man7.org/linux/man-pages/man2/send.2.html) request. See that
 man page for details. For details on the zerocopy nature of it, see
 [io_uring_enter]**.**
 
@@ -54,11 +54,11 @@ to the actual error value, io_uring never uses *errno*. Instead it
 returns the negated *errno* directly in the CQE *res* field. Some common
 error cases are:
 
-**-ENOMEM**\
-The [ulimit](https://man7.org/linux/man-pages/man3/ulimit.3.html) -l setting is too low to support the size of the
+**-ENOMEM**  
+The [ulimit](https://man7.org/linux/man-pages/man2/ulimit.2.html) -l setting is too low to support the size of the
 attempted zero copy send. Increasing the limit may help
 
-**-ENOMEM**\
+**-ENOMEM**  
 The kernel ran out of memory.
 
 # NOTES
@@ -70,4 +70,4 @@ interface).
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit],
-[io_uring_prep_send], [io_uring_enter], [send]
+[io_uring_prep_send], [io_uring_enter], [send](https://man7.org/linux/man-pages/man2/send.2.html)

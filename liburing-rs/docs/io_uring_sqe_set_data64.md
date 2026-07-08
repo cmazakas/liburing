@@ -1,4 +1,4 @@
-Set user data for submission queue event.
+Set user data for submission queue event
 
 # DESCRIPTION
 

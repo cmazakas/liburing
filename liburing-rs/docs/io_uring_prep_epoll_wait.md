@@ -1,4 +1,4 @@
-Prepare an epoll wait request.
+Prepare an epoll wait request
 
 # DESCRIPTION
 

@@ -1,15 +1,15 @@
-Add buffers to a shared buffer ring.
+Add buffers to a shared buffer ring
 
 # DESCRIPTION
 
-The **io_uring_buf_ring_add**(3) adds a new buffer to the shared buffer
+The [io_uring_buf_ring_add] adds a new buffer to the shared buffer
 ring *br*. The buffer address is indicated by *addr* and is of *len*
 bytes of length. *bid* is the buffer ID, which will be returned in the
 CQE. *mask* is the size mask of the ring, available from
-**io_uring_buf_ring_mask**(3)**.** *buf_offset* is the offset to insert
+[io_uring_buf_ring_mask]**.** *buf_offset* is the offset to insert
 at from the current tail. If just one buffer is provided before the ring
-tail is committed with **io_uring_buf_ring_advance**(3) or
-**io_uring_buf_ring_cq_advance**(3), then *buf_offset* should be 0. If
+tail is committed with [io_uring_buf_ring_advance] or
+[io_uring_buf_ring_cq_advance], then *buf_offset* should be 0. If
 buffers are provided in a loop before being committed, the *buf_offset*
 must be incremented by one for each buffer added.
 

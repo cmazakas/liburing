@@ -1,4 +1,4 @@
-Prepare fixed file fd installation.
+Prepare fixed file fd installation
 request
 
 # DESCRIPTION

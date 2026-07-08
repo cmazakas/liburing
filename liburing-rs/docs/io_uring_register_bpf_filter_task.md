@@ -22,17 +22,15 @@ The *bpf* argument is a pointer to a **struct io_uring_bpf** with
 *cmd_type* set to **IO_URING_BPF_CMD_FILTER**. The embedded **struct
 io_uring_bpf_filter** describes the filter to register:
 
-```c
     struct io_uring_bpf_filter {
         __u32   opcode;      /* io_uring opcode to filter */
         __u32   flags;       /* IO_URING_BPF_FILTER_* */
         __u32   filter_len;  /* number of BPF instructions */
         __u8    pdu_size;    /* expected pdu size for opcode */
-        __u8    resv[3];
+        __u8    resv[3](https://man7.org/linux/man-pages/man2/3.2.html);
         __u64   filter_ptr;  /* pointer to BPF filter */
-        __u64   resv2[5];
+        __u64   resv2[5](https://man7.org/linux/man-pages/man2/5.2.html);
     };
-```
 
 *opcode* specifies which io_uring operation the filter applies to (e.g.,
 **IORING_OP_SOCKET**, **IORING_OP_NOP**, **IORING_OP_READ**).
@@ -53,16 +51,16 @@ If the application's *pdu_size* matches the kernel's expected size for
 the opcode, registration succeeds. If the sizes differ, the behavior
 depends on whether **IO_URING_BPF_FILTER_SZ_STRICT** is set in *flags*:
 
-Register classic BPF filters for io_uring operations.
+Register classic BPF filters for io_uring operations
 >   **-EMSGSIZE** if the sizes differ.
 >
-Register classic BPF filters for io_uring operations.
+Register classic BPF filters for io_uring operations
 >   allowed if the application's *pdu_size* is smaller than the
 >   kernel's. This permits older applications that were compiled against
 >   a smaller payload to still load filters, as the kernel can safely
 >   evaluate the filter on the subset of data the application expects.
 >
-Register classic BPF filters for io_uring operations.
+Register classic BPF filters for io_uring operations
 >   fails with **-EMSGSIZE** if the application's *pdu_size* is larger
 >   than the kernel's, since the kernel cannot provide data that it does
 >   not support.
@@ -74,29 +72,28 @@ expected payload size and adjust or retry accordingly.
 
 *flags* can be zero or a bitwise OR of the following:
 
-**IO_URING_BPF_FILTER_DENY_REST**
+**IO_URING_BPF_FILTER_DENY_REST**  
 When set, any opcode that does not have a filter registered will be
 denied. This allows creating an allowlist of permitted operations.
 
-**IO_URING_BPF_FILTER_SZ_STRICT**
+**IO_URING_BPF_FILTER_SZ_STRICT**  
 When set, registration of a filter will fail with **-EMSGSIZE** if the
 application's *pdu_size* does not exactly match the kernel's expected
 payload size for the opcode. Without this flag, the kernel permits
 filters where the application's *pdu_size* is smaller than or equal to
 the kernel's.
 
-**Filter**\ Context
+## Filter Context
 
 The BPF filter receives a context structure that can be inspected using
 **BPF_LD** instructions with absolute addressing. The context layout is:
 
-```c
     struct io_uring_bpf_ctx {
         __u64   user_data;     /* offset 0: user_data from SQE */
         __u8    opcode;        /* offset 8: io_uring opcode */
         __u8    sqe_flags;     /* offset 9: SQE flags */
         __u8    pdu_size;      /* offset 10: aux data size for filter */
-        __u8    pad[5];        /* offset 11-15: padding */
+        __u8    pad[5](https://man7.org/linux/man-pages/man2/5.2.html);        /* offset 11-15: padding */
         union {
             struct {
                 __u32   family;    /* offset 16: socket family */
@@ -110,7 +107,6 @@ The BPF filter receives a context structure that can be inspected using
             } open;
         };
     };
-```
 
 The *pdu_size* field indicates the size in bytes of the
 operation-specific data passed in the union. A filter can check this
@@ -130,7 +126,7 @@ only meaningful for **IORING_OP_OPENAT2** and contains resolve flags
 (e.g., **RESOLVE_IN_ROOT**). *pdu_size* is set to 24 (three 8-byte
 members).
 
-**Filter**\ Stacking
+## Filter Stacking
 
 Multiple filters can be registered for the same opcode. When multiple
 filters exist, they are evaluated in order and all must return non-zero
@@ -144,32 +140,31 @@ error code.
 
 # ERRORS
 
-**-EINVAL**
+**-EINVAL**  
 Invalid filter, opcode, or flags specified.
 
-**-EMSGSIZE**
+**-EMSGSIZE**  
 The application's *pdu_size* does not match the kernel's expected
 payload size for the opcode. This occurs when
 **IO_URING_BPF_FILTER_SZ_STRICT** is set and the sizes differ, or when
 the application's *pdu_size* is larger than the kernel's regardless of
 flags.
 
-**-ENOMEM**
+**-ENOMEM**  
 Insufficient memory to register the filter.
 
-**-EFAULT**
+**-EFAULT**  
 The filter pointer is invalid.
 
-**-EACCES**
+**-EACCES**  
 The caller does not have the **CAP_SYS_ADMIN** capability and the
 **no_new_privs** attribute is not set on the calling task. See
 [prctl](https://man7.org/linux/man-pages/man2/prctl.2.html) with **PR_SET_NO_NEW_PRIVS**.
 
 # EXAMPLES
 
-**Deny**\ all NOP operations
+## Deny all NOP operations
 
-```c
     #include <sys/prctl.h>
     #include <linux/filter.h>
     #include <liburing.h>
@@ -196,11 +191,9 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     /* Or register on the task */
     io_uring_register_bpf_filter_task(&bpf);
-```
 
-**Allow**\ only AF_INET sockets
+## Allow only AF_INET sockets
 
-```c
     #include <sys/prctl.h>
     #include <linux/filter.h>
     #include <sys/socket.h>
@@ -232,11 +225,9 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
     io_uring_register_bpf_filter_task(&bpf);
-```
 
-**Allow**\ only NOP, deny everything else
+## Allow only NOP, deny everything else
 
-```c
     struct sock_filter allow_filter[] = {
         BPF_STMT(BPF_RET | BPF_K, 1),  /* return 1 (allow) */
     };
@@ -253,14 +244,12 @@ The caller does not have the **CAP_SYS_ADMIN** capability and the
 
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
     io_uring_register_bpf_filter_task(&bpf);
-```
 
-**Discover**\ kernel pdu_size for an opcode
+## Discover kernel pdu_size for an opcode
 
 This example demonstrates how to use the **-EMSGSIZE** write-back to
 discover the kernel's expected payload size.
 
-```c
     struct sock_filter allow[] = {
         BPF_STMT(BPF_RET | BPF_K, 1),
     };
@@ -285,11 +274,10 @@ discover the kernel's expected payload size.
         /* retry with correct size */
         ret = io_uring_register_bpf_filter(&ring, &bpf);
     }
-```
 
 # NOTES
 
-**Privilege**\ Requirements
+## Privilege Requirements
 
 Similar to [seccomp](https://man7.org/linux/man-pages/man2/seccomp.2.html), registering BPF filters requires either the
 **CAP_SYS_ADMIN** capability or the **no_new_privs** attribute to be set
@@ -299,14 +287,12 @@ with elevated privileges but under the attacker-controlled filter.
 
 To set the **no_new_privs** attribute, call:
 
-```c
     prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
-```
 
 Once set, **no_new_privs** cannot be unset and is inherited by child
 processes across [fork](https://man7.org/linux/man-pages/man2/fork.2.html) and preserved across [execve](https://man7.org/linux/man-pages/man2/execve.2.html).
 
-**Inheritance**\
+## Inheritance
 
 Task-level filters registered with
 [io_uring_register_bpf_filter_task] are inherited by child

@@ -1,8 +1,9 @@
-Returns number of unconsumed ready entries in the CQ ring.
+Returns number of unconsumed ready entries in the CQ
+ring
 
 # DESCRIPTION
 
-The **io_uring_cq_ready**(3) function returns the number of unconsumed
+The [io_uring_cq_ready] function returns the number of unconsumed
 entries that are ready belonging to the *ring* param.
 
 # RETURN VALUE

@@ -1,4 +1,4 @@
-Prepare an ftruncate request.
+Prepare an ftruncate request
 
 # DESCRIPTION
 
@@ -24,4 +24,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [ftruncate](https://man7.org/linux/man-pages/man3/ftruncate.3p.html),
+[io_uring_get_sqe], [io_uring_submit], [ftruncate](https://man7.org/linux/man-pages/man2/ftruncate.2.html),

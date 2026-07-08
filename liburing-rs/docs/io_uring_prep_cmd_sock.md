@@ -1,4 +1,4 @@
-Prepare a command request for a socket.
+Prepare a command request for a socket
 
 # DESCRIPTION
 
@@ -13,7 +13,7 @@ This is a generic function, and each command has their own individual
 
 # Available commands
 
-**SOCKET_URING_OP_SIOCINQ**
+**SOCKET_URING_OP_SIOCINQ**  
 Returns the amount of queued unread data in the receive buffer. The
 socket must not be in LISTEN state, otherwise an error **-EINVAL** is
 returned in the CQE *res* field. The following arguments are not used
@@ -27,7 +27,7 @@ Available since 6.7.
 
 <!-- -->
 
-**SOCKET_URING_OP_SIOCOUTQ**
+**SOCKET_URING_OP_SIOCOUTQ**  
 Returns the amount of unsent data in the socket send queue. The socket
 must not be in LISTEN state, otherwise an error **-EINVAL** is returned
 in the CQE *res.* field. The following arguments are not used for this
@@ -39,7 +39,7 @@ For more information about this command, please check **unix(7).**
 
 <!-- -->
 
-**SOCKET_URING_OP_GETSOCKOPT**
+**SOCKET_URING_OP_GETSOCKOPT**  
 Command to get options for the socket referred to by the socket file
 descriptor *fd.* The arguments are similar to the **getsockopt(2)**
 system call.
@@ -53,7 +53,7 @@ CQE *res* contains a negative error number.
 
 <!-- -->
 
-**SOCKET_URING_OP_SETSOCKOPT**
+**SOCKET_URING_OP_SETSOCKOPT**  
 Command to set options for the socket referred to by the socket file
 descriptor *fd.* The arguments are similar to the **setsockopt(2)**
 system call.
@@ -62,7 +62,7 @@ Available since 6.7.
 
 <!-- -->
 
-**SOCKET_URING_OP_TX_TIMESTAMP**
+**SOCKET_URING_OP_TX_TIMESTAMP**  
 Retrieve transmit timestamps from the socket's error queue. This
 provides an alternative to the traditional **recvmsg(2)** error queue
 interface for obtaining TX timestamps.
@@ -103,7 +103,7 @@ Available since 6.17.
 
 <!-- -->
 
-**SOCKET_URING_OP_GETSOCKNAME**
+**SOCKET_URING_OP_GETSOCKNAME**  
 Returns the current address to which the socket is bound. The result is
 stored in the buffer pointed to by *optval,* which should be a pointer
 to a *struct sockaddr* (or appropriate variant). The *optlen* argument
@@ -111,7 +111,7 @@ specifies the size of the buffer. On success, the CQE *res* field
 contains the actual size of the socket address. If the buffer is too
 small, the result is truncated.
 
-This is the io_uring equivalent of [getsockname].
+This is the io_uring equivalent of [getsockname](https://man7.org/linux/man-pages/man2/getsockname.2.html).
 
 Available since 6.19.
 
@@ -131,4 +131,4 @@ The CQE *res* field will contain the result of the operation.
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit],
-[io_uring_register], [unix](https://man7.org/linux/man-pages/man7/unix.7.html)
+[io_uring_register], [unix](https://man7.org/linux/man-pages/man2/unix.2.html)

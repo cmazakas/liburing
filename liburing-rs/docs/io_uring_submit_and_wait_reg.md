@@ -1,4 +1,4 @@
-Sets up and registers fixed wait regions.
+Sets up and registers fixed wait regions
 
 # DESCRIPTION
 
@@ -13,7 +13,7 @@ in all the information in a struct that needs copying, it references a
 registered wait index for which previously registered wait region holds
 information about how the wait should be performed. That includes
 information such as the overall timeout, the minimum timeout to be used,
-and so forth. See **io_uring_setup_register_region** for the details
+and so forth. See [io_uring_setup_register_region] for the details
 on registered regions, specifically for registered wait regions.
 
 Using registered wait regions has less overhead then other wait methods,

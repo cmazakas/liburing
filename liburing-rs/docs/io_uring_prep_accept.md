@@ -1,9 +1,9 @@
-Prepare an accept request.
+Prepare an accept request
 
 # DESCRIPTION
 
 The [io_uring_prep_accept] function and its three variants prepare
-an accept request similar to [accept4](https://man7.org/linux/man-pages/man2/accept.2.html). The submission queue entry
+an accept request similar to [accept4](https://man7.org/linux/man-pages/man2/accept4.2.html). The submission queue entry
 *sqe* is setup to use the file descriptor *sockfd* to start accepting a
 connection request described by the socket address at *addr* and of
 structure length *addrlen* and using modifier flags in *flags*.
@@ -60,7 +60,7 @@ application knows that a new connection cannot come in before a previous
 one has been processed, it may be used as expected. The multishot
 variants are available since 5.19.
 
-See the man page [accept4](https://man7.org/linux/man-pages/man2/accept.2.html) for details of the accept function
+See the man page [accept4](https://man7.org/linux/man-pages/man2/accept4.2.html) for details of the accept function
 itself.
 
 # RETURN VALUE
@@ -112,4 +112,4 @@ and setting that flag will result in an **-EINVAL** error in the CQE.
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_register_files], [io_uring_register_files_sparse],
 [io_uring_register_file_alloc_range], [io_uring_register],
-[accept4](https://man7.org/linux/man-pages/man2/accept.2.html)
+[accept4](https://man7.org/linux/man-pages/man2/accept4.2.html)

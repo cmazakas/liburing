@@ -1,4 +1,4 @@
-Register NAPI busy poll settings.
+Register NAPI busy poll settings
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Prepare a symlinkat request.
+Prepare a symlinkat request
 
 # DESCRIPTION
 
@@ -13,7 +13,7 @@ pointed to by *target* to the new destination indicated by *linkpath*
 relative to the current working directory. This function prepares an
 async [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html) request. See that man page for details.
 
-These functions prepare an async [symlinkat](https://man7.org/linux/man-pages/man2/symlink.2.html) or [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html)
+These functions prepare an async [symlinkat](https://man7.org/linux/man-pages/man2/symlinkat.2.html) or [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html)
 request. See those man pages for details.
 
 # RETURN VALUE
@@ -41,5 +41,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [symlinkat](https://man7.org/linux/man-pages/man2/symlink.2.html),
+[io_uring_get_sqe], [io_uring_submit], [symlinkat](https://man7.org/linux/man-pages/man2/symlinkat.2.html),
 [symlink](https://man7.org/linux/man-pages/man2/symlink.2.html)

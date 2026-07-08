@@ -1,4 +1,4 @@
-Prepare a fadvise request.
+Prepare a fadvise request
 
 # DESCRIPTION
 
@@ -14,7 +14,7 @@ variant. If this variant is attempted used on a kernel that doesn't
 support 64-bit lengths, then the request will get errored with
 **-EINVAL** in the results field of the CQE.
 
-This function prepares an async [posix_fadvise] request. See that
+This function prepares an async [posix_fadvise](https://man7.org/linux/man-pages/man2/posix_fadvise.2.html) request. See that
 man page for details.
 
 # RETURN VALUE
@@ -32,4 +32,4 @@ returns the negated *errno* directly in the CQE *res* field.
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit],
-[io_uring_register], [posix_fadvise]
+[io_uring_register], [posix_fadvise](https://man7.org/linux/man-pages/man2/posix_fadvise.2.html)

@@ -1,4 +1,4 @@
-Set clock source for event waiting.
+Set clock source for event waiting
 
 # DESCRIPTION
 
@@ -11,24 +11,22 @@ io_uring_clock_register .**
 The *arg* argument must be filled in with the appropriate information.
 It looks as follows:
 
-```c
     struct io_uring_clock_register {
         __u32 clockid;
-        __u32 __resv[3];
+        __u32 __resv[3](https://man7.org/linux/man-pages/man2/3.2.html);
     };
-```
 
 The *clockid* field must contain the clock source, with valid sources
 being:
 
-**CLOCK_MONOTONIC**\
+**CLOCK_MONOTONIC**  
 a nonsettable system-wide clock that represents monotonic time.
 
-**CLOCK_BOOTTIME**\
+**CLOCK_BOOTTIME**  
 A nonsettable system-wide clock that is identical to **CLOCK_MONOTONIC
 ,** except that is also icnludes any time that the system is suspended.
 
-See [clock_gettime] for more details.
+See [clock_gettime](https://man7.org/linux/man-pages/man2/clock_gettime.2.html) for more details.
 
 The *\_\_resv* fields must be filled with zeroes.
 
@@ -41,5 +39,5 @@ returns **-errno**.
 
 # SEE ALSO
 
-[clock_gettime], [io_uring_register],
+[clock_gettime](https://man7.org/linux/man-pages/man2/clock_gettime.2.html), [io_uring_register],
 [io_uring_wait_cqe], [io_uring_wait_cqe_timeout],

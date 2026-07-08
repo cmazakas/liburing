@@ -1,4 +1,4 @@
-Prepare an epoll_ctl request.
+Prepare an epoll_ctl request
 
 # DESCRIPTION
 
@@ -10,13 +10,13 @@ structure as defined in [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_
 
 The *op* argument can be one of:
 
-**EPOLL_CTL_ADD**\
+**EPOLL_CTL_ADD**  
 Add *fd* to the epoll instance.
 
-**EPOLL_CTL_MOD**\
+**EPOLL_CTL_MOD**  
 Modify the settings for *fd*.
 
-**EPOLL_CTL_DEL**\
+**EPOLL_CTL_DEL**  
 Remove *fd* from the epoll instance. *ev* is ignored for this operation.
 
 This function prepares an async [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html) request. See that man

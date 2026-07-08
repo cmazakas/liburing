@@ -1,4 +1,4 @@
-Prepare a socket creation request.
+Prepare a socket creation request
 
 # DESCRIPTION
 
@@ -34,7 +34,7 @@ io_uring file table will be used automatically and the file index will
 be returned as CQE *res*. **-ENFILE** is otherwise returned if there is
 no free entries in the io_uring file table.
 
-These functions prepare an async [socket] request. See that man
+These functions prepare an async [socket](https://man7.org/linux/man-pages/man2/socket.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -51,4 +51,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [socket]
+[io_uring_get_sqe], [io_uring_submit], [socket](https://man7.org/linux/man-pages/man2/socket.2.html)

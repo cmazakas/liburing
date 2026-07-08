@@ -1,4 +1,4 @@
-Unregister a personality from io_uring.
+Unregister a personality from io_uring
 
 # DESCRIPTION
 

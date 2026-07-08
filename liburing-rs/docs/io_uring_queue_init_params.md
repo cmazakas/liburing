@@ -1,4 +1,4 @@
-Setup io_uring submission and completion queues.
+Setup io_uring submission and completion queues
 
 # DESCRIPTION
 
@@ -60,7 +60,7 @@ corresponding call to [io_uring_queue_exit].
 0 on success and **-errno** on failure. A return value of **-ENOMEM**
 indicates there is not enough locked memory available to hold the
 specified number of entries. Reduce the number of entries, or call
-[setrlimit](https://man7.org/linux/man-pages/man3/setrlimit.3p.html) to increase the maximum number of bytes of memory that
+[setrlimit](https://man7.org/linux/man-pages/man2/setrlimit.2.html) to increase the maximum number of bytes of memory that
 may be locked into RAM. Be aware that calling [io_uring_queue_init]
 and [io_uring_queue_exit] in a loop will temporarily lock a lot of
 memory, because [io_uring_queue_exit] does some of its accounting

@@ -1,4 +1,4 @@
-Prepare a poll request.
+Prepare a poll request
 
 # DESCRIPTION
 

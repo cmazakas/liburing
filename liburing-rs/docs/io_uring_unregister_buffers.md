@@ -1,4 +1,4 @@
-Unregister buffers for fixed buffer.
+Unregister buffers for fixed buffer
 operations
 
 # DESCRIPTION

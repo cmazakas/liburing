@@ -1,4 +1,4 @@
-Register an eventfd with a ring.
+Register an eventfd with a ring
 
 # DESCRIPTION
 

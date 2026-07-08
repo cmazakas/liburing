@@ -1,4 +1,4 @@
-Prepare a nop request.
+Prepare a nop request
 
 # DESCRIPTION
 

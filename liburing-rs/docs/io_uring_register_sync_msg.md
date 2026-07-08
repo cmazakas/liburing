@@ -1,4 +1,4 @@
-Send a synchronous message to another ring.
+Send a synchronous message to another ring
 
 # DESCRIPTION
 

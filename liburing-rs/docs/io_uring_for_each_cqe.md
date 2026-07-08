@@ -1,4 +1,4 @@
-Iterate pending completion events.
+Iterate pending completion events
 
 # DESCRIPTION
 
@@ -16,7 +16,6 @@ of them.
 
 # EXAMPLE
 
-```c
     void handle_cqes(struct io_uring *ring)
     {
     	struct io_uring_cqe *cqe;
@@ -31,7 +30,6 @@ of them.
 
     	io_uring_cq_advance(ring, i);
     }
-```
 
 # RETURN VALUE
 

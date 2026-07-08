@@ -1,4 +1,4 @@
-Prepare a poll deletion request.
+Prepare a poll deletion request
 
 # DESCRIPTION
 
@@ -19,15 +19,15 @@ None
 These are the errors that are reported in the CQE *res* field. On
 success, **0** is returned.
 
-**-ENOENT**\
+**-ENOENT**  
 The request identified by *user_data* could not be located. This could
 be because it completed before the cancelation request was issued, or if
 an invalid identifier is used.
 
-**-EINVAL**\
+**-EINVAL**  
 One of the fields set in the SQE was invalid.
 
-**-EALREADY**\
+**-EALREADY**  
 The execution state of the request has progressed far enough that
 cancelation is no longer possible. This should normally mean that it
 will complete shortly, either successfully, or interrupted due to the

@@ -1,4 +1,4 @@
-Unregister a previously registered buffer.
+Unregister a previously registered buffer
 ring
 
 # DESCRIPTION
@@ -13,4 +13,4 @@ returns **-errno**.
 
 # SEE ALSO
 
-[io_uring_register_buf_ring], io_uring_buf_ring_free
+[io_uring_register_buf_ring], [io_uring_buf_ring_free]

@@ -1,4 +1,4 @@
-Free probe instance.
+Free probe instance
 
 # DESCRIPTION
 

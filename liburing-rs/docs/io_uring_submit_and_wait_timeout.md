@@ -1,4 +1,4 @@
-Submit requests to the submission.
+Submit requests to the submission
 queue and wait for the completion with timeout
 
 # DESCRIPTION
@@ -11,13 +11,11 @@ completion events are stored in the *cqe_ptr* array.
 The *sigmask* specifies the set of signals to block. If set, it is
 equivalent to atomically executing the following calls:
 
-```c
     sigset_t origmask;
 
     pthread_sigmask(SIG_SETMASK, &sigmask, &origmask);
     ret = io_uring_submit_and_wait_timeout(ring, cqe, wait_nr, ts, NULL);
     pthread_sigmask(SIG_SETMASK, &origmask, NULL);
-```
 
 After the caller retrieves a submission queue entry (SQE) with
 [io_uring_get_sqe] and prepares the SQE, it can be submitted with

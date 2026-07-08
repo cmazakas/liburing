@@ -1,17 +1,17 @@
-Modify the maximum allowed async.
+Modify the maximum allowed async
 workers
 
 # DESCRIPTION
 
 io_uring async workers are split into two types:
 
-**Bounded**\
+**Bounded**  
 These workers have a bounded execution time. Examples of that are
 filesystem reads, which normally complete in a relatively short amount
 of time. In case of disk failures, they are still bounded by a timeout
 operation that will abort them if exceeded.
 
-**Unbounded**\
+**Unbounded**  
 Work items here may take an indefinite amount of time to complete.
 Examples include doing IO to sockets, pipes, or any other non-regular
 type of file.
@@ -37,11 +37,11 @@ If called with both values set to 0, the existing values are returned.
 Returns **0** on success, with *values* containing the previous values
 for the settings. On error, any of the following may be returned.
 
-**-EFAULT**\
+**-EFAULT**  
 The kernel was unable to copy the memory pointer to by *values* as it
 was invalid.
 
-**-EINVAL**\
+**-EINVAL**  
 *values* was **NULL** or the new values exceeded the maximum allowed
 value.
 

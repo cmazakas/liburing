@@ -1,4 +1,4 @@
-Register buffers for fixed buffer operations.
+Register buffers for fixed buffer operations
 
 # DESCRIPTION
 
@@ -43,6 +43,6 @@ updated. On failure they return **-errno**.
 # SEE ALSO
 
 [io_uring_register], [io_uring_get_sqe],
-[io_uring_unregister_buffers], [io_uring_clone_buffers()],
+[io_uring_unregister_buffers], [io_uring_clone_buffers],
 [io_uring_register_buf_ring], [io_uring_prep_read_fixed],
 [io_uring_prep_write_fixed]

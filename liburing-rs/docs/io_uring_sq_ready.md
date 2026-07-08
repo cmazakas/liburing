@@ -1,4 +1,4 @@
-Number of unconsumed or unsubmitted entries in the.
+Number of unconsumed or unsubmitted entries in the
 SQ ring
 
 # DESCRIPTION

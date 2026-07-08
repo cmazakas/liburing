@@ -1,4 +1,4 @@
-Is op code supported?.
+Is op code supported?
 
 # DESCRIPTION
 

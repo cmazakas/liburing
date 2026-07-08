@@ -1,4 +1,4 @@
-Prepare I/O read multishot request.
+Prepare I/O read multishot request
 
 # DESCRIPTION
 

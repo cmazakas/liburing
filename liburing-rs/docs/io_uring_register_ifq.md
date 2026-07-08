@@ -1,4 +1,4 @@
-Register a zero-copy receive interface queue.
+Register a zero-copy receive interface queue
 
 # DESCRIPTION
 

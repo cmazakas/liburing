@@ -1,4 +1,4 @@
-Prepare I/O read request with registered.
+Prepare I/O read request with registered
 buffer
 
 # DESCRIPTION

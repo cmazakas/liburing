@@ -18,7 +18,7 @@ shared ring buffers and queues interchangeably.
 The general programming model you need to follow for **io_uring** is
 outlined below
 
-- Set up shared buffers with **io_uring_setup**(2) and **mmap**(2),
+- Set up shared buffers with [io_uring_setup] and [mmap](https://man7.org/linux/man-pages/man2/mmap.2.html),
   mapping into user space shared buffers for the submission queue (SQ)
   and the completion queue (CQ). You place I/O requests you want to make
   on the SQ, while the kernel places the results of those operations on
@@ -31,13 +31,13 @@ outlined below
   essence, the equivalent of a system call you would have made
   otherwise, if you were not using **io_uring**. For instance, a SQE
   with the *opcode* set to **IORING_OP_READ** will request a read
-  operation to be issued that is similar to the **read**(2) system call.
-  Refer to the opcode documentation in **io_uring_enter**(2) for all
+  operation to be issued that is similar to the [read](https://man7.org/linux/man-pages/man2/read.2.html) system call.
+  Refer to the opcode documentation in [io_uring_enter] for all
   supported opcodes and their properties. You can add more than one SQE
   to the queue depending on the number of operations you want to
   request.
 
-- After you add one or more SQEs, you need to call **io_uring_enter**(2)
+- After you add one or more SQEs, you need to call [io_uring_enter]
   to tell the kernel to dequeue your I/O requests off the SQ and begin
   processing them.
 
@@ -57,12 +57,12 @@ outlined below
   normal system call would have returned a read size of 1024, then *res*
   would contain 1024.
 
-- Optionally, **io_uring_enter**(2) can also wait for a specified number
+- Optionally, [io_uring_enter] can also wait for a specified number
   of requests to be processed by the kernel before it returns. If you
   specified a certain number of completions to wait for, the kernel
   would have placed at least those many number of CQEs on the CQ, which
   you can then readily read, right after the return from
-  **io_uring_enter**(2).
+  [io_uring_enter].
 
 - It is important to remember that I/O requests submitted to the kernel
   can complete in any order. It is not necessary for the kernel to
@@ -104,33 +104,33 @@ It should be noted that depending on the configuration io_uring's
 behavior can deviate from the behavior outlined above, like not posting
 a CQE for every SQE when setting **IOSQE_CQE_SKIP_SUCCESS** in the SQE
 or posting multiple CQEs for a single SQE for multi shot operations or
-requiring an **io_uring_enter**(2) syscall to make the kernel begin
+requiring an [io_uring_enter] syscall to make the kernel begin
 processing newly added SQEs when using submission queue polling.
 
-**Submission**\ queue polling
+## Submission queue polling
 
 One of the goals of **io_uring** is to provide a means for efficient
 I/O. To this end, **io_uring** supports a polling mode that lets you
-avoid the call to **io_uring_enter**(2), which you use to inform the
+avoid the call to [io_uring_enter], which you use to inform the
 kernel that you have queued SQEs on to the SQ. With SQ Polling,
 **io_uring** starts a kernel thread that polls the submission queue for
 any I/O requests you submit by adding SQEs. With SQ Polling enabled,
-there is no need for you to call **io_uring_enter**(2), letting you
+there is no need for you to call [io_uring_enter], letting you
 avoid the overhead of system calls. A designated kernel thread dequeues
 SQEs off the SQ as you add them and dispatches them for asynchronous
 processing.
 
-**Setting**\ up io_uring
+## Setting up io_uring
 
 The main steps in setting up **io_uring** consist of mapping in the
-shared buffers with **mmap**(2) calls. In the example program included
+shared buffers with [mmap](https://man7.org/linux/man-pages/man2/mmap.2.html) calls. In the example program included
 in this man page, the function **app_setup_uring**() sets up
 **io_uring** with a QUEUE_DEPTH deep submission queue. Pay attention to
-the 2 **mmap**(2) calls that set up the shared submission and completion
+the 2 [mmap](https://man7.org/linux/man-pages/man2/mmap.2.html) calls that set up the shared submission and completion
 queues. If your kernel is older than version 5.4, three **mmap(2)**
 calls are required.
 
-**Submitting**\ I/O requests
+## Submitting I/O requests
 
 The process of submitting a request consists of describing the I/O
 operation you need to get done using an **io_uring_sqe** structure
@@ -141,7 +141,6 @@ them, it has several fields, some packed into unions for space
 efficiency. Here is a simplified version of struct **io_uring_sqe** with
 some of the most often used fields:
 
-```c
     struct io_uring_sqe {
             __u8    opcode;         /* type of operation for this sqe */
             __s32   fd;             /* file descriptor to do IO on */
@@ -152,11 +151,9 @@ some of the most often used fields:
             __u8    flags;          /* IOSQE_ flags */
             ...
     };
-```
 
 Here is struct **io_uring_sqe** in full:
 
-```c
     struct io_uring_sqe {
     	__u8	opcode;		/* type of operation for this sqe */
     	__u8	flags;		/* IOSQE_ flags */
@@ -220,49 +217,46 @@ Here is struct **io_uring_sqe** in full:
     		__u32	optlen;
     		struct {
     			__u16	addr_len;
-    			__u16	__pad3[1];
+    			__u16	__pad3[1](https://man7.org/linux/man-pages/man2/1.2.html);
     		};
     	};
     	union {
     		struct {
     			__u64	addr3;
-    			__u64	__pad2[1];
+    			__u64	__pad2[1](https://man7.org/linux/man-pages/man2/1.2.html);
     		};
     		__u64	optval;
     		/*
     		 * If the ring is initialized with IORING_SETUP_SQE128, then
     		 * this field is used for 80 bytes of arbitrary command data
     		 */
-    		__u8	cmd[0];
+    		__u8	cmd[0](https://man7.org/linux/man-pages/man2/0.2.html);
     	};
     };
-```
 
 To submit an I/O request to **io_uring**, you need to acquire a
 submission queue entry (SQE) from the submission queue (SQ), fill it up
 with details of the operation you want to submit and call
-**io_uring_enter**(2). There are helper functions of the form
+[io_uring_enter]. There are helper functions of the form
 io_uring_prep_X to enable proper setup of the SQE. If you want to avoid
-calling **io_uring_enter**(2), you have the option of setting up
+calling [io_uring_enter], you have the option of setting up
 Submission Queue Polling.
 
 SQEs are added to the tail of the submission queue. The kernel picks up
 SQEs off the head of the SQ. The general algorithm to get the next
 available SQE and update the tail is as follows.
 
-```c
     struct io_uring_sqe *sqe;
     unsigned tail, index;
     tail = *sqring->tail;
     index = tail & (*sqring->ring_mask);
-    sqe = &sqring->sqes[index];
+    sqe = &sqring->sqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
     /* fill up details about this I/O request */
     describe_io(sqe);
     /* fill the sqe index into the SQ ring array */
-    sqring->array[index] = index;
+    sqring->array[index](https://man7.org/linux/man-pages/man2/index.2.html) = index;
     tail++;
     atomic_store_explicit(sqring->tail, tail, memory_order_release);
-```
 
 To get the index of an entry, the application must mask the current tail
 index with the size mask of the ring. This holds true for both SQs and
@@ -273,11 +267,10 @@ them. The submission side ring buffer is an index into this array, which
 in turn contains the index into the SQEs.
 
 The following code snippet demonstrates how a read operation, an
-equivalent of a **preadv2**(2) system call is described by filling up an
+equivalent of a [preadv2](https://man7.org/linux/man-pages/man2/preadv2.2.html) system call is described by filling up an
 SQE with the necessary parameters.
 
-```c
-    struct iovec iovecs[16];
+    struct iovec iovecs[16](https://man7.org/linux/man-pages/man2/16.2.html);
      ...
     sqe->opcode = IORING_OP_READV;
     sqe->fd = fd;
@@ -285,10 +278,8 @@ SQE with the necessary parameters.
     sqe->len = 16;
     sqe->off = offset;
     sqe->flags = 0;
-```
 
-### Memory ordering
-
+**Memory ordering**  
 Modern compilers and CPUs freely reorder reads and writes without
 affecting the program's outcome to optimize performance. Some aspects of
 this need to be kept in mind on SMP systems since **io_uring** involves
@@ -304,32 +295,31 @@ modern memory models the reader may refer to the
 Documentation/memory-barriers.txt in the kernel tree or to the
 documentation of the formal C11 or kernel memory model.
 
-### Letting the kernel know about I/O submissions
-
+**Letting the kernel know about I/O submissions**  
 Once you place one or more SQEs on to the SQ, you need to let the kernel
 know that you've done so. You can do this by calling the
-**io_uring_enter**(2) system call. This system call is also capable of
+[io_uring_enter] system call. This system call is also capable of
 waiting for a specified count of events to complete. This way, you can
 be sure to find completion events in the completion queue without having
 to poll it for events later.
 
-**SQE**\ pointer lifetimes & data stability
+## SQE pointer lifetimes & data stability
 
 Due to the fixed size of the submission queue entry (SQE) some data you
 provide in order to perform a desired operation will be passed in the
 form of a pointer rather than value. In this situation, you may free the
-memory backing the pointer once the succeeding **io_uring_enter**(2)
+memory backing the pointer once the succeeding [io_uring_enter]
 call has completed; providing it is only required by the operation when
 submitting.
 
 When **IORING_SETUP_SQPOLL** is not enabled, this is done when you call
-**io_uring_submit**(3) In The event **IORING_SETUP_SQPOLL** is enabled,
+[io_uring_submit] In The event **IORING_SETUP_SQPOLL** is enabled,
 you must ensure any provided pointers remain valid until completion.
 
 However, very early kernels (5.4 and earlier) required state to be
 stable until the completion occurred regardless. Applications can test
 for this behavior by inspecting the **IORING_FEAT_SUBMIT_STABLE** flag
-passed back from **io_uring_queue_init_params**(3).
+passed back from [io_uring_queue_init_params].
 
 As an example, the **IORING_OP_TIMEOUT** operation takes a pointer to a
 \_\_kernel_timespec struct. This struct is then read by the kernel when
@@ -342,7 +332,7 @@ read or written while the operation is inflight. For example, the
 pointers to a buffer used as part of a **IORING_OP_WRITE** or
 **IORING_OP_READ** operation must remain valid until completion.
 
-**Reading**\ completion events
+## Reading completion events
 
 Similar to the submission queue (SQ), the completion queue (CQ) is a
 shared buffer between the kernel and user space. Whereas you placed
@@ -357,13 +347,11 @@ only for a return value back from the kernel. This is easily understood
 by looking at the completion queue event structure, struct
 **io_uring_cqe**:
 
-```c
     struct io_uring_cqe {
     	__u64	user_data;  /* sqe->data submission passed back */
     	__s32	res;        /* result code for this event */
     	__u32	flags;
     };
-```
 
 Here, *user_data* is custom data that is passed unchanged from
 submission to completion. That is, from SQEs to CQEs. This field can be
@@ -376,8 +364,7 @@ submission; its return value.
 The *flags* field carries request-specific information. As of the 6.12
 kernel, the following flags are defined:
 
-### IORING_CQE_F_BUFFER
-
+**IORING_CQE_F_BUFFER**  
 If set, the upper 16 bits of the flags field carries the buffer ID that
 was chosen for this request. The request must have been issued with
 **IOSQE_BUFFER_SELECT** set, and used with a request type that supports
@@ -385,24 +372,20 @@ buffer selection. Additionally, buffers must have been provided upfront
 either via the **IORING_OP_PROVIDE_BUFFERS** or the
 **IORING_REGISTER_PBUF_RING** methods.
 
-### IORING_CQE_F_MORE
-
+**IORING_CQE_F_MORE**  
 If set, the application should expect more completions from the request.
 This is used for requests that can generate multiple completions, such
 as multi-shot requests, receive, or accept.
 
-### IORING_CQE_F_SOCK_NONEMPTY
-
+**IORING_CQE_F_SOCK_NONEMPTY**  
 If set, upon receiving the data from the socket in the current request,
 the socket still had data left on completion of this request.
 
-### IORING_CQE_F_NOTIF
-
+**IORING_CQE_F_NOTIF**  
 Set for notification CQEs, as seen with the zero-copy networking send
 and receive support.
 
-### IORING_CQE_F_BUF_MORE
-
+**IORING_CQE_F_BUF_MORE**  
 If set, the buffer ID set in the completion will get more completions.
 This means that the provided buffer has been partially consumed and
 there's more buffer space left, and hence the application should expect
@@ -411,8 +394,7 @@ where the previous one left off. This can only happen if the provided
 buffer ring has been setup with **IOU_PBUF_RING_INC** to allow for
 incremental / partial consumption of buffers.
 
-### IORING_CQE_F_SKIP
-
+**IORING_CQE_F_SKIP**  
 If the ring has been configured with **IORING_SETUP_CQE_MIXED ,** then
 CQEs may be posted which has this flag set. This can happen if the ring
 is a single 16b CQE entry away from wrapping, but someone needs to post
@@ -421,34 +403,29 @@ to get posted to allow posting of the 32b CQE. CQEs with this flag set
 should simply be skipped and ignored, they serve no other purpose than
 to fill a gap in the CQ ring.
 
-### IORING_CQE_F_32
-
+**IORING_CQE_F_32**  
 If the ring has been configured with **IORING_SETUP_CQE_MIXED ,** this
 flag is set when the CQE is of the 32b type. This tells the application
 that there's an extra 16b of space in this CQE, and that to get to the
 next CQE the CQ ring must be advanced by twice as much as for a normal
 16b CQE.
 
----
-
 The general sequence to read completion events off the completion queue
 is as follows:
 
-```c
     unsigned head;
     head = *cqring->head;
     if (head != atomic_load_acquire(cqring->tail)) {
         struct io_uring_cqe *cqe;
         unsigned index;
         index = head & (cqring->mask);
-        cqe = &cqring->cqes[index];
+        cqe = &cqring->cqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
         /* process completed CQE */
         process_cqe(cqe);
         /* CQE consumption complete */
         head++;
     }
     atomic_store_explicit(cqring->head, head, memory_order_release);
-```
 
 It helps to be reminded that the kernel adds CQEs to the tail of the CQ,
 while you need to dequeue them off the head. To get the index of an
@@ -458,7 +435,7 @@ the head needs to be updated to reflect the consumption of the CQE.
 Attention should be paid to the read and write barriers to ensure
 successful read and update of the head.
 
-**io_uring**\ performance
+## io_uring performance
 
 Because of the shared ring buffers between kernel and user space,
 **io_uring** can be a zero-copy system. Copying buffers to and from
@@ -480,14 +457,14 @@ programming interfaces under Linux, there is at least one system call
 involved in the submission of each request. In **io_uring**, on the
 other hand, you can batch several requests in one go, simply by queueing
 up multiple SQEs, each describing an I/O operation you want and make a
-single call to **io_uring_enter**(2). This is possible due to
+single call to [io_uring_enter]. This is possible due to
 **io_uring**'s shared buffers based design.
 
 While this batching in itself can avoid the overhead associated with
 potentially multiple and frequent system calls, you can reduce even this
 overhead further with Submission Queue Polling, by having the kernel
 poll and pick up your SQEs for processing as you add them to the
-submission queue. This avoids the **io_uring_enter**(2) call you need to
+submission queue. This avoids the [io_uring_enter] call you need to
 make to tell the kernel to pick SQEs up. For high-performance
 applications, this means even fewer system call overheads.
 
@@ -506,7 +483,6 @@ larger queue depth to parallelize I/O request processing so as to gain
 the kind of performance benefits **io_uring** provides with its
 asynchronous processing of requests.
 
-```c
     #include <stdio.h>
     #include <stdlib.h>
     #include <sys/stat.h>
@@ -535,11 +511,11 @@ asynchronous processing of requests.
                      memory_order_acquire)
 
     int ring_fd;
-    unsigned *sring_tail, *sring_mask, *sring_array,
+    unsigned *sring_tail, *sring_mask, *sring_array, 
                 *cring_head, *cring_tail, *cring_mask;
     struct io_uring_sqe *sqes;
     struct io_uring_cqe *cqes;
-    char buff[BLOCK_SZ];
+    char buff[BLOCK_SZ](https://man7.org/linux/man-pages/man2/BLOCK_SZ.2.html);
     off_t offset;
 
     /*
@@ -585,7 +561,7 @@ asynchronous processing of requests.
         int cring_sz = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
 
         /* Rather than check for kernel version, the recommended way is to
-         * check the features field of the io_uring_params structure, which is a
+         * check the features field of the io_uring_params structure, which is a 
          * bitmask. If IORING_FEAT_SINGLE_MMAP is set, we can do away with the
          * second mmap() call to map in the completion ring separately.
          */
@@ -661,7 +637,7 @@ asynchronous processing of requests.
             return -1;
 
         /* Get the entry */
-        cqe = &cqes[head & (*cring_mask)];
+        cqe = &cqes[head & (*cring_mask)](https://man7.org/linux/man-pages/man2/head & (*cring_mask).2.html);
         if (cqe->res < 0)
             fprintf(stderr, "Error: %s\n", strerror(abs(cqe->res)));
 
@@ -683,7 +659,7 @@ asynchronous processing of requests.
         /* Add our submission queue entry to the tail of the SQE ring buffer */
         tail = *sring_tail;
         index = tail & *sring_mask;
-        struct io_uring_sqe *sqe = &sqes[index];
+        struct io_uring_sqe *sqe = &sqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
         /* Fill in the parameters required for the read or write operation */
         sqe->opcode = op;
         sqe->fd = fd;
@@ -697,7 +673,7 @@ asynchronous processing of requests.
         }
         sqe->off = offset;
 
-        sring_array[index] = index;
+        sring_array[index](https://man7.org/linux/man-pages/man2/index.2.html) = index;
         tail++;
 
         /* Update the tail */
@@ -728,7 +704,7 @@ asynchronous processing of requests.
             return 1;
         }
 
-        /*
+        /* 
         * A while loop that reads from stdin and writes to stdout.
         * Breaks on EOF.
         */
@@ -755,8 +731,7 @@ asynchronous processing of requests.
 
         return 0;
     }
-```
 
 # SEE ALSO
 
-[io_uring_enter], [io_uring_register], [io_uring_setup]
+[io_uring_enter] [io_uring_register] [io_uring_setup]

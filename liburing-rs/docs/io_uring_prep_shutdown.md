@@ -1,4 +1,4 @@
-Prepare a shutdown request.
+Prepare a shutdown request
 
 # DESCRIPTION
 
@@ -6,7 +6,7 @@ The [io_uring_prep_shutdown] function prepares a shutdown request.
 The submission queue entry *sqe* is setup to use the file descriptor
 *sockfd* that should be shutdown with the *how* argument.
 
-This function prepares an async [shutdown] request. See that man
+This function prepares an async [shutdown](https://man7.org/linux/man-pages/man2/shutdown.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -23,4 +23,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [shutdown]
+[io_uring_get_sqe], [io_uring_submit], [shutdown](https://man7.org/linux/man-pages/man2/shutdown.2.html)

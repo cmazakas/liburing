@@ -1,11 +1,11 @@
-Prepare a sendmsg request.
+Prepare a sendmsg request
 
 # DESCRIPTION
 
 The [io_uring_prep_sendmsg] function prepares a sendmsg request.
 The submission queue entry *sqe* is setup to use the file descriptor
 *fd* to start sending the data indicated by *msg* with the
-[sendmsg] defined flags in the *flags* argument.
+[sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html) defined flags in the *flags* argument.
 
 The [io_uring_prep_sendmsg_zc] accepts the same parameters as
 [io_uring_prep_sendmsg] but prepares a zerocopy sendmsg request.
@@ -32,7 +32,7 @@ Note that using **IOSQE_IO_LINK** with this request type requires the
 setting of **MSG_WAITALL** in the *flags* argument, as a short send
 isn't considered an error condition without that being set.
 
-This function prepares an async [sendmsg] request. See that man
+This function prepares an async [sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html) request. See that man
 page for details.
 
 # RETURN VALUE
@@ -48,11 +48,11 @@ to the actual error value, io_uring never uses *errno*. Instead it
 returns the negated *errno* directly in the CQE *res* field. Some common
 error cases are:
 
-**-ENOMEM**\
-The [ulimit](https://man7.org/linux/man-pages/man3/ulimit.3.html) -l setting is too low to support the size of the
+**-ENOMEM**  
+The [ulimit](https://man7.org/linux/man-pages/man2/ulimit.2.html) -l setting is too low to support the size of the
 attempted zero copy send. Increasing the limit may help
 
-**-ENOMEM**\
+**-ENOMEM**  
 The kernel ran out of memory.
 
 # NOTES
@@ -74,4 +74,4 @@ maximum for the underlying syscall interface).
 
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_buf_ring_init], [io_uring_buf_ring_add],
-[sendmsg]
+[sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html)

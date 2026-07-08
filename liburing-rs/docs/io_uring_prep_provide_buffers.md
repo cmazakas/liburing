@@ -1,4 +1,4 @@
-Prepare a provide buffers request.
+Prepare a provide buffers request
 
 # DESCRIPTION
 
@@ -57,24 +57,24 @@ These are the errors that are reported in the CQE *res* field. On
 success, *res* will contain **0** or the number of successfully provided
 buffers.
 
-**-ENOMEM**\
+**-ENOMEM**  
 The kernel was unable to allocate memory for the request.
 
-**-EINVAL**\
+**-EINVAL**  
 One of the fields set in the SQE was invalid.
 
-**-E2BIG**\
+**-E2BIG**  
 The number of buffers provided was too big, or the *bid* was too big. A
 max value of **USHRT_MAX** buffers can be specified.
 
-**-EFAULT**\
+**-EFAULT**  
 Some of the user memory given was invalid for the application.
 
-**-EOVERFLOW**\
+**-EOVERFLOW**  
 The product of *len* and *nr* exceed the valid amount or overflowed, or
 the sum of *addr* and the length of buffers overflowed.
 
-**-EBUSY**\
+**-EBUSY**  
 Attempt to update a slot that is already used.
 
 # SEE ALSO

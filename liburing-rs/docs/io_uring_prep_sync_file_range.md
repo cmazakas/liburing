@@ -1,4 +1,4 @@
-Prepare a sync_file_range request.
+Prepare a sync_file_range request
 
 # DESCRIPTION
 

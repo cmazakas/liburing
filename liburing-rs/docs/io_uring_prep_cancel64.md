@@ -1,4 +1,4 @@
-Prepare a cancelation request.
+Prepare a cancelation request
 
 # DESCRIPTION
 
@@ -26,31 +26,31 @@ By default, the first request matching the criteria given will be
 canceled. This can be modified with any of the following flags passed
 in:
 
-**IORING_ASYNC_CANCEL_ALL**\
+**IORING_ASYNC_CANCEL_ALL**  
 Cancel all requests that match the given criteria, rather than just
 canceling the first one found. Available since 5.19.
 
-**IORING_ASYNC_CANCEL_FD**\
+**IORING_ASYNC_CANCEL_FD**  
 Match based on the file descriptor used in the original request rather
 than the user_data. This is what [io_uring_prep_cancel_fd] sets up.
 Available since 5.19.
 
-**IORING_ASYNC_CANCEL_FD_FIXED**\
+**IORING_ASYNC_CANCEL_FD_FIXED**  
 Set in conjunction with **IORING_ASYNC_CANCEL_FD ,** indicating that the
 file descriptor given is a direct descriptor rather than a normal file
 descriptor. Available since 6.0.
 
-**IORING_ASYNC_CANCEL_ANY**\
+**IORING_ASYNC_CANCEL_ANY**  
 Match any request in the ring, regardless of user_data or file
 descriptor. Can be used to cancel any pending request in the ring.
 Available since 5.19.
 
-**IORING_ASYNC_CANCEL_USERDATA**\
+**IORING_ASYNC_CANCEL_USERDATA**  
 Match request based on the user data field set in the original request.
 This is the default lookup key, if no other key matching has been
 specified. Available since 6.6.
 
-**IORING_ASYNC_CANCEL_OP**\
+**IORING_ASYNC_CANCEL_OP**  
 Use the original request opcode as the matching key. The opcopde
 requested must be set in the sqe *len* field after using one of the
 generic cancel preparation helpers. Available since 6.6.
@@ -66,15 +66,15 @@ flags are used to cancel multiple requests, **0** is returned on
 success. If flags are used to match multiple requests, then a positive
 value is returned indicating how many requests were found and canceled.
 
-**-ENOENT**\
+**-ENOENT**  
 The request identified by *user_data* could not be located. This could
 be because it completed before the cancelation request was issued, or if
 an invalid identifier is used.
 
-**-EINVAL**\
+**-EINVAL**  
 One of the fields set in the SQE was invalid.
 
-**-EALREADY**\
+**-EALREADY**  
 The execution state of the request has progressed far enough that
 cancelation is no longer possible. This should normally mean that it
 will complete shortly, either successfully, or interrupted due to the

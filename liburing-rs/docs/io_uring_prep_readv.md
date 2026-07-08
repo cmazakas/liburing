@@ -1,4 +1,4 @@
-Prepare vector I/O read request.
+Prepare vector I/O read request
 
 # DESCRIPTION
 

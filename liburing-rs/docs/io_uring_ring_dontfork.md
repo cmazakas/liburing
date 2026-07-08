@@ -1,4 +1,5 @@
-Prevent ring memory from being shared after fork.
+Prevent ring memory from being shared after
+fork
 
 # DESCRIPTION
 

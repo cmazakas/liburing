@@ -1,13 +1,13 @@
-Prepare a recvmsg request.
+Prepare a recvmsg request
 
 # DESCRIPTION
 
 The [io_uring_prep_recvmsg] function prepares a recvmsg request.
 The submission queue entry *sqe* is setup to use the file descriptor
 *fd* to start receiving the data indicated by *msg* with the
-[recvmsg] defined flags in the *flags* argument.
+[recvmsg](https://man7.org/linux/man-pages/man2/recvmsg.2.html) defined flags in the *flags* argument.
 
-This function prepares an async [recvmsg] request. See that man
+This function prepares an async [recvmsg](https://man7.org/linux/man-pages/man2/recvmsg.2.html) request. See that man
 page for details on the arguments specified to this prep helper.
 
 The multishot version allows the application to issue a single receive
@@ -20,7 +20,7 @@ does not have the **IORING_CQE_F_MORE** flag set, then the multishot
 receive is done and the application must issue a new request if it still
 wishes to receive data from the socket.
 
-Unlike [recvmsg], multishot recvmsg will prepend a *struct
+Unlike [recvmsg](https://man7.org/linux/man-pages/man2/recvmsg.2.html), multishot recvmsg will prepend a *struct
 io_uring_recvmsg_out* which describes the layout of the rest of the
 buffer in combination with the initial *struct msghdr* submitted with
 the request. See [io_uring_recvmsg_out] for more information on
@@ -31,7 +31,7 @@ Multishot variants are available since kernel 6.0.
 After calling this function, additional io_uring internal modifier flags
 may be set in the SQE *ioprio* field. The following flags are supported:
 
-**IORING_RECVSEND_POLL_FIRST**\
+**IORING_RECVSEND_POLL_FIRST**  
 If set, io_uring will assume the socket is currently empty and
 attempting to receive data will be unsuccessful. For this case, io_uring
 will arm internal poll and trigger a receive of the data when the socket
@@ -42,7 +42,7 @@ If poll does indicate that data is ready to be received, the operation
 will proceed.
 
 Can be used with the CQE **IORING_CQE_F_SOCK_NONEMPTY** flag, which
-io_uring will set on CQEs after a [recv] or [recvmsg]
+io_uring will set on CQEs after a [recv](https://man7.org/linux/man-pages/man2/recv.2.html) or [recvmsg](https://man7.org/linux/man-pages/man2/recvmsg.2.html)
 operation. If set, the socket still had data to be read after the
 operation completed. Both these flags are available since 5.19.
 
@@ -77,4 +77,4 @@ maximum for the underlying syscall interface).
 
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_buf_ring_init], [io_uring_buf_ring_add],
-[recvmsg]
+[recvmsg](https://man7.org/linux/man-pages/man2/recvmsg.2.html)

@@ -1,4 +1,4 @@
-Get probe information from an existing ring.
+Get probe information from an existing ring
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Prepare an fsync request.
+Prepare an fsync request
 
 # DESCRIPTION
 
@@ -10,7 +10,7 @@ argument.
 This function prepares an fsync request. It can act either like an
 [fsync](https://man7.org/linux/man-pages/man2/fsync.2.html) operation, which is the default behavior. If
 **IORING_FSYNC_DATASYNC** is set in the *flags* argument, then it
-behaves like [fdatasync](https://man7.org/linux/man-pages/man2/fsync.2.html). If no range is specified, the *fd* will
+behaves like [fdatasync](https://man7.org/linux/man-pages/man2/fdatasync.2.html). If no range is specified, the *fd* will
 be synced from 0 to end-of-file.
 
 It's possible to specify a range to sync, if one is desired. If the
@@ -35,4 +35,4 @@ returns the negated *errno* directly in the CQE *res* field.
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit], [fsync](https://man7.org/linux/man-pages/man2/fsync.2.html),
-[fdatasync](https://man7.org/linux/man-pages/man2/fsync.2.html)
+[fdatasync](https://man7.org/linux/man-pages/man2/fdatasync.2.html)

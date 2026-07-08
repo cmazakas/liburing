@@ -1,4 +1,4 @@
-Set range for fixed file.
+Set range for fixed file
 allocations
 
 # DESCRIPTION

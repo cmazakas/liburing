@@ -1,4 +1,4 @@
-Wait for one io_uring completion event.
+Wait for one io_uring completion event
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Mmap io_uring ring after setup.
+Mmap io_uring ring after setup
 
 # DESCRIPTION
 

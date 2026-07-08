@@ -1,4 +1,4 @@
-Access data from multishot recvmsg.
+Access data from multishot recvmsg
 
 # DESCRIPTION
 

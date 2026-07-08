@@ -1,4 +1,4 @@
-Unregister file descriptors.
+Unregister file descriptors
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Unregister a ring file descriptor.
+Unregister a ring file descriptor
 
 # DESCRIPTION
 

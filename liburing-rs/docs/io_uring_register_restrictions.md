@@ -1,4 +1,4 @@
-Register restrictions with io_uring.
+Register restrictions with io_uring
 
 # DESCRIPTION
 

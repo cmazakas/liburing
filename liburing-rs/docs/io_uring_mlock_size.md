@@ -1,4 +1,4 @@
-Get required memlock size for a ring.
+Get required memlock size for a ring
 
 # DESCRIPTION
 
@@ -22,4 +22,4 @@ is needed, or a negative errno value on error.
 # SEE ALSO
 
 [io_uring_mlock_size_params], [io_uring_memory_size],
-[io_uring_queue_init], [getrlimit]
+[io_uring_queue_init], [getrlimit](https://man7.org/linux/man-pages/man2/getrlimit.2.html)

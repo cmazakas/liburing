@@ -1,4 +1,4 @@
-Prepare a linkat request.
+Prepare a linkat request
 
 # DESCRIPTION
 
@@ -14,7 +14,7 @@ submission queue entry *sqe* is setup to use the old path pointed to by
 *oldpath* and the new path pointed to by *newpath*, both relative to the
 current working directory and using the specified flags in *flags*.
 
-These functions prepare an async [linkat](https://man7.org/linux/man-pages/man2/link.2.html) or [link](https://man7.org/linux/man-pages/man2/link.2.html) request.
+These functions prepare an async [linkat](https://man7.org/linux/man-pages/man2/linkat.2.html) or [link](https://man7.org/linux/man-pages/man2/link.2.html) request.
 See those man pages for details.
 
 # RETURN VALUE
@@ -42,5 +42,5 @@ can test for this behavior by inspecting the
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [linkat](https://man7.org/linux/man-pages/man2/link.2.html),
+[io_uring_get_sqe], [io_uring_submit], [linkat](https://man7.org/linux/man-pages/man2/linkat.2.html),
 [link](https://man7.org/linux/man-pages/man2/link.2.html)

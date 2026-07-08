@@ -1,4 +1,4 @@
-Prepare a waitid request.
+Prepare a waitid request
 
 # DESCRIPTION
 
@@ -10,7 +10,7 @@ information of the child process, if any. *flags* is io_uring specific
 modifier flags. They are currently unused, and hence **0** should be
 passed.
 
-This function prepares an async [waitid] request. See that man page
+This function prepares an async [waitid](https://man7.org/linux/man-pages/man2/waitid.2.html) request. See that man page
 for details.
 
 Available since kernel 6.7.
@@ -29,4 +29,4 @@ returns the negated *errno* directly in the CQE *res* field.
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_submit], [waitid]
+[io_uring_get_sqe], [io_uring_submit], [waitid](https://man7.org/linux/man-pages/man2/waitid.2.html)

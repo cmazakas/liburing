@@ -1,10 +1,11 @@
-Returns if there are overflow entries waiting to move to the CQ ring.
+Returns if there are overflow entries waiting
+to move to the CQ ring
 
 # DESCRIPTION
 
-The **io_uring_cq_has_overflow**(3) function informs the application if
+The [io_uring_cq_has_overflow] function informs the application if
 CQ entries have overflowed and are waiting to be flushed to the CQ ring.
-For example using **io_uring_get_events**(3)
+For example using [io_uring_get_events]
 
 # NOTES
 

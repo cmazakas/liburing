@@ -1,4 +1,4 @@
-Prepare a futex waitv request.
+Prepare a futex waitv request
 
 # DESCRIPTION
 
@@ -41,4 +41,4 @@ time, if desired.
 
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_prep_futex_wait], [io_uring_prep_futex_wake],
-[io_uring_prep_link_timeout], [futex](https://man7.org/linux/man-pages/man2/futex.2.html), [futex2](https://man7.org/linux/man-pages/man2/futex.2.html)
+[io_uring_prep_link_timeout], [futex](https://man7.org/linux/man-pages/man2/futex.2.html) [futex2](https://man7.org/linux/man-pages/man2/futex2.2.html)

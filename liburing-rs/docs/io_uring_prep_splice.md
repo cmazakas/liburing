@@ -1,4 +1,4 @@
-Prepare an splice request.
+Prepare an splice request
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Register probe with io_uring.
+Register probe with io_uring
 
 # DESCRIPTION
 

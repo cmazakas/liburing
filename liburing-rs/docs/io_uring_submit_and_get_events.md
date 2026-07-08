@@ -1,4 +1,4 @@
-Submit requests to the submission queue.
+Submit requests to the submission queue
 and flush completions
 
 # DESCRIPTION

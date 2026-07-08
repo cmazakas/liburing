@@ -1,4 +1,4 @@
-Flush outstanding requests to CQE ring.
+Flush outstanding requests to CQE ring
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Register a ring file descriptor.
+Register a ring file descriptor
 
 # DESCRIPTION
 

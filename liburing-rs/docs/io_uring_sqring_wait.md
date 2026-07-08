@@ -1,4 +1,4 @@
-Wait for free space in the SQ ring.
+Wait for free space in the SQ ring
 
 # DESCRIPTION
 

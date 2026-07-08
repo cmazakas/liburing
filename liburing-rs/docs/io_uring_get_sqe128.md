@@ -1,4 +1,5 @@
-Get the next available 128-byte submission queue entry from the submission queue.
+Get the next available 128-byte submission queue
+entry from the submission queue
 
 # DESCRIPTION
 

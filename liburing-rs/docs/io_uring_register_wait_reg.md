@@ -1,4 +1,4 @@
-Register wait regions with io_uring.
+Register wait regions with io_uring
 
 # DESCRIPTION
 

@@ -1,4 +1,4 @@
-Prepare a fallocate request.
+Prepare a fallocate request
 
 # DESCRIPTION
 

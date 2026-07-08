@@ -1,4 +1,4 @@
-Prepare vector I/O write request.
+Prepare vector I/O write request
 
 # DESCRIPTION
 
@@ -9,7 +9,7 @@ The submission queue entry *sqe* is setup to use the file descriptor
 
 On files that support seeking, if the offset is set to **-1**, the write
 operation commences at the file offset, and the file offset is
-incremented by the number of bytes written. See [write] for more
+incremented by the number of bytes written. See [write](https://man7.org/linux/man-pages/man2/write.2.html) for more
 details. Note that for an async API, reading and updating the current
 file offset may result in unpredictable behavior, unless access to the
 file is serialized. It is not encouraged to use this feature if it's

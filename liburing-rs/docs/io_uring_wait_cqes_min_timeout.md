@@ -1,4 +1,4 @@
-Wait for completions with both batch.
+Wait for completions with both batch
 and normal timeout
 
 # DESCRIPTION
@@ -12,13 +12,11 @@ denotes a timeout for the *wait_nr* batch.
 The *sigmask* specifies the set of signals to block. If set, it is
 equivalent to atomically executing the following calls:
 
-```c
     sigset_t origmask;
 
     pthread_sigmask(SIG_SETMASK, &sigmask, &origmask);
     ret = io_uring_wait_cqes_min_timeout(ring, cqe, wait_nr, ts, min_wait, NULL);
     pthread_sigmask(SIG_SETMASK, &origmask, NULL);
-```
 
 This works like [io_uring_submit_and_wait_min_timeout] except that
 it doesn't submit requests. See that man page for a description for how

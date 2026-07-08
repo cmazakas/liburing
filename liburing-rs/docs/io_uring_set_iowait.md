@@ -1,4 +1,4 @@
-Toggle of iowait usage when waiting on CQEs.
+Toggle of iowait usage when waiting on CQEs
 
 # DESCRIPTION
 

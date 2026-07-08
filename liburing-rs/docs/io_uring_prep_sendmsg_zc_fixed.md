@@ -1,4 +1,4 @@
-Prepare a zero-copy sendmsg using fixed.
+Prepare a zero-copy sendmsg using fixed
 buffers
 
 # DESCRIPTION
@@ -9,7 +9,7 @@ entry *sqe* is setup to send data on the socket indicated by the file
 descriptor *fd* using the message structure *msg*.
 
 The *flags* argument contains flags for the sendmsg operation, as
-described in [sendmsg].
+described in [sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html).
 
 The *buf_index* specifies the index of the registered buffer set to use.
 The buffers in *msg* must be part of the registered buffer set
@@ -41,4 +41,4 @@ maximum for the underlying syscall interface).
 [io_uring_get_sqe], [io_uring_submit],
 [io_uring_prep_sendmsg_zc], [io_uring_prep_sendmsg],
 [io_uring_prep_send_zc_fixed], [io_uring_register_buffers],
-[sendmsg]
+[sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html)

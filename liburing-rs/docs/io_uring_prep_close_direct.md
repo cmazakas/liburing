@@ -1,4 +1,4 @@
-Prepare a file descriptor close request.
+Prepare a file descriptor close request
 
 # DESCRIPTION
 
