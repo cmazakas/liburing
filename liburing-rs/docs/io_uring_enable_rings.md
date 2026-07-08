@@ -16,7 +16,7 @@ a negative error code. It does not write to **errno**.
 
 # ERRORS
 
-**EBADFD**  
+**EBADFD**\
 The ring was not disabled.
 
 # SEE ALSO

@@ -10,30 +10,30 @@ argument holds modifier flags for the request.
 This request type can be used as a timeout waking anyone sleeping for
 events on the CQ ring. The *flags* argument may contain:
 
-**IORING_TIMEOUT_ABS**  
+**IORING_TIMEOUT_ABS**\
 The value specified in *ts* is an absolute value rather than a relative
 one.
 
-**IORING_TIMEOUT_BOOTTIME**  
+**IORING_TIMEOUT_BOOTTIME**\
 The boottime clock source should be used.
 
-**IORING_TIMEOUT_REALTIME**  
+**IORING_TIMEOUT_REALTIME**\
 The realtime clock source should be used.
 
-**IORING_TIMEOUT_ETIME_SUCCESS**  
+**IORING_TIMEOUT_ETIME_SUCCESS**\
 Consider an expired timeout a success in terms of the posted completion.
 This means it will not sever dependent links, as a failed request
 normally would. The posted CQE result code will still contain **-ETIME**
 in the *res* value.
 
-**IORING_TIMEOUT_MULTISHOT**  
+**IORING_TIMEOUT_MULTISHOT**\
 The request will return multiple timeout completions. The completion
 flag IORING_CQE_F_MORE is set if more timeouts are expected. The value
 specified in *count* is the number of repeats. A value of 0 means the
 timeout is indefinite and can only be stopped by a removal request.
 Available since the 6.4 kernel.
 
-**IORING_TIMEOUT_IMMEDIATE_ARG**  
+**IORING_TIMEOUT_IMMEDIATE_ARG**\
 The timeout value is stored directly in the SQE as a nanosecond value
 rather than as a pointer to a **struct \_\_kernel_timespec.** When this
 flag is set, the *ts* argument to [io_uring_prep_timeout] is
@@ -58,18 +58,18 @@ None
 These are the errors that are reported in the CQE *res* field. On
 success, **0** is returned.
 
-**-ETIME**  
+**-ETIME**\
 The specified timeout occurred and triggered the completion event.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid. For example, two
 clocksources were given, the specified timeout seconds or nanoseconds
 were \< 0.
 
-**-EFAULT**  
+**-EFAULT**\
 io_uring was unable to access the data specified by *ts*.
 
-**-ECANCELED**  
+**-ECANCELED**\
 The timeout was canceled by a removal request.
 
 # NOTES

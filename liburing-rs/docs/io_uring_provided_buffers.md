@@ -1,4 +1,4 @@
-Io_uring provided buffer rings overview
+io_uring provided buffer rings overview
 
 # DESCRIPTION
 
@@ -57,15 +57,17 @@ buffer group ID. Operations specify which buffer group to use.
 Buffer rings are set up using [io_uring_setup_buf_ring], which
 handles allocation, registration, and initialization:
 
-    struct io_uring_buf_ring *br;
-    int bgid = 1;  /* buffer group ID */
-    int err;
+``` c
+struct io_uring_buf_ring *br;
+int bgid = 1;  /* buffer group ID */
+int err;
 
-    br = io_uring_setup_buf_ring(ring, 128, bgid, 0, &err);
-    if (!br) {
-        fprintf(stderr, "buffer ring setup failed: %d\n", err);
-        return err;
-    }
+br = io_uring_setup_buf_ring(ring, 128, bgid, 0, &err);
+if (!br) {
+    fprintf(stderr, "buffer ring setup failed: %d\n", err);
+    return err;
+}
+```
 
 The ring must have a power-of-two number of entries, up to a maximum of
 32768 (2^15).
@@ -79,13 +81,15 @@ rings using the **IOU_PBUF_RING_MMAP** flag.
 Buffers are added using [io_uring_buf_ring_add] and made visible to
 the kernel with [io_uring_buf_ring_advance]:
 
-    int mask = io_uring_buf_ring_mask(128);
+``` c
+int mask = io_uring_buf_ring_mask(128);
 
-    for (int i = 0; i < 128; i++) {
-        void *buf = malloc(4096);
-        io_uring_buf_ring_add(br, buf, 4096, i, mask, i);
-    }
-    io_uring_buf_ring_advance(br, 128);
+for (int i = 0; i < 128; i++) {
+    void *buf = malloc(4096);
+    io_uring_buf_ring_add(br, buf, 4096, i, mask, i);
+}
+io_uring_buf_ring_advance(br, 128);
+```
 
 Each buffer is assigned a buffer ID (the third parameter). Buffer IDs
 should be unique within the buffer group but can be reused after a
@@ -96,10 +100,12 @@ buffer is returned.
 To use provided buffers, set the **IOSQE_BUFFER_SELECT** flag on the SQE
 and specify the buffer group ID:
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_recv(sqe, sockfd, NULL, 4096, 0);
-    io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
-    io_uring_sqe_set_buf_group(sqe, bgid);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_recv(sqe, sockfd, NULL, 4096, 0);
+io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
+io_uring_sqe_set_buf_group(sqe, bgid);
+```
 
 Note that *addr* is set to NULL (or ignored) since the kernel will
 select the buffer. The *len* field specifies the maximum amount of data
@@ -125,24 +131,24 @@ which buffer was used:
 
 - *cqe-\>res* contains the number of bytes transferred
 
-<!-- -->
+``` c
+struct io_uring_cqe *cqe;
+io_uring_wait_cqe(ring, &cqe);
 
-    struct io_uring_cqe *cqe;
-    io_uring_wait_cqe(ring, &cqe);
+if (cqe->flags & IORING_CQE_F_BUFFER) {
+    int bid = cqe->flags >> IORING_CQE_BUFFER_SHIFT;
+    void *buf = buffers[bid];  /* application's buffer tracking */
+    int len = cqe->res;
 
-    if (cqe->flags & IORING_CQE_F_BUFFER) {
-        int bid = cqe->flags >> IORING_CQE_BUFFER_SHIFT;
-        void *buf = buffers[bid](https://man7.org/linux/man-pages/man2/bid.2.html);  /* application's buffer tracking */
-        int len = cqe->res;
+    /* process data in buf */
+    process_data(buf, len);
 
-        /* process data in buf */
-        process_data(buf, len);
-
-        /* return buffer to ring for reuse */
-        io_uring_buf_ring_add(br, buf, 4096, bid, mask, 0);
-        io_uring_buf_ring_advance(br, 1);
-    }
-    io_uring_cqe_seen(ring, cqe);
+    /* return buffer to ring for reuse */
+    io_uring_buf_ring_add(br, buf, 4096, bid, mask, 0);
+    io_uring_buf_ring_advance(br, 1);
+}
+io_uring_cqe_seen(ring, cqe);
+```
 
 If no buffer was available when the operation completed, the operation
 fails with **-ENOBUFS**.
@@ -153,10 +159,12 @@ Provided buffers are particularly powerful with multishot operations
 like [io_uring_prep_recv_multishot]. A single SQE can generate
 multiple completions, each consuming a buffer from the ring:
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_recv_multishot(sqe, sockfd, NULL, 0, 0);
-    io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
-    io_uring_sqe_set_buf_group(sqe, bgid);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_recv_multishot(sqe, sockfd, NULL, 0, 0);
+io_uring_sqe_set_flags(sqe, IOSQE_BUFFER_SELECT);
+io_uring_sqe_set_buf_group(sqe, bgid);
+```
 
 Completions with **IORING_CQE_F_MORE** set indicate more completions
 will follow. The multishot operation continues until an error occurs,

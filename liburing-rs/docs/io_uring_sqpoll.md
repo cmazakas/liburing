@@ -1,4 +1,4 @@
-Io_uring submission queue polling overview
+io_uring submission queue polling overview
 
 # DESCRIPTION
 
@@ -71,13 +71,15 @@ version, and workload characteristics.
 SQPOLL is enabled by setting the **IORING_SETUP_SQPOLL** flag when
 creating the ring:
 
-    struct io_uring ring;
-    struct io_uring_params params = {
-        .flags = IORING_SETUP_SQPOLL,
-        .sq_thread_idle = 2000,  /* 2 seconds */
-    };
+``` c
+struct io_uring ring;
+struct io_uring_params params = {
+    .flags = IORING_SETUP_SQPOLL,
+    .sq_thread_idle = 2000,  /* 2 seconds */
+};
 
-    ret = io_uring_queue_init_params(entries, &ring, &params);
+ret = io_uring_queue_init_params(entries, &ring, &params);
+```
 
 The *sq_thread_idle* field specifies how long (in milliseconds) the
 kernel thread will poll before going to sleep if no submissions are
@@ -104,11 +106,13 @@ The application can check if the thread is sleeping by examining
 [io_uring_enter] with **IORING_ENTER_SQ_WAKEUP** to wake the
 thread:
 
-    /* After adding SQEs */
-    io_uring_smp_store_release(ring->sq.ktail, tail);
+``` c
+/* After adding SQEs */
+io_uring_smp_store_release(ring->sq.ktail, tail);
 
-    if (IO_URING_READ_ONCE(*ring->sq.kflags) & IORING_SQ_NEED_WAKEUP)
-        io_uring_enter(ring->ring_fd, 0, 0, IORING_ENTER_SQ_WAKEUP, NULL);
+if (IO_URING_READ_ONCE(*ring->sq.kflags) & IORING_SQ_NEED_WAKEUP)
+    io_uring_enter(ring->ring_fd, 0, 0, IORING_ENTER_SQ_WAKEUP, NULL);
+```
 
 The [io_uring_submit] function handles this automatically.
 
@@ -118,11 +122,13 @@ By default, the kernel schedules the polling thread on any available
 CPU. For better cache locality and reduced latency, the thread can be
 pinned to a specific CPU:
 
-    struct io_uring_params params = {
-        .flags = IORING_SETUP_SQPOLL | IORING_SETUP_SQ_AFF,
-        .sq_thread_cpu = 3,  /* pin to CPU 3 */
-        .sq_thread_idle = 1000,
-    };
+``` c
+struct io_uring_params params = {
+    .flags = IORING_SETUP_SQPOLL | IORING_SETUP_SQ_AFF,
+    .sq_thread_cpu = 3,  /* pin to CPU 3 */
+    .sq_thread_idle = 1000,
+};
+```
 
 The **IORING_SETUP_SQ_AFF** flag enables CPU affinity, and
 *sq_thread_cpu* specifies which CPU to use.
@@ -148,16 +154,18 @@ Multiple rings can share a single polling thread using
 **IORING_SETUP_ATTACH_WQ**. This reduces resource usage when an
 application uses multiple rings:
 
-    /* Create first ring with SQPOLL */
-    struct io_uring_params p1 = { .flags = IORING_SETUP_SQPOLL };
-    io_uring_queue_init_params(entries, &ring1, &p1);
+``` c
+/* Create first ring with SQPOLL */
+struct io_uring_params p1 = { .flags = IORING_SETUP_SQPOLL };
+io_uring_queue_init_params(entries, &ring1, &p1);
 
-    /* Create second ring, attach to first ring's thread */
-    struct io_uring_params p2 = {
-        .flags = IORING_SETUP_SQPOLL | IORING_SETUP_ATTACH_WQ,
-        .wq_fd = ring1.ring_fd,
-    };
-    io_uring_queue_init_params(entries, &ring2, &p2);
+/* Create second ring, attach to first ring's thread */
+struct io_uring_params p2 = {
+    .flags = IORING_SETUP_SQPOLL | IORING_SETUP_ATTACH_WQ,
+    .wq_fd = ring1.ring_fd,
+};
+io_uring_queue_init_params(entries, &ring2, &p2);
+```
 
 ## Completion handling
 
@@ -201,11 +209,11 @@ functions.
 
 - SQPOLL rings still require system calls for:
 
-Io_uring submission queue polling overview
+  - Waiting for completions (unless busy-polling the CQ)
 
-Io_uring submission queue polling overview
+  - Waking the thread when it has gone idle
 
-Io_uring submission queue polling overview
+  - Registration operations
 
 - The polling thread inherits resource limits and cgroup membership from
   the creating process.

@@ -30,7 +30,7 @@ since kernel 6.0.
 After calling this function, additional io_uring internal modifier flags
 may be set in the SQE *ioprio* field. The following flags are supported:
 
-**IORING_RECVSEND_POLL_FIRST**  
+**IORING_RECVSEND_POLL_FIRST**\
 If set, io_uring will assume the socket is currently empty and
 attempting to receive data will be unsuccessful. For this case, io_uring
 will arm internal poll and trigger a receive of the data when the socket
@@ -47,7 +47,7 @@ operation completed. Both these flags are available since 5.19.
 
 <!-- -->
 
-**IORING_RECVSEND_BUNDLE**  
+**IORING_RECVSEND_BUNDLE**\
 If set and provided buffers are used with **IOSQE_BUFFER_SELECT ,** the
 receive operation will attempt to fill multiple buffers with rather than
 just pick a single buffer to fill. To receive multiple buffers in a

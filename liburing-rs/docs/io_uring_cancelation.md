@@ -1,4 +1,4 @@
-Io_uring request cancelation overview
+io_uring request cancelation overview
 
 # DESCRIPTION
 
@@ -28,16 +28,18 @@ The primary cancelation mechanism is **IORING_OP_ASYNC_CANCEL** (set up
 with [io_uring_prep_cancel] or related functions). By default, it
 cancels a request matching a specific *user_data*:
 
-    /* Submit a read with user_data = 1234 */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd, buf, len, 0);
-    io_uring_sqe_set_data64(sqe, 1234);
-    io_uring_submit(ring);
+``` c
+/* Submit a read with user_data = 1234 */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd, buf, len, 0);
+io_uring_sqe_set_data64(sqe, 1234);
+io_uring_submit(ring);
 
-    /* Later, cancel it */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_cancel64(sqe, 1234, 0);
-    io_uring_submit(ring);
+/* Later, cancel it */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_cancel64(sqe, 1234, 0);
+io_uring_submit(ring);
+```
 
 ## Cancelation results
 
@@ -45,18 +47,18 @@ When a cancelation is submitted, two CQEs are generated:
 
 **The canceled request's CQE:**
 
-Io_uring request cancelation overview
+> - *res* is set to **-ECANCELED** (or occasionally **-EINTR** if the
 >   operation was already in progress)
 >
-Io_uring request cancelation overview
+> - The *user_data* identifies which request was canceled
 
 **The cancel request's CQE:**
 
-Io_uring request cancelation overview
+> - *res* is 0 on success (request was found and canceled)
 >
-Io_uring request cancelation overview
+> - *res* is **-ENOENT** if no matching request was found
 >
-Io_uring request cancelation overview
+> - *res* is **-EALREADY** if the request was found but already
 >   completing
 
 The order of these CQEs is not guaranteed. The application may receive
@@ -76,7 +78,9 @@ Various flags modify cancelation behavior:
 > Match requests by file descriptor instead of *user_data*. Cancels
 > requests operating on the specified fd:
 >
->     io_uring_prep_cancel_fd(sqe, fd, IORING_ASYNC_CANCEL_FD);
+> ``` c
+> io_uring_prep_cancel_fd(sqe, fd, IORING_ASYNC_CANCEL_FD);
+> ```
 
 **IORING_ASYNC_CANCEL_ANY**
 
@@ -91,13 +95,15 @@ Various flags modify cancelation behavior:
 
 Flags can be combined:
 
-    /* Cancel all requests on a specific fd */
-    io_uring_prep_cancel_fd(sqe, fd,
-        IORING_ASYNC_CANCEL_FD | IORING_ASYNC_CANCEL_ALL);
+``` c
+/* Cancel all requests on a specific fd */
+io_uring_prep_cancel_fd(sqe, fd,
+    IORING_ASYNC_CANCEL_FD | IORING_ASYNC_CANCEL_ALL);
 
-    /* Cancel all pending requests in the ring */
-    io_uring_prep_cancel(sqe, NULL,
-        IORING_ASYNC_CANCEL_ANY | IORING_ASYNC_CANCEL_ALL);
+/* Cancel all pending requests in the ring */
+io_uring_prep_cancel(sqe, NULL,
+    IORING_ASYNC_CANCEL_ANY | IORING_ASYNC_CANCEL_ALL);
+```
 
 ## Race conditions
 
@@ -112,37 +118,41 @@ and the kernel processing it:
 
 Applications must handle these cases:
 
-    io_uring_wait_cqe(ring, &cqe);
+``` c
+io_uring_wait_cqe(ring, &cqe);
 
-    if (cqe->user_data == cancel_user_data) {
-        /* This is the cancel operation's result */
-        if (cqe->res == -ENOENT) {
-            /* Request already completed or not found */
-        } else if (cqe->res == -EALREADY) {
-            /* Request was found but completing */
-        } else if (cqe->res >= 0) {
-            /* Successfully canceled res requests */
-        }
-    } else {
-        /* This is the original request's result */
-        if (cqe->res == -ECANCELED) {
-            /* Request was canceled */
-        } else {
-            /* Request completed normally (or with error) */
-        }
+if (cqe->user_data == cancel_user_data) {
+    /* This is the cancel operation's result */
+    if (cqe->res == -ENOENT) {
+        /* Request already completed or not found */
+    } else if (cqe->res == -EALREADY) {
+        /* Request was found but completing */
+    } else if (cqe->res >= 0) {
+        /* Successfully canceled res requests */
     }
+} else {
+    /* This is the original request's result */
+    if (cqe->res == -ECANCELED) {
+        /* Request was canceled */
+    } else {
+        /* Request completed normally (or with error) */
+    }
+}
+```
 
 ## Link timeouts
 
 For timing out a single operation, link timeouts are often simpler than
 explicit cancelation. See [io_uring_linked_requests] for details:
 
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd, buf, len, 0);
-    sqe->flags |= IOSQE_IO_LINK;
+``` c
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd, buf, len, 0);
+sqe->flags |= IOSQE_IO_LINK;
 
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_link_timeout(sqe, &timeout, 0);
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_link_timeout(sqe, &timeout, 0);
+```
 
 The kernel handles the cancelation automatically if the timeout expires.
 
@@ -152,8 +162,10 @@ Multishot requests (see [io_uring_multishot]) continue generating
 completions until canceled or an error occurs. To stop a multishot
 request:
 
-    /* Cancel a multishot accept */
-    io_uring_prep_cancel64(sqe, accept_user_data, 0);
+``` c
+/* Cancel a multishot accept */
+io_uring_prep_cancel64(sqe, accept_user_data, 0);
+```
 
 After cancelation:
 
@@ -181,13 +193,15 @@ If an application expects a pending read on an fd to post a completion
 when the fd is closed, that will not happen. The request must be
 explicitly canceled:
 
-    /* Cancel all operations on fd before closing */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_cancel_fd(sqe, fd,
-        IORING_ASYNC_CANCEL_FD | IORING_ASYNC_CANCEL_ALL);
-    io_uring_submit(ring);
+``` c
+/* Cancel all operations on fd before closing */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_cancel_fd(sqe, fd,
+    IORING_ASYNC_CANCEL_FD | IORING_ASYNC_CANCEL_ALL);
+io_uring_submit(ring);
 
-    /* Wait for cancelations, then close */
+/* Wait for cancelations, then close */
+```
 
 ## Shutdown cancelation
 
@@ -200,18 +214,20 @@ However, if the application needs to ensure all requests are completed
 before proceeding (e.g., to process their results or free associated
 resources), explicit cancelation can be used:
 
-    /* Cancel everything */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_cancel(sqe, NULL,
-        IORING_ASYNC_CANCEL_ANY | IORING_ASYNC_CANCEL_ALL);
-    io_uring_submit(ring);
+``` c
+/* Cancel everything */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_cancel(sqe, NULL,
+    IORING_ASYNC_CANCEL_ANY | IORING_ASYNC_CANCEL_ALL);
+io_uring_submit(ring);
 
-    /* Wait for all CQEs */
-    while (pending_count > 0) {
-        io_uring_wait_cqe(ring, &cqe);
-        pending_count--;
-        io_uring_cqe_seen(ring, cqe);
-    }
+/* Wait for all CQEs */
+while (pending_count > 0) {
+    io_uring_wait_cqe(ring, &cqe);
+    pending_count--;
+    io_uring_cqe_seen(ring, cqe);
+}
+```
 
 ## Synchronous cancelation
 
@@ -219,12 +235,14 @@ For cases where the application needs to cancel requests and wait for
 the cancelation to complete in a single blocking call,
 [io_uring_register_sync_cancel] provides a synchronous interface:
 
-    struct io_uring_sync_cancel_reg reg = {
-        .addr = user_data,
-        .timeout.tv_sec = 5,
-    };
+``` c
+struct io_uring_sync_cancel_reg reg = {
+    .addr = user_data,
+    .timeout.tv_sec = 5,
+};
 
-    ret = io_uring_register_sync_cancel(ring, &reg);
+ret = io_uring_register_sync_cancel(ring, &reg);
+```
 
 This blocks until the matching request is canceled or the timeout
 expires. It is useful when the application cannot easily integrate

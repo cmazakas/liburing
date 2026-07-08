@@ -11,6 +11,7 @@
          clippy::unnecessary_cast,
          clippy::doc_markdown)]
 #![doc = include_str!("../README.md")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[doc(hidden)]
 mod uring;
@@ -29,8 +30,60 @@ use core::{
 #[doc(hidden)]
 pub use uring::*;
 
-#[doc = include_str!("../docs/io_uring.md")]
-pub use uring::io_uring;
+#[doc(hidden)]
+pub mod docs
+{
+    #[allow(unused_imports)]
+    use super::*;
+
+    #[doc = include_str!("../docs/io_uring.md")]
+    pub mod io_uring
+    {}
+
+    #[doc = include_str!("../docs/io_uring_cancelation.md")]
+    pub mod io_uring_cancelation
+    {}
+
+    #[doc = include_str!("../docs/io_uring_linked_requests.md")]
+    pub mod io_uring_linked_requests
+    {}
+
+    #[doc = include_str!("../docs/io_uring_multishot.md")]
+    pub mod io_uring_multishot
+    {}
+
+    #[doc = include_str!("../docs/io_uring_provided_buffers.md")]
+    pub mod io_uring_provided_buffers
+    {}
+
+    #[doc = include_str!("../docs/io_uring_registered_buffers.md")]
+    pub mod io_uring_registered_buffers
+    {}
+
+    #[doc = include_str!("../docs/io_uring_registered_files.md")]
+    pub mod io_uring_registered_files
+    {}
+
+    #[doc = include_str!("../docs/io_uring_setup_flags.md")]
+    pub mod io_uring_setup_flags
+    {}
+
+    #[doc = include_str!("../docs/io_uring_sqpoll.md")]
+    pub mod io_uring_sqpoll
+    {}
+}
+
+pub use docs::io_uring as io_uring_overview;
+pub use docs::io_uring_cancelation;
+pub use docs::io_uring_linked_requests;
+pub use docs::io_uring_multishot;
+pub use docs::io_uring_provided_buffers;
+pub use docs::io_uring_registered_buffers;
+pub use docs::io_uring_registered_files;
+pub use docs::io_uring_setup_flags;
+pub use docs::io_uring_sqpoll;
+
+pub use uring::{io_uring, io_uring_cq, io_uring_cqe, io_uring_sq, io_uring_sqe};
 
 #[doc = include_str!("../docs/io_uring_enter.md")]
 pub use uring::io_uring_enter;
@@ -59,13 +112,13 @@ pub use uring::io_uring_minor_version;
 #[doc = include_str!("../docs/io_uring_clone_buffers.md")]
 pub use uring::io_uring_clone_buffers;
 
-#[doc = include_str!("../docs/io_uring_clone_buffers.md")]
+#[doc = include_str!("../docs/io_uring_clone_buffers_offset.md")]
 pub use uring::io_uring_clone_buffers_offset;
 
 #[doc = include_str!("../docs/io_uring_clone_buffers.md")]
 pub use uring::__io_uring_clone_buffers;
 
-#[doc = include_str!("../docs/io_uring_clone_buffers.md")]
+#[doc = include_str!("../docs/io_uring_clone_buffers_offset.md")]
 pub use uring::__io_uring_clone_buffers_offset;
 
 #[doc = include_str!("../docs/io_uring_close_ring_fd.md")]
@@ -252,6 +305,7 @@ pub use uring::io_uring_wait_cqes;
 pub use uring::io_uring_wait_cqes_min_timeout;
 
 #[cfg(feature = "gnu")]
+#[cfg_attr(docsrs, doc(cfg(feature = "gnu")))]
 unsafe extern "C" {
     #[doc = include_str!("../docs/io_uring_register_iowq_aff.md")]
     pub unsafe fn io_uring_register_iowq_aff(ring: *mut io_uring, cpusz: usize,
@@ -507,7 +561,7 @@ pub unsafe fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int)
 }
 
 #[inline]
-unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
+pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
 {
     /* 0 means no fixed files, indexes should be encoded as "index + 1" */
     (*sqe).__liburing_anon_5.file_index = file_index + 1;

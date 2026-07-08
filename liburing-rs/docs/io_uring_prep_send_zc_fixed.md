@@ -54,11 +54,11 @@ to the actual error value, io_uring never uses *errno*. Instead it
 returns the negated *errno* directly in the CQE *res* field. Some common
 error cases are:
 
-**-ENOMEM**  
+**-ENOMEM**\
 The [ulimit](https://man7.org/linux/man-pages/man2/ulimit.2.html) -l setting is too low to support the size of the
 attempted zero copy send. Increasing the limit may help
 
-**-ENOMEM**  
+**-ENOMEM**\
 The kernel ran out of memory.
 
 # NOTES

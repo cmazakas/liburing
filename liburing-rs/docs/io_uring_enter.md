@@ -12,7 +12,7 @@ for completions of I/O initiated by this call or previous calls to
 *to_submit* specifies the number of I/Os to submit from the submission
 queue. *flags* is a bitmask of the following values:
 
-**IORING_ENTER_GETEVENTS**  
+**IORING_ENTER_GETEVENTS**\
 If this flag is set, then the system call will wait for the specified
 number of events in *min_complete* before returning. This flag can be
 set along with *to_submit* to both submit and complete events in a
@@ -23,11 +23,11 @@ syscall must be the thread that created the io_uring associated with
 **IORING_SETUP_R_DISABLED** via [io_uring_register] or
 [io_uring_enable_rings].
 
-**IORING_ENTER_SQ_WAKEUP**  
+**IORING_ENTER_SQ_WAKEUP**\
 If the ring has been created with **IORING_SETUP_SQPOLL,** then this
 flag asks the kernel to wakeup the SQ kernel thread to submit IO.
 
-**IORING_ENTER_SQ_WAIT**  
+**IORING_ENTER_SQ_WAIT**\
 If the ring has been created with **IORING_SETUP_SQPOLL,** then the
 application has no real insight into when the SQ kernel thread has
 consumed entries from the SQ ring. This can lead to a situation where
@@ -36,18 +36,20 @@ knowing when one will become available as the SQ kernel thread consumes
 them. If the system call is used with this flag set, then it will wait
 until at least one entry is free in the SQ ring.
 
-**IORING_ENTER_EXT_ARG**  
+**IORING_ENTER_EXT_ARG**\
 By default, *arg* is a *sigset_t* pointer. If **IORING_ENTER_EXT_ARG**
 is set (supported since kernel 5.11), then *arg* is instead a pointer to
 a *struct io_uring_getevents_arg* and *argsz* must be set to the size of
 this structure. The definition is as follows:
 
-    "structio_uring_getevents_arg{
-    "__u64sigmask;
-    "__u32sigmask_sz;
-    "__u32pad;
-    "__u64ts;
-    "};
+``` c
+"structio_uring_getevents_arg{
+"__u64sigmask;
+"__u32sigmask_sz;
+"__u32pad;
+"__u64ts;
+"};
+```
 
 which allows passing in both a signal mask as well as pointer to a
 *struct \_\_kernel_timespec* timeout value. If *ts* is set to a valid
@@ -56,7 +58,7 @@ events. If an application is waiting on events and wishes to stop
 waiting after a specified amount of time, then this can be accomplished
 directly in version 5.11 and newer by using this feature.
 
-**IORING_ENTER_REGISTERED_RING**  
+**IORING_ENTER_REGISTERED_RING**\
 If the ring file descriptor has been registered through use of
 **IORING_REGISTER_RING_FDS**, then setting this flag will tell the
 kernel that the *ring_fd* passed in is the registered ring offset rather
@@ -64,7 +66,7 @@ than a normal file descriptor.
 
 <!-- -->
 
-**IORING_ENTER_ABS_TIMER**  
+**IORING_ENTER_ABS_TIMER**\
 When this flag is set, the timeout argument passed in *struct
 io_uring_getevents_arg* will be interpreted as an absolute time of the
 registered clock (see **IORING_REGISTER_CLOCK)** until which the waiting
@@ -74,7 +76,7 @@ Available since 6.12
 
 <!-- -->
 
-**IORING_ENTER_EXT_ARG_REG**  
+**IORING_ENTER_EXT_ARG_REG**\
 When this flag is set, *arg* is not a pointer to a
 *struct*io_uring_getevents_arg*,* but merely an offset into an area of
 wait regions previously registered with [io_uring_register] using
@@ -84,7 +86,7 @@ Available since 6.13
 
 <!-- -->
 
-**IORING_ENTER_NO_IOWAIT**  
+**IORING_ENTER_NO_IOWAIT**\
 When this flag is set, the system call will not mark the waiting task as
 being in iowait if it is sleeping waiting on events and there are
 pending requests. This is useful if iowait isn't expected when waiting
@@ -122,13 +124,17 @@ mask by the one pointed to by *sig*, then waits for events to become
 available in the completion queue, and then restores the original signal
 mask. The following [io_uring_enter] call:
 
-    ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, &sig);
+``` c
+ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, &sig);
+```
 
 is equivalent to *atomically* executing the following calls:
 
-    pthread_sigmask(SIG_SETMASK, &sig, &orig);
-    ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, NULL);
-    pthread_sigmask(SIG_SETMASK, &orig, NULL);
+``` c
+pthread_sigmask(SIG_SETMASK, &sig, &orig);
+ret = io_uring_enter(fd, 0, 1, IORING_ENTER_GETEVENTS, NULL);
+pthread_sigmask(SIG_SETMASK, &orig, NULL);
+```
 
 See the description of [pselect](https://man7.org/linux/man-pages/man2/pselect.2.html) for an explanation of why the
 *sig* parameter is necessary.
@@ -136,111 +142,113 @@ See the description of [pselect](https://man7.org/linux/man-pages/man2/pselect.2
 Submission queue entries are represented using the following data
 structure:
 
-    /*
-     * IO submission data structure (Submission Queue Entry)
-     */
-    struct io_uring_sqe {
-    	__u8	opcode;		/* type of operation for this sqe */
-    	__u8	flags;		/* IOSQE_ flags */
-    	__u16	ioprio;		/* ioprio for the request */
-    	__s32	fd;		/* file descriptor to do IO on */
-    	union {
-    		__u64	off;	/* offset into file */
-    		__u64	addr2;
-    		struct {
-    			__u32	cmd_op;
-    			__u32	__pad1;
-    		};
-    	};
-    	union {
-    		__u64	addr;	/* pointer to buffer or iovecs */
-    		__u64	splice_off_in;
-    		struct {
-    			__u32	level;
-    			__u32	optname;
-    		};
-    	};
-    	__u32	len;		/* buffer size or number of iovecs */
-    	union {
-    		__kernel_rwf_t	rw_flags;
-    		__u32		fsync_flags;
-    		__u16		poll_events;	/* compatibility */
-    		__u32		poll32_events;	/* word-reversed for BE */
-    		__u32		sync_range_flags;
-    		__u32		msg_flags;
-    		__u32		timeout_flags;
-    		__u32		accept_flags;
-    		__u32		cancel_flags;
-    		__u32		open_flags;
-    		__u32		statx_flags;
-    		__u32		fadvise_advice;
-    		__u32		splice_flags;
-    		__u32		rename_flags;
-    		__u32		unlink_flags;
-    		__u32		hardlink_flags;
-    		__u32		xattr_flags;
-    		__u32		msg_ring_flags;
-    		__u32		uring_cmd_flags;
-    		__u32		waitid_flags;
-    		__u32		futex_flags;
-    		__u32		install_fd_flags;
-    		__u32		nop_flags;
-    	};
-    	__u64	user_data;	/* data to be passed back at completion time */
-    	/* pack this to avoid bogus arm OABI complaints */
-    	union {
-    		/* index into fixed buffers, if used */
-    		__u16	buf_index;
-    		/* for grouped buffer selection */
-    		__u16	buf_group;
-    	} __attribute__((packed));
-    	/* personality to use, if used */
-    	__u16	personality;
-    	union {
-    		__s32	splice_fd_in;
-    		__u32	file_index;
-    		__u32	optlen;
-    		struct {
-    			__u16	addr_len;
-    			__u16	__pad3[1](https://man7.org/linux/man-pages/man2/1.2.html);
-    		};
-    	};
-    	union {
-    		struct {
-    			__u64	addr3;
-    			__u64	__pad2[1](https://man7.org/linux/man-pages/man2/1.2.html);
-    		};
-    		__u64	optval;
-    		/*
-    		 * If the ring is initialized with IORING_SETUP_SQE128, then
-    		 * this field is used for 80 bytes of arbitrary command data
-    		 */
-    		__u8	cmd[0](https://man7.org/linux/man-pages/man2/0.2.html);
-    	};
-    };
+``` c
+/*
+ * IO submission data structure (Submission Queue Entry)
+ */
+struct io_uring_sqe {
+	__u8	opcode;		/* type of operation for this sqe */
+	__u8	flags;		/* IOSQE_ flags */
+	__u16	ioprio;		/* ioprio for the request */
+	__s32	fd;		/* file descriptor to do IO on */
+	union {
+		__u64	off;	/* offset into file */
+		__u64	addr2;
+		struct {
+			__u32	cmd_op;
+			__u32	__pad1;
+		};
+	};
+	union {
+		__u64	addr;	/* pointer to buffer or iovecs */
+		__u64	splice_off_in;
+		struct {
+			__u32	level;
+			__u32	optname;
+		};
+	};
+	__u32	len;		/* buffer size or number of iovecs */
+	union {
+		__kernel_rwf_t	rw_flags;
+		__u32		fsync_flags;
+		__u16		poll_events;	/* compatibility */
+		__u32		poll32_events;	/* word-reversed for BE */
+		__u32		sync_range_flags;
+		__u32		msg_flags;
+		__u32		timeout_flags;
+		__u32		accept_flags;
+		__u32		cancel_flags;
+		__u32		open_flags;
+		__u32		statx_flags;
+		__u32		fadvise_advice;
+		__u32		splice_flags;
+		__u32		rename_flags;
+		__u32		unlink_flags;
+		__u32		hardlink_flags;
+		__u32		xattr_flags;
+		__u32		msg_ring_flags;
+		__u32		uring_cmd_flags;
+		__u32		waitid_flags;
+		__u32		futex_flags;
+		__u32		install_fd_flags;
+		__u32		nop_flags;
+	};
+	__u64	user_data;	/* data to be passed back at completion time */
+	/* pack this to avoid bogus arm OABI complaints */
+	union {
+		/* index into fixed buffers, if used */
+		__u16	buf_index;
+		/* for grouped buffer selection */
+		__u16	buf_group;
+	} __attribute__((packed));
+	/* personality to use, if used */
+	__u16	personality;
+	union {
+		__s32	splice_fd_in;
+		__u32	file_index;
+		__u32	optlen;
+		struct {
+			__u16	addr_len;
+			__u16	__pad3[1];
+		};
+	};
+	union {
+		struct {
+			__u64	addr3;
+			__u64	__pad2[1];
+		};
+		__u64	optval;
+		/*
+		 * If the ring is initialized with IORING_SETUP_SQE128, then
+		 * this field is used for 80 bytes of arbitrary command data
+		 */
+		__u8	cmd[0];
+	};
+};
+```
 
 The *opcode* describes the operation to be performed. It can be one of:
 
-**IORING_OP_NOP**  
+**IORING_OP_NOP**\
 Do not perform any I/O. This is useful for testing the performance of
 the io_uring implementation itself.
 
-**IORING_OP_READV**  
-**IORING_OP_WRITEV**  
+**IORING_OP_READV**\
+**IORING_OP_WRITEV**\
 Vectored read and write operations, similar to [preadv2](https://man7.org/linux/man-pages/man2/preadv2.2.html) and
 [pwritev2](https://man7.org/linux/man-pages/man2/pwritev2.2.html). If the file is not seekable, *off* must be set to zero
 or -1.
 
 <!-- -->
 
-**IORING_OP_READ_FIXED**  
-**IORING_OP_WRITE_FIXED**  
+**IORING_OP_READ_FIXED**\
+**IORING_OP_WRITE_FIXED**\
 Read from or write to pre-mapped buffers. See [io_uring_register]
 for details on how to setup a context for fixed reads and writes.
 
 <!-- -->
 
-**IORING_OP_FSYNC**  
+**IORING_OP_FSYNC**\
 File sync. See also [fsync](https://man7.org/linux/man-pages/man2/fsync.2.html). Optionally *off* and *len* can be used
 to specify a range within the file to be synced rather than syncing the
 entire file, which is the default behavior. Note that, while I/O is
@@ -256,7 +264,7 @@ have to be ordered before a given request before submitting its SQE.
 
 <!-- -->
 
-**IORING_OP_POLL_ADD**  
+**IORING_OP_POLL_ADD**\
 Poll the *fd* specified in the submission queue entry for the events
 specified in the *poll_events* field. Unlike poll or epoll without
 **EPOLLONESHOT**, by default this interface always works in one shot
@@ -283,7 +291,7 @@ the first caused by a **IORING_POLL_ADD_MULTI** are edge triggered.
 
 <!-- -->
 
-**IORING_OP_POLL_REMOVE**  
+**IORING_OP_POLL_REMOVE**\
 Remove or update an existing poll request. If found, the *res* field of
 the *struct io_uring_cqe* will contain 0. If not found, *res* will
 contain **-ENOENT,** or **-EALREADY** if the poll request was in the
@@ -300,7 +308,7 @@ Updating an existing poll is available since 5.13.
 
 <!-- -->
 
-**IORING_OP_EPOLL_CTL**  
+**IORING_OP_EPOLL_CTL**\
 Add, remove or modify entries in the interest list of [epoll](https://man7.org/linux/man-pages/man2/epoll.2.html). See
 [epoll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html) for details of the system call. *fd* holds the file
 descriptor that represents the epoll instance, *off* holds the file
@@ -311,7 +319,7 @@ descriptor to add, remove or modify, *len* holds the operation (
 
 <!-- -->
 
-**IORING_OP_SYNC_FILE_RANGE**  
+**IORING_OP_SYNC_FILE_RANGE**\
 Issue the equivalent of a **sync_file_range** (2) on the file
 descriptor. The *fd* field is the file descriptor to sync, the *off*
 field holds the offset in bytes, the *len* field holds the length in
@@ -321,7 +329,7 @@ related system call. Available since 5.2.
 
 <!-- -->
 
-**IORING_OP_SENDMSG**  
+**IORING_OP_SENDMSG**\
 Issue the equivalent of a **sendmsg(2)** system call. *fd* must be set
 to the socket file descriptor, *addr* must contain a pointer to the
 msghdr structure, and *msg_flags* holds the flags associated with the
@@ -339,7 +347,7 @@ setting this flag will bypass the initial send attempt and go straight
 to arming poll. If poll does indicate that data can be sent, the
 operation will proceed.
 
-**IORING_OP_RECVMSG**  
+**IORING_OP_RECVMSG**\
 Works just like IORING_OP_SENDMSG, except for **recvmsg(2)** instead.
 See the description of IORING_OP_SENDMSG. Available since 5.3.
 
@@ -354,7 +362,7 @@ empty, setting this flag will bypass the initial receive attempt and go
 straight to arming poll. If poll does indicate that data is ready to be
 received, the operation will proceed.
 
-**IORING_OP_SEND**  
+**IORING_OP_SEND**\
 Issue the equivalent of a **send(2)** system call. *fd* must be set to
 the socket file descriptor, *addr* must contain a pointer to the buffer,
 *len* denotes the length of the buffer to send, and *msg_flags* holds
@@ -372,7 +380,7 @@ setting this flag will bypass the initial send attempt and go straight
 to arming poll. If poll does indicate that data can be sent, the
 operation will proceed.
 
-**IORING_OP_RECV**  
+**IORING_OP_RECV**\
 Works just like IORING_OP_SEND, except for **recv(2)** instead. See the
 description of IORING_OP_SEND. Available since 5.6.
 
@@ -387,7 +395,7 @@ empty, setting this flag will bypass the initial receive attempt and go
 straight to arming poll. If poll does indicate that data is ready to be
 received, the operation will proceed.
 
-**IORING_OP_TIMEOUT**  
+**IORING_OP_TIMEOUT**\
 This command will register a timeout operation. The *addr* field must
 contain a pointer to a struct \_\_kernel_timespec structure, *len* must
 contain 1 to signify one \_\_kernel_timespec structure, *timeout_flags*
@@ -436,7 +444,7 @@ timeout value in nanoseconds rather than a pointer to a **struct
 \_\_kernel_timespec.** This avoids the need to keep a timespec structure
 valid in user memory until the request is submitted.
 
-**IORING_OP_TIMEOUT_REMOVE**  
+**IORING_OP_TIMEOUT_REMOVE**\
 If *timeout_flags* are zero, then it attempts to remove an existing
 timeout operation. *addr* must contain the *user_data* field of the
 previously issued timeout operation. If the specified timeout request is
@@ -455,7 +463,7 @@ not a relative one. Available since 5.11.
 
 <!-- -->
 
-**IORING_OP_ACCEPT**  
+**IORING_OP_ACCEPT**\
 Issue the equivalent of an [accept4](https://man7.org/linux/man-pages/man2/accept4.2.html) system call. *fd* must be set
 to the socket file descriptor, *addr* must contain the pointer to the
 sockaddr structure, and *addr2* must contain a pointer to the socklen_t
@@ -465,7 +473,7 @@ call. Available since 5.5.
 
 If the *file_index* field is set to a positive number, the file won't be
 installed into the normal file table as usual but will be placed into
-Initiate and/or complete asynchronous I/O
+the fixed file table at index *file_index* - 1. In this case, instead of
 returning a file descriptor, the result will contain either 0 on success
 or an error. If the index points to a valid empty slot, the installation
 is guaranteed to not fail. If there is already a file in the slot, it
@@ -477,7 +485,7 @@ Available since 5.5.
 
 <!-- -->
 
-**IORING_OP_ASYNC_CANCEL**  
+**IORING_OP_ASYNC_CANCEL**\
 Attempt to cancel an already issued request. *addr* must contain the
 *user_data* field of the request that should be canceled. The
 cancelation request will complete with one of the following results
@@ -490,7 +498,7 @@ canceled if already started. Available since 5.5.
 
 <!-- -->
 
-**IORING_OP_LINK_TIMEOUT**  
+**IORING_OP_LINK_TIMEOUT**\
 This request must be linked with another request through
 **IOSQE_IO_LINK** which is described below. Unlike
 **IORING_OP_TIMEOUT**, **IORING_OP_LINK_TIMEOUT** acts on the linked
@@ -506,7 +514,7 @@ linked request. Like **IORING_OP_TIMEOUT** the clock source used is
 
 <!-- -->
 
-**IORING_OP_CONNECT**  
+**IORING_OP_CONNECT**\
 Issue the equivalent of a [connect](https://man7.org/linux/man-pages/man2/connect.2.html) system call. *fd* must be set
 to the socket file descriptor, *addr* must contain the const pointer to
 the sockaddr structure, and *off* must contain the socklen_t addrlen
@@ -515,7 +523,7 @@ related system call. Available since 5.5.
 
 <!-- -->
 
-**IORING_OP_FALLOCATE**  
+**IORING_OP_FALLOCATE**\
 Issue the equivalent of a [fallocate](https://man7.org/linux/man-pages/man2/fallocate.2.html) system call. *fd* must be set
 to the file descriptor, *len* must contain the mode associated with the
 operation, *off* must contain the offset on which to operate, and *addr*
@@ -524,7 +532,7 @@ description of the related system call. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_FADVISE**  
+**IORING_OP_FADVISE**\
 Issue the equivalent of a [posix_fadvise](https://man7.org/linux/man-pages/man2/posix_fadvise.2.html) system call. *fd* must be
 set to the file descriptor, *off* must contain the offset on which to
 operate, *len* must contain the length, and *fadvise_advice* must
@@ -534,7 +542,7 @@ call. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_MADVISE**  
+**IORING_OP_MADVISE**\
 Issue the equivalent of a [madvise](https://man7.org/linux/man-pages/man2/madvise.2.html) system call. *addr* must
 contain the address to operate on, *len* must contain the length on
 which to operate, and *fadvise_advice* must contain the advice
@@ -543,7 +551,7 @@ description of the related system call. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_OPENAT**  
+**IORING_OP_OPENAT**\
 Issue the equivalent of a [openat](https://man7.org/linux/man-pages/man2/openat.2.html) system call. *fd* is the *dirfd*
 argument, *addr* must contain a pointer to the *\*pathname* argument,
 *open_flags* should contain any flags passed in, and *len* is access
@@ -552,7 +560,7 @@ the related system call. Available since 5.6.
 
 If the *file_index* field is set to a positive number, the file won't be
 installed into the normal file table as usual but will be placed into
-Initiate and/or complete asynchronous I/O
+the fixed file table at index *file_index - 1.* In this case, instead of
 returning a file descriptor, the result will contain either 0 on success
 or an error. If the index points to a valid empty slot, the installation
 is guaranteed to not fail. If there is already a file in the slot, it
@@ -564,7 +572,7 @@ Available since 5.15.
 
 <!-- -->
 
-**IORING_OP_OPENAT2**  
+**IORING_OP_OPENAT2**\
 Issue the equivalent of a [openat2](https://man7.org/linux/man-pages/man2/openat2.2.html) system call. *fd* is the
 *dirfd* argument, *addr* must contain a pointer to the *\*pathname*
 argument, *len* should contain the size of the open_how structure, and
@@ -574,7 +582,7 @@ Available since 5.6.
 
 If the *file_index* field is set to a positive number, the file won't be
 installed into the normal file table as usual but will be placed into
-Initiate and/or complete asynchronous I/O
+the fixed file table at index *file_index - 1.* In this case, instead of
 returning a file descriptor, the result will contain either 0 on success
 or an error. If the index points to a valid empty slot, the installation
 is guaranteed to not fail. If there is already a file in the slot, it
@@ -586,7 +594,7 @@ Available since 5.15.
 
 <!-- -->
 
-**IORING_OP_CLOSE**  
+**IORING_OP_CLOSE**\
 Issue the equivalent of a [close](https://man7.org/linux/man-pages/man2/close.2.html) system call. *fd* is the file
 descriptor to be closed. See also [close](https://man7.org/linux/man-pages/man2/close.2.html) for the general
 description of the related system call. Available since 5.6. If the
@@ -599,7 +607,7 @@ where direct descriptors were introduced.
 
 <!-- -->
 
-**IORING_OP_STATX**  
+**IORING_OP_STATX**\
 Issue the equivalent of a [statx](https://man7.org/linux/man-pages/man2/statx.2.html) system call. *fd* is the *dirfd*
 argument, *addr* must contain a pointer to the *\*pathname* string,
 *statx_flags* is the *flags* argument, *len* should be the *mask*
@@ -609,8 +617,8 @@ related system call. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_READ**  
-**IORING_OP_WRITE**  
+**IORING_OP_READ**\
+**IORING_OP_WRITE**\
 Issue the equivalent of a [pread](https://man7.org/linux/man-pages/man2/pread.2.html) or [pwrite](https://man7.org/linux/man-pages/man2/pwrite.2.html) system call.
 *fd* is the file descriptor to be operated on, *addr* contains the
 buffer in question, *len* contains the length of the IO operation, and
@@ -624,7 +632,7 @@ related system call. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_SPLICE**  
+**IORING_OP_SPLICE**\
 Issue the equivalent of a [splice](https://man7.org/linux/man-pages/man2/splice.2.html) system call. *splice_fd_in* is
 the file descriptor to read from, *splice_off_in* is an offset to read
 from, *fd* is the file descriptor to write to, *off* is an offset from
@@ -637,7 +645,7 @@ the general description of the related system call. Available since 5.7.
 
 <!-- -->
 
-**IORING_OP_TEE**  
+**IORING_OP_TEE**\
 Issue the equivalent of a [tee](https://man7.org/linux/man-pages/man2/tee.2.html) system call. *splice_fd_in* is the
 file descriptor to read from, *fd* is the file descriptor to write to,
 *len* contains the number of bytes to copy, and *splice_flags* contains
@@ -648,7 +656,7 @@ Available since 5.8.
 
 <!-- -->
 
-**IORING_OP_FILES_UPDATE**  
+**IORING_OP_FILES_UPDATE**\
 This command is an alternative to using **IORING_REGISTER_FILES_UPDATE**
 which then works in an async fashion, like the rest of the io_uring
 commands. The arguments passed in are the same. *addr* must contain a
@@ -659,7 +667,7 @@ valid until this operation has completed. Available since 5.6.
 
 <!-- -->
 
-**IORING_OP_PROVIDE_BUFFERS**  
+**IORING_OP_PROVIDE_BUFFERS**\
 This command allows an application to register a group of buffers to be
 used by commands that read/receive data. Using buffers in this manner
 can eliminate the need to separate the poll + read, which provides a
@@ -686,7 +694,7 @@ group ID where the buffer should be selected from. Available since 5.7.
 
 <!-- -->
 
-**IORING_OP_REMOVE_BUFFERS**  
+**IORING_OP_REMOVE_BUFFERS**\
 Remove buffers previously registered with **IORING_OP_PROVIDE_BUFFERS**.
 *fd* must contain the number of buffers to remove, and *buf_group* must
 contain the buffer group ID from which to remove the buffers. Available
@@ -694,14 +702,14 @@ since 5.7.
 
 <!-- -->
 
-**IORING_OP_SHUTDOWN**  
+**IORING_OP_SHUTDOWN**\
 Issue the equivalent of a [shutdown](https://man7.org/linux/man-pages/man2/shutdown.2.html) system call. *fd* is the file
 descriptor to the socket being shutdown, and *len* must be set to the
 *how* argument. No no other fields should be set. Available since 5.11.
 
 <!-- -->
 
-**IORING_OP_RENAMEAT**  
+**IORING_OP_RENAMEAT**\
 Issue the equivalent of a [renameat2](https://man7.org/linux/man-pages/man2/renameat2.2.html) system call. *fd* should be
 set to the *olddirfd*, *addr* should be set to the *oldpath*, *len*
 should be set to the *newdirfd*, *addr* should be set to the *oldpath*,
@@ -711,7 +719,7 @@ since 5.11.
 
 <!-- -->
 
-**IORING_OP_UNLINKAT**  
+**IORING_OP_UNLINKAT**\
 Issue the equivalent of a [unlinkat](https://man7.org/linux/man-pages/man2/unlinkat.2.html) system call. *fd* should be
 set to the *dirfd*, *addr* should be set to the *pathname*, and
 *unlink_flags* should be set to the *flags* being passed in to
@@ -719,7 +727,7 @@ set to the *dirfd*, *addr* should be set to the *pathname*, and
 
 <!-- -->
 
-**IORING_OP_MKDIRAT**  
+**IORING_OP_MKDIRAT**\
 Issue the equivalent of a [mkdirat](https://man7.org/linux/man-pages/man2/mkdirat.2.html) system call. *fd* should be set
 to the *dirfd*, *addr* should be set to the *pathname*, and *len* should
 be set to the *mode* being passed in to [mkdirat](https://man7.org/linux/man-pages/man2/mkdirat.2.html). Available since
@@ -727,7 +735,7 @@ be set to the *mode* being passed in to [mkdirat](https://man7.org/linux/man-pag
 
 <!-- -->
 
-**IORING_OP_SYMLINKAT**  
+**IORING_OP_SYMLINKAT**\
 Issue the equivalent of a [symlinkat](https://man7.org/linux/man-pages/man2/symlinkat.2.html) system call. *fd* should be
 set to the *newdirfd*, *addr* should be set to the *target* and *addr2*
 should be set to the *linkpath* being passed in to [symlinkat](https://man7.org/linux/man-pages/man2/symlinkat.2.html).
@@ -735,7 +743,7 @@ Available since 5.15.
 
 <!-- -->
 
-**IORING_OP_LINKAT**  
+**IORING_OP_LINKAT**\
 Issue the equivalent of a [linkat](https://man7.org/linux/man-pages/man2/linkat.2.html) system call. *fd* should be set
 to the *olddirfd*, *addr* should be set to the *oldpath*, *len* should
 be set to the *newdirfd*, *addr2* should be set to the *newpath*, and
@@ -744,7 +752,7 @@ be set to the *newdirfd*, *addr2* should be set to the *newpath*, and
 
 <!-- -->
 
-**IORING_OP_MSG_RING**  
+**IORING_OP_MSG_RING**\
 Send a message to an io_uring. *fd* must be set to a file descriptor of
 a ring that the application has access to, *len* can be set to any
 32-bit value that the application wishes to pass on, and *off* should be
@@ -757,7 +765,7 @@ via the two fields. Available since 5.18.
 
 <!-- -->
 
-**IORING_OP_SOCKET**  
+**IORING_OP_SOCKET**\
 Issue the equivalent of a [socket](https://man7.org/linux/man-pages/man2/socket.2.html) system call. *fd* must contain
 the communication domain, *off* must contain the communication type,
 *len* must contain the protocol, and *rw_flags* is currently unused and
@@ -766,7 +774,7 @@ of the related system call. Available since 5.19.
 
 If the *file_index* field is set to a positive number, the file won't be
 installed into the normal file table as usual but will be placed into
-Initiate and/or complete asynchronous I/O
+the fixed file table at index *file_index* - 1. In this case, instead of
 returning a file descriptor, the result will contain either 0 on success
 or an error. If the index points to a valid empty slot, the installation
 is guaranteed to not fail. If there is already a file in the slot, it
@@ -778,7 +786,7 @@ Available since 5.19.
 
 <!-- -->
 
-**IORING_OP_URING_CMD**  
+**IORING_OP_URING_CMD**\
 Issues an asynchronous, per-file private operation, similar to
 [ioctl](https://man7.org/linux/man-pages/man2/ioctl.2.html). Further information may be found in the dedicated man page
 of **IORING_OP_URING_CMD**.
@@ -787,7 +795,7 @@ Available since 5.19.
 
 <!-- -->
 
-**IORING_OP_SEND_ZC**  
+**IORING_OP_SEND_ZC**\
 Issue the zerocopy equivalent of a **send(2)** system call. Similar to
 **IORING_OP_SEND**, but tries to avoid making intermediate copies of
 data. Zerocopy execution is not guaranteed and may fall back to copying.
@@ -837,7 +845,7 @@ pre-mapped buffer. The *buf_index* field should contain an index into an
 array of fixed buffers. See [io_uring_register] for details on how
 to setup a context for fixed buffer I/O.
 
-**IORING_OP_SENDMSG_ZC**  
+**IORING_OP_SENDMSG_ZC**\
 Issue the zerocopy equivalent of a [sendmsg](https://man7.org/linux/man-pages/man2/sendmsg.2.html) system call. Works
 just like **IORING_OP_SENDMSG**, but like **IORING_OP_SEND_ZC** supports
 **IORING_RECVSEND_FIXED_BUF**. For additional notes regarding zero copy
@@ -847,7 +855,7 @@ Available since 6.1
 
 <!-- -->
 
-**IORING_OP_WAITID**  
+**IORING_OP_WAITID**\
 Issue the equivalent of a [waitid](https://man7.org/linux/man-pages/man2/waitid.2.html) system call. *len* must contain
 the idtype being queried/waited for and *fd* must contain the 'pid' (or
 id) being waited for. *file_index* is the 'options' being set (the child
@@ -857,10 +865,10 @@ the related system call. Available since 6.5.
 
 <!-- -->
 
-**IORING_OP_SETXATTR**  
-**IORING_OP_GETXATTR**  
-**IORING_OP_FSETXATTR**  
-**IORING_OP_FGETXATTR**  
+**IORING_OP_SETXATTR**\
+**IORING_OP_GETXATTR**\
+**IORING_OP_FSETXATTR**\
+**IORING_OP_FGETXATTR**\
 Issue the equivalent of a [setxattr](https://man7.org/linux/man-pages/man2/setxattr.2.html) or [getxattr](https://man7.org/linux/man-pages/man2/getxattr.2.html) or
 [fsetxattr](https://man7.org/linux/man-pages/man2/fsetxattr.2.html) or [fgetxattr](https://man7.org/linux/man-pages/man2/fgetxattr.2.html) system call. *addr* must contain a
 pointer to a buffer containing the name of the extended attribute.
@@ -875,7 +883,7 @@ Available since 5.19.
 
 <!-- -->
 
-**IORING_OP_BIND**  
+**IORING_OP_BIND**\
 Issues the equivalent of the [bind](https://man7.org/linux/man-pages/man2/bind.2.html) system call. *fd* must contain
 the file descriptor of the socket, *addr* must contain a pointer to the
 sockaddr struct containing the address to assign and *addr2* must
@@ -885,7 +893,7 @@ Available since 6.11.
 
 <!-- -->
 
-**IORING_OP_LISTEN**  
+**IORING_OP_LISTEN**\
 Issues the equivalent of the [listen](https://man7.org/linux/man-pages/man2/listen.2.html) system call. *fd* must
 contain the file descriptor of the socket and *len* must contain the
 backlog parameter, i.e. the maximum amount of pending queued
@@ -895,7 +903,7 @@ Available since 6.11.
 
 <!-- -->
 
-**IORING_OP_FTRUNCATE**  
+**IORING_OP_FTRUNCATE**\
 Issues the equivalent of the [ftruncate](https://man7.org/linux/man-pages/man2/ftruncate.2.html) system call. *fd* must
 contain the file descriptor of the file to truncate and *off* must
 contain the length to which the file will be truncated.
@@ -904,7 +912,7 @@ Available since 6.9.
 
 <!-- -->
 
-**IORING_OP_READ_MULTISHOT**  
+**IORING_OP_READ_MULTISHOT**\
 Like **IORING_OP_READ**, but similar to requests prepared with
 *io_uring_prep_multishot_accept*(3) additional reads and thus CQEs will
 be performed based on this single SQE once there is more data available.
@@ -916,7 +924,7 @@ or not the read request will generate further CQEs. Available since 6.7.
 
 <!-- -->
 
-**IORING_OP_FUTEX_WAIT**  
+**IORING_OP_FUTEX_WAIT**\
 Issues the equivalent of the [futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) system call. *addr* must
 hold a pointer to the futex, *addr2* must hold the value to which the
 futex has to be changed so this caller to [futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) can be woken
@@ -930,7 +938,7 @@ Available since 6.7.
 
 <!-- -->
 
-**IORING_OP_FUTEX_WAKE**  
+**IORING_OP_FUTEX_WAKE**\
 Issues the equivalent of the [futex_wake](https://man7.org/linux/man-pages/man2/futex_wake.2.html) system call. *addr* must
 hold a pointer to the futex, *addr2* must hold the maximum number of
 waiters waiting on this futex to wake, *addr3* must hold the bitmask of
@@ -942,7 +950,7 @@ Available since 6.7.
 
 <!-- -->
 
-**IORING_OP_FUTEX_WAITV**  
+**IORING_OP_FUTEX_WAITV**\
 Issues the equivalent of the [futex_waitv](https://man7.org/linux/man-pages/man2/futex_waitv.2.html) system call. *addr* must
 hold a pointer to the futexv struct, *len* must hold the length of the
 futexv struct, which may not be 0 and must be smaller than
@@ -952,7 +960,7 @@ Available since 6.7.
 
 <!-- -->
 
-**IORING_OP_FIXED_FD_INSTALL**  
+**IORING_OP_FIXED_FD_INSTALL**\
 This operation is used to insert a registered file into the regular
 process file table. Consequently *fd* must contain the file index and
 **IOSQE_FIXED_FILE** must be set. The resulting regular fd is returned
@@ -964,7 +972,7 @@ Available since 6.8.
 
 <!-- -->
 
-**IORING_OP_PIPE**  
+**IORING_OP_PIPE**\
 This operation is used to create a pipe, a set of file descriptors that
 can be used for communication. The pipe may either be created as a set
 of normal file descriptors, or it can be created as fixed/direct
@@ -989,7 +997,7 @@ Available since 6.16.
 
 <!-- -->
 
-**IORING_OP_RECV_ZC**  
+**IORING_OP_RECV_ZC**\
 Receive data from a socket using zero-copy techniques. Unlike
 **IORING_OP_RECV**, this operation does not use a user-provided buffer.
 Instead, data is delivered through a pre-registered zero-copy RX
@@ -1008,7 +1016,7 @@ Available since 6.15.
 
 <!-- -->
 
-**IORING_OP_EPOLL_WAIT**  
+**IORING_OP_EPOLL_WAIT**\
 Wait for events on an epoll instance. This is an async version of
 [epoll_wait](https://man7.org/linux/man-pages/man2/epoll_wait.2.html). *fd* must be set to the epoll file descriptor, *addr*
 must point to an array of *struct epoll_event* to receive the events,
@@ -1023,8 +1031,8 @@ Available since 6.15.
 
 <!-- -->
 
-**IORING_OP_READV_FIXED**  
-**IORING_OP_WRITEV_FIXED**  
+**IORING_OP_READV_FIXED**\
+**IORING_OP_WRITEV_FIXED**\
 Vectored read and write operations using pre-registered buffers,
 combining the functionality of **IORING_OP_READV**/**IORING_OP_WRITEV**
 with **IORING_OP_READ_FIXED**/**IORING_OP_WRITE_FIXED**. The *buf_index*
@@ -1037,7 +1045,7 @@ Available since 6.15.
 
 <!-- -->
 
-**IORING_OP_NOP128**  
+**IORING_OP_NOP128**\
 No operation, similar to **IORING_OP_NOP**, but explicitly uses a
 128-byte SQE. This can be useful for testing or alignment purposes when
 using mixed 64/128-byte SQE rings (**IORING_SETUP_SQE_MIXED**).
@@ -1046,7 +1054,7 @@ Available since 6.19.
 
 <!-- -->
 
-**IORING_OP_URING_CMD128**  
+**IORING_OP_URING_CMD128**\
 Passthrough command to the underlying file, identical to
 **IORING_OP_URING_CMD**, but explicitly uses a 128-byte SQE. The extra
 64 bytes provide additional space for command-specific data. This is
@@ -1059,7 +1067,7 @@ Available since 6.19.
 
 The *flags* field is a bit mask. The supported flags are:
 
-**IOSQE_FIXED_FILE**  
+**IOSQE_FIXED_FILE**\
 When this flag is specified, *fd* is an index into the files array
 registered with the io_uring instance (see the **IORING_REGISTER_FILES**
 section of the [io_uring_register] man page). Note that this isn't
@@ -1067,12 +1075,12 @@ always available for all commands. If used on a command that doesn't
 support fixed files, the SQE will error with **-EBADF**. Available since
 5.1.
 
-**IOSQE_IO_DRAIN**  
+**IOSQE_IO_DRAIN**\
 When this flag is specified, the SQE will not be started before
 previously submitted SQEs have completed, and new SQEs will not be
 started before this one completes. Available since 5.2.
 
-**IOSQE_IO_LINK**  
+**IOSQE_IO_LINK**\
 When this flag is specified, the SQE forms a link with the next SQE in
 the submission ring. That next SQE will not be started before the
 previous request completes. This, in effect, forms a chain of SQEs,
@@ -1090,14 +1098,14 @@ the remainder of the chain. If a chain of SQE links is broken, the
 remaining unstarted part of the chain will be terminated and completed
 with **-ECANCELED** as the error code. Available since 5.3.
 
-**IOSQE_IO_HARDLINK**  
+**IOSQE_IO_HARDLINK**\
 Like IOSQE_IO_LINK, but it doesn't sever regardless of the completion
 result. Note that the link will still sever if we fail submitting the
 parent request, hard links are only resilient in the presence of
 completion results for requests that did submit correctly.
 **IOSQE_IO_HARDLINK** implies **IOSQE_IO_LINK**. Available since 5.5.
 
-**IOSQE_ASYNC**  
+**IOSQE_ASYNC**\
 Normal operation for io_uring is to try and issue an sqe as non-blocking
 first, and if that fails, execute it in an async manner. To support more
 efficient overlapped operation of requests that the application
@@ -1105,7 +1113,7 @@ knows/assumes will always (or most of the time) block, the application
 can ask for an sqe to be issued async from the start. Available since
 5.6.
 
-**IOSQE_BUFFER_SELECT**  
+**IOSQE_BUFFER_SELECT**\
 Used in conjunction with the **IORING_OP_PROVIDE_BUFFERS** command,
 which registers a pool of buffers to be used by commands that read or
 receive data. When buffers are registered for this use case, and this
@@ -1121,7 +1129,7 @@ longer available in the kernel pool. The application must re-register
 the given buffer again when it is ready to recycle it (eg has completed
 using it). Available since 5.7.
 
-**IOSQE_CQE_SKIP_SUCCESS**  
+**IOSQE_CQE_SKIP_SUCCESS**\
 Don't generate a CQE if the request completes successfully. If the
 request fails, an appropriate CQE will be posted as usual and if there
 is no **IOSQE_IO_HARDLINK,** CQEs for all linked requests will be
@@ -1189,14 +1197,16 @@ invoked to initiate the I/O.
 
 Completions use the following data structure:
 
-    /*
-     * IO completion data structure (Completion Queue Entry)
-     */
-    struct io_uring_cqe {
-        __u64    user_data; /* sqe->data submission passed back */
-        __s32    res;       /* result code for this event */
-        __u32    flags;
-    };
+``` c
+/*
+ * IO completion data structure (Completion Queue Entry)
+ */
+struct io_uring_cqe {
+    __u64    user_data; /* sqe->data submission passed back */
+    __s32    res;       /* result code for this event */
+    __u32    flags;
+};
+```
 
 *user_data* is copied from the field of the same name in the submission
 queue entry. The primary use case is to store data that the application
@@ -1237,20 +1247,20 @@ returned. The caller should not rely on *errno* variable.
 
 These are the errors returned by [io_uring_enter] system call.
 
-**EAGAIN**  
+**EAGAIN**\
 The kernel was unable to allocate memory for the request, or otherwise
 ran out of resources to handle it. The application should wait for some
 completions and try again.
 
-**EBADF**  
+**EBADF**\
 *fd* is not a valid file descriptor.
 
-**EBADFD**  
+**EBADFD**\
 *fd* is a valid file descriptor, but the io_uring ring is not in the
 right state (enabled). See [io_uring_register] for details on how
 to enable the ring.
 
-**EBADR**  
+**EBADR**\
 At least one CQE was dropped even with the **IORING_FEAT_NODROP**
 feature, and there are no otherwise available CQEs. This clears the
 error state and so with no other changes the next call to
@@ -1259,7 +1269,7 @@ extremely rare and indicates the machine is running critically low on
 memory. It may be reasonable for the application to terminate running
 unless it is able to safely handle any CQE being lost.
 
-**EBUSY**  
+**EBUSY**\
 If the **IORING_FEAT_NODROP** feature flag is set, then **EBUSY** will
 be returned if there were overflow entries, **IORING_ENTER_GETEVENTS**
 flag is set and not all of the overflow entries were able to be flushed
@@ -1272,30 +1282,30 @@ application tries to queue more requests than we have room for in the CQ
 ring, or if the application attempts to wait for more events without
 having reaped the ones already present in the CQ ring.
 
-**EEXIST**  
+**EEXIST**\
 The thread submitting the work is invalid. This may occur if
 **IORING_ENTER_GETEVENTS** and **IORING_SETUP_DEFER_TASKRUN** is set,
 but the submitting thread is not the thread that initially created or
 enabled the io_uring associated with *fd.*
 
-**EINVAL**  
+**EINVAL**\
 Some bits in the *flags* argument are invalid.
 
-**EFAULT**  
+**EFAULT**\
 An invalid user space address was specified for the *sig* argument.
 
-**ENXIO**  
+**ENXIO**\
 The io_uring instance is in the process of being torn down.
 
-**EOPNOTSUPP**  
+**EOPNOTSUPP**\
 *fd* does not refer to an io_uring instance.
 
-**EINTR**  
+**EINTR**\
 The operation was interrupted by a delivery of a signal before it could
 complete; see [signal](https://man7.org/linux/man-pages/man2/signal.2.html). Can happen while waiting for events with
 **IORING_ENTER_GETEVENTS.**
 
-**EOWNERDEAD**  
+**EOWNERDEAD**\
 The ring has been setup with **IORING_SETUP_SQPOLL** and the sq poll
 kernel thread has been killed.
 
@@ -1304,70 +1314,70 @@ kernel thread has been killed.
 These io_uring-specific errors are returned as a negative value in the
 *res* field of the completion queue entry.
 
-**EACCES**  
+**EACCES**\
 The *flags* field or *opcode* in a submission queue entry is not allowed
 due to registered restrictions. See [io_uring_register] for details
 on how restrictions work.
 
-**EBADF**  
+**EBADF**\
 The *fd* field in the submission queue entry is invalid, or the
 **IOSQE_FIXED_FILE** flag was set in the submission queue entry, but no
 files were registered with the io_uring instance.
 
-**EFAULT**  
+**EFAULT**\
 buffer is outside of the process' accessible address space
 
-**EFAULT**  
+**EFAULT**\
 **IORING_OP_READ_FIXED** or **IORING_OP_WRITE_FIXED** was specified in
 the *opcode* field of the submission queue entry, but either buffers
 were not registered for this io_uring instance, or the address range
 described by *addr* and *len* does not fit within the buffer registered
 at *buf_index*.
 
-**EINVAL**  
+**EINVAL**\
 The *flags* field or *opcode* in a submission queue entry is invalid.
 
-**EINVAL**  
+**EINVAL**\
 The *buf_index* member of the submission queue entry is invalid.
 
-**EINVAL**  
+**EINVAL**\
 The *personality* field in a submission queue entry is invalid.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_READV** or **IORING_OP_WRITEV** was specified in the
 submission queue entry, but the io_uring instance has fixed buffers
 registered.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_READ_FIXED** or **IORING_OP_WRITE_FIXED** was specified in
 the submission queue entry, and the *buf_index* is invalid.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_READV**, **IORING_OP_WRITEV**, **IORING_OP_READ_FIXED**,
 **IORING_OP_WRITE_FIXED** or **IORING_OP_FSYNC** was specified in the
 submission queue entry, but the io_uring instance was configured for
 IOPOLLing, or any of *addr*, *ioprio*, *off*, *len*, or *buf_index* was
 set in the submission queue entry.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_POLL_ADD** or **IORING_OP_POLL_REMOVE** was specified in the
 *opcode* field of the submission queue entry, but the io_uring instance
 was configured for busy-wait polling (**IORING_SETUP_IOPOLL**), or any
 of *ioprio*, *off*, *len*, or *buf_index* was non-zero in the submission
 queue entry.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_POLL_ADD** was specified in the *opcode* field of the
 submission queue entry, and the *addr* field was non-zero.
 
-**EOPNOTSUPP**  
+**EOPNOTSUPP**\
 *opcode* is valid, but not supported by this kernel.
 
-**EOPNOTSUPP**  
+**EOPNOTSUPP**\
 **IOSQE_BUFFER_SELECT** was set in the *flags* field of the submission
 queue entry, but the *opcode* doesn't support buffer selection.
 
-**EINVAL**  
+**EINVAL**\
 **IORING_OP_TIMEOUT** was specified, but *timeout_flags* specified more
 than one clock source or **IORING_TIMEOUT_MULTISHOT** was set alongside
 **IORING_TIMEOUT_ABS**.

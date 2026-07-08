@@ -31,7 +31,7 @@ Multishot variants are available since kernel 6.0.
 After calling this function, additional io_uring internal modifier flags
 may be set in the SQE *ioprio* field. The following flags are supported:
 
-**IORING_RECVSEND_POLL_FIRST**  
+**IORING_RECVSEND_POLL_FIRST**\
 If set, io_uring will assume the socket is currently empty and
 attempting to receive data will be unsuccessful. For this case, io_uring
 will arm internal poll and trigger a receive of the data when the socket

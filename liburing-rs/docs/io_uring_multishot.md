@@ -1,4 +1,4 @@
-Io_uring multishot requests overview
+io_uring multishot requests overview
 
 # DESCRIPTION
 
@@ -60,8 +60,10 @@ The final CQE for a multishot operation will not have
 operation. Each incoming connection generates a CQE with the new file
 descriptor in *cqe-\>res*.
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_multishot_accept(sqe, listen_fd, NULL, NULL, 0);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_multishot_accept(sqe, listen_fd, NULL, NULL, 0);
+```
 
 The operation continues accepting connections until an error occurs or
 it is canceled. Using the direct variant with
@@ -75,10 +77,12 @@ operation. Each time data arrives on the socket, a CQE is generated.
 This is typically used with provided buffers (see
 [io_uring_provided_buffers]):
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_recv_multishot(sqe, sockfd, NULL, 0, 0);
-    sqe->buf_group = bgid;
-    sqe->flags |= IOSQE_BUFFER_SELECT;
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_recv_multishot(sqe, sockfd, NULL, 0, 0);
+sqe->buf_group = bgid;
+sqe->flags |= IOSQE_BUFFER_SELECT;
+```
 
 Each completion includes:
 
@@ -107,8 +111,10 @@ buffer containing the actual message parameters.
 typically used with pipes or other stream-oriented file descriptors.
 Like multishot receive, this is used with provided buffers:
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read_multishot(sqe, fd, 0, 0, bgid);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_read_multishot(sqe, fd, 0, 0, bgid);
+```
 
 The operation generates a CQE each time data becomes available to read.
 
@@ -118,11 +124,13 @@ The operation generates a CQE each time data becomes available to read.
 or it can be done manually by setting the **IORING_POLL_ADD_MULTI**
 flag:
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_poll_multishot(sqe, fd, POLLIN);
-    /* or equivalently: */
-    io_uring_prep_poll_add(sqe, fd, POLLIN);
-    sqe->len |= IORING_POLL_ADD_MULTI;
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_poll_multishot(sqe, fd, POLLIN);
+/* or equivalently: */
+io_uring_prep_poll_add(sqe, fd, POLLIN);
+sqe->len |= IORING_POLL_ADD_MULTI;
+```
 
 Each time the polled condition becomes true, a CQE is generated with the
 triggered events in *cqe-\>res*. Unlike oneshot poll which is
@@ -143,23 +151,25 @@ multiple child process state changes with a single SQE.
 Applications must check for **IORING_CQE_F_MORE** to determine if the
 operation is still active:
 
-    struct io_uring_cqe *cqe;
+``` c
+struct io_uring_cqe *cqe;
 
-    while (io_uring_peek_cqe(ring, &cqe) == 0) {
-        if (cqe->res < 0) {
-            /* Error occurred, operation terminated */
-            handle_error(cqe->res);
-        } else {
-            process_completion(cqe);
-        }
-
-        if (!(cqe->flags & IORING_CQE_F_MORE)) {
-            /* Operation terminated, may need to resubmit */
-            rearm_if_needed();
-        }
-
-        io_uring_cqe_seen(ring, cqe);
+while (io_uring_peek_cqe(ring, &cqe) == 0) {
+    if (cqe->res < 0) {
+        /* Error occurred, operation terminated */
+        handle_error(cqe->res);
+    } else {
+        process_completion(cqe);
     }
+
+    if (!(cqe->flags & IORING_CQE_F_MORE)) {
+        /* Operation terminated, may need to resubmit */
+        rearm_if_needed();
+    }
+
+    io_uring_cqe_seen(ring, cqe);
+}
+```
 
 ## Canceling multishot operations
 
@@ -168,8 +178,10 @@ or related functions. The cancellation request generates its own CQE,
 and the multishot operation generates a final CQE (typically with
 **-ECANCELED**) without **IORING_CQE_F_MORE** set.
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_cancel64(sqe, user_data, 0);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_cancel64(sqe, user_data, 0);
+```
 
 ## Integration with provided buffers
 

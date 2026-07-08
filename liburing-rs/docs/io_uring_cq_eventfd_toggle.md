@@ -19,7 +19,7 @@ phase.
 
 Returns 0 on success. On error, a negative errno value is returned:
 
-**-EOPNOTSUPP**  
+**-EOPNOTSUPP**\
 The kernel does not support toggling eventfd notifications, or no
 eventfd is registered.
 

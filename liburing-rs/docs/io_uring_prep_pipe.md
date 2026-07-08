@@ -22,8 +22,8 @@ these must be currently unused, or the operation will fail. Also see
 for details on the *file_index* parameter.
 
 For both the direct and normal file descriptor pipe request, the
-resulting input/read side of the pipe will be stored in *fds\[0\](https://man7.org/linux/man-pages/man2/0\.2.html)* and
-the output/write side of the pipe will be stored in *fds\[1\](https://man7.org/linux/man-pages/man2/1\.2.html)* upon
+resulting input/read side of the pipe will be stored in *fds\[0\]* and
+the output/write side of the pipe will be stored in *fds\[1\]* upon
 successful completion of this request.
 
 This function prepares an async [pipe2](https://man7.org/linux/man-pages/man2/pipe2.2.html) request. See that man page

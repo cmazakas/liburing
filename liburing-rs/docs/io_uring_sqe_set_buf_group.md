@@ -15,4 +15,4 @@ None
 
 # SEE ALSO
 
-[io_uring_get_sqe], [io_uring_cqe_set_data]
+[io_uring_get_sqe], [io_uring_sqe_set_data]

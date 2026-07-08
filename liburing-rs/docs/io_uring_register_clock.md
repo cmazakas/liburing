@@ -11,18 +11,20 @@ io_uring_clock_register .**
 The *arg* argument must be filled in with the appropriate information.
 It looks as follows:
 
-    struct io_uring_clock_register {
-        __u32 clockid;
-        __u32 __resv[3](https://man7.org/linux/man-pages/man2/3.2.html);
-    };
+``` c
+struct io_uring_clock_register {
+    __u32 clockid;
+    __u32 __resv[3];
+};
+```
 
 The *clockid* field must contain the clock source, with valid sources
 being:
 
-**CLOCK_MONOTONIC**  
+**CLOCK_MONOTONIC**\
 a nonsettable system-wide clock that represents monotonic time.
 
-**CLOCK_BOOTTIME**  
+**CLOCK_BOOTTIME**\
 A nonsettable system-wide clock that is identical to **CLOCK_MONOTONIC
 ,** except that is also icnludes any time that the system is suspended.
 

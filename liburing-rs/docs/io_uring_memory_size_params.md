@@ -19,7 +19,7 @@ via *p-\>cq_entries* when **IORING_SETUP_CQSIZE** is set in *p-\>flags*.
 Returns the required memory size in bytes on success, or a negative
 errno value on error.
 
-**-EINVAL**  
+**-EINVAL**\
 Invalid entries value (0 or too large without IORING_SETUP_CLAMP).
 
 # SEE ALSO

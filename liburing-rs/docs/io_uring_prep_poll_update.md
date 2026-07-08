@@ -12,7 +12,7 @@ flags telling io_uring what fields to update.
 The *flags* modifier flags is a bitmask and may contain and OR'ed mask
 of:
 
-**IORING_POLL_UPDATE_EVENTS**  
+**IORING_POLL_UPDATE_EVENTS**\
 If set, the poll update request will replace the existing events being
 waited for with the ones specified in the *poll_mask* argument to the
 function. Note that only the lower 16 bits of events can be updated.
@@ -22,11 +22,11 @@ That includes settings like **EPOLLONESHOT ,** **EPOLLEXCLUSIVE ,** and
 **EPOLLET .** If an application wishes to modify these, it must
 cancel/remove the existing poll request and arm a new one.
 
-**IORING_POLL_UPDATE_USER_DATA**  
+**IORING_POLL_UPDATE_USER_DATA**\
 If set, the poll update request will update the existing user_data of
 the request with the value passed in as the *new_user_data* argument.
 
-**IORING_POLL_ADD_MULTI**  
+**IORING_POLL_ADD_MULTI**\
 If set, this will change the poll request from a singleshot to a
 multishot request. This must be used along with
 **IORING_POLL_UPDATE_EVENTS** as the event field must be updated to
@@ -41,21 +41,21 @@ None
 These are the errors that are reported in the CQE *res* field. On
 success, **0** is returned.
 
-**-ENOENT**  
+**-ENOENT**\
 The request identified by *user_data* could not be located. This could
 be because it completed before the cancelation request was issued, or if
 an invalid identifier is used.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid.
 
-**-EALREADY**  
+**-EALREADY**\
 The execution state of the request has progressed far enough that
 cancelation is no longer possible. This should normally mean that it
 will complete shortly, either successfully, or interrupted due to the
 cancelation.
 
-**-ECANCELED**  
+**-ECANCELED**\
 **IORING_POLL_UPDATE_EVENTS** was set and an error occurred re-arming
 the poll request with the new mask. The original poll request is
 terminated if this happens, and that termination CQE will contain the

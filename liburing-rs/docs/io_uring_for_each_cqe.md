@@ -16,20 +16,22 @@ of them.
 
 # EXAMPLE
 
-    void handle_cqes(struct io_uring *ring)
-    {
-    	struct io_uring_cqe *cqe;
-    	unsigned head;
-    	unsigned i = 0;
+``` c
+void handle_cqes(struct io_uring *ring)
+{
+	struct io_uring_cqe *cqe;
+	unsigned head;
+	unsigned i = 0;
 
-    	io_uring_for_each_cqe(ring, head, cqe) {
-    		/* handle completion */
-    		printf("cqe: %d\n", cqe->res);
-    		i++;
-    	}
+	io_uring_for_each_cqe(ring, head, cqe) {
+		/* handle completion */
+		printf("cqe: %d\n", cqe->res);
+		i++;
+	}
 
-    	io_uring_cq_advance(ring, i);
-    }
+	io_uring_cq_advance(ring, i);
+}
+```
 
 # RETURN VALUE
 

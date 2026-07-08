@@ -13,4 +13,4 @@ returns **-errno**.
 
 # SEE ALSO
 
-[io_uring_register_buf_ring], [io_uring_buf_ring_free]
+[io_uring_register_buf_ring], [io_uring_free_buf_ring]

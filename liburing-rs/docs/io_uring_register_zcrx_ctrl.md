@@ -11,27 +11,29 @@ receive context.
 The *ctrl* argument must point to a *struct zcrx_ctrl* structure that
 describes the control operation to perform:
 
-    struct zcrx_ctrl {
-        __u32 zcrx_id;
-        __u32 op;
-        __u64 __resv[2](https://man7.org/linux/man-pages/man2/2.2.html);
-        union {
-            struct zcrx_ctrl_export     zc_export;
-            struct zcrx_ctrl_flush_rq   zc_flush;
-        };
+``` c
+struct zcrx_ctrl {
+    __u32 zcrx_id;
+    __u32 op;
+    __u64 __resv[2];
+    union {
+        struct zcrx_ctrl_export     zc_export;
+        struct zcrx_ctrl_flush_rq   zc_flush;
     };
+};
+```
 
 The *zcrx_id* field must be set to the ID of the zero-copy receive
 context returned from [io_uring_register_ifq]. The *op* field
 specifies the control operation to perform and can be one of:
 
-**ZCRX_CTRL_FLUSH_RQ**  
+**ZCRX_CTRL_FLUSH_RQ**\
 Flushes pending buffers from the refill queue. Uses the *zc_flush*
 member of the union.
 
 <!-- -->
 
-**ZCRX_CTRL_EXPORT**  
+**ZCRX_CTRL_EXPORT**\
 Exports the zero-copy receive context for use by other rings. Uses the
 *zc_export* member of the union. Upon successful export, the *zcrx_fd*
 field in *zc_export* will contain the file descriptor that can be used

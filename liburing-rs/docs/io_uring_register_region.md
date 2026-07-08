@@ -13,18 +13,20 @@ should be a pointer to a **struct io_uring_mem_region_reg .**
 The *reg* argument must be filled in with the appropriate information.
 It looks as follows:
 
-    struct io_uring_mem_region_reg {
-        __u64 region_uptr;
-        __u64 flags;
-        __u64 __resv[2](https://man7.org/linux/man-pages/man2/2.2.html);
-    };
+``` c
+struct io_uring_mem_region_reg {
+    __u64 region_uptr;
+    __u64 flags;
+    __u64 __resv[2];
+};
+```
 
 The *region_uptr* field must contain a pointer to an appropriately
 filled **struct io_uring_region_desc.**
 
 The *flags* field must contain a bitmask of the following values:
 
-**IORING_MEM_REGION_REG_WAIT_ARG**  
+**IORING_MEM_REGION_REG_WAIT_ARG**\
 allows use of the region to pass waiting parameters to the
 [io_uring_enter] system call. If set, the registration is only
 allowed while the ring is in a disabled mode. See
@@ -34,14 +36,16 @@ The \_\_resv fields must be filled with zeroes.
 
 **struct io_uring_region_desc** is defined as following:
 
-    struct io_uring_region_desc {
-        __u64 user_addr;
-        __u64 size;
-        __u32 flags;
-        __u32 id;
-        __u64 mmap_offset;
-        __u64 __resv[4](https://man7.org/linux/man-pages/man2/4.2.html);
-    };
+``` c
+struct io_uring_region_desc {
+    __u64 user_addr;
+    __u64 size;
+    __u32 flags;
+    __u32 id;
+    __u64 mmap_offset;
+    __u64 __resv[4];
+};
+```
 
 The *user_addr* field must contain a pointer to the memory the user
 wants to register. It's valid only if **IORING_MEM_REGION_TYPE_USER** is
@@ -51,7 +55,7 @@ The *size* field should contain the size of the region.
 
 The *flags* field must contain a bitmask of the following values:
 
-**IORING_MEM_REGION_TYPE_USER**  
+**IORING_MEM_REGION_TYPE_USER**\
 tells the kernel to use memory specified by the *user_addr* field. If
 not set, the kernel will allocate memory for the region, which can then
 be mapped into the user space.

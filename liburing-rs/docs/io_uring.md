@@ -141,98 +141,102 @@ them, it has several fields, some packed into unions for space
 efficiency. Here is a simplified version of struct **io_uring_sqe** with
 some of the most often used fields:
 
-    struct io_uring_sqe {
-            __u8    opcode;         /* type of operation for this sqe */
-            __s32   fd;             /* file descriptor to do IO on */
-            __u64   off;            /* offset into file */
-            __u64   addr;           /* pointer to buffer or iovecs */
-            __u32   len;            /* buffer size or number of iovecs */
-            __u64   user_data;      /* data to be passed back at completion time */
-            __u8    flags;          /* IOSQE_ flags */
-            ...
-    };
+``` c
+struct io_uring_sqe {
+        __u8    opcode;         /* type of operation for this sqe */
+        __s32   fd;             /* file descriptor to do IO on */
+        __u64   off;            /* offset into file */
+        __u64   addr;           /* pointer to buffer or iovecs */
+        __u32   len;            /* buffer size or number of iovecs */
+        __u64   user_data;      /* data to be passed back at completion time */
+        __u8    flags;          /* IOSQE_ flags */
+        ...
+};
+```
 
 Here is struct **io_uring_sqe** in full:
 
-    struct io_uring_sqe {
-    	__u8	opcode;		/* type of operation for this sqe */
-    	__u8	flags;		/* IOSQE_ flags */
-    	__u16	ioprio;		/* ioprio for the request */
-    	__s32	fd;		/* file descriptor to do IO on */
-    	union {
-    		__u64	off;	/* offset into file */
-    		__u64	addr2;
-    		struct {
-    			__u32	cmd_op;
-    			__u32	__pad1;
-    		};
-    	};
-    	union {
-    		__u64	addr;	/* pointer to buffer or iovecs */
-    		__u64	splice_off_in;
-    		struct {
-    			__u32	level;
-    			__u32	optname;
-    		};
-    	};
-    	__u32	len;		/* buffer size or number of iovecs */
-    	union {
-    		__kernel_rwf_t	rw_flags;
-    		__u32		fsync_flags;
-    		__u16		poll_events;	/* compatibility */
-    		__u32		poll32_events;	/* word-reversed for BE */
-    		__u32		sync_range_flags;
-    		__u32		msg_flags;
-    		__u32		timeout_flags;
-    		__u32		accept_flags;
-    		__u32		cancel_flags;
-    		__u32		open_flags;
-    		__u32		statx_flags;
-    		__u32		fadvise_advice;
-    		__u32		splice_flags;
-    		__u32		rename_flags;
-    		__u32		unlink_flags;
-    		__u32		hardlink_flags;
-    		__u32		xattr_flags;
-    		__u32		msg_ring_flags;
-    		__u32		uring_cmd_flags;
-    		__u32		waitid_flags;
-    		__u32		futex_flags;
-    		__u32		install_fd_flags;
-    		__u32		nop_flags;
-    	};
-    	__u64	user_data;	/* data to be passed back at completion time */
-    	/* pack this to avoid bogus arm OABI complaints */
-    	union {
-    		/* index into fixed buffers, if used */
-    		__u16	buf_index;
-    		/* for grouped buffer selection */
-    		__u16	buf_group;
-    	} __attribute__((packed));
-    	/* personality to use, if used */
-    	__u16	personality;
-    	union {
-    		__s32	splice_fd_in;
-    		__u32	file_index;
-    		__u32	optlen;
-    		struct {
-    			__u16	addr_len;
-    			__u16	__pad3[1](https://man7.org/linux/man-pages/man2/1.2.html);
-    		};
-    	};
-    	union {
-    		struct {
-    			__u64	addr3;
-    			__u64	__pad2[1](https://man7.org/linux/man-pages/man2/1.2.html);
-    		};
-    		__u64	optval;
-    		/*
-    		 * If the ring is initialized with IORING_SETUP_SQE128, then
-    		 * this field is used for 80 bytes of arbitrary command data
-    		 */
-    		__u8	cmd[0](https://man7.org/linux/man-pages/man2/0.2.html);
-    	};
-    };
+``` c
+struct io_uring_sqe {
+	__u8	opcode;		/* type of operation for this sqe */
+	__u8	flags;		/* IOSQE_ flags */
+	__u16	ioprio;		/* ioprio for the request */
+	__s32	fd;		/* file descriptor to do IO on */
+	union {
+		__u64	off;	/* offset into file */
+		__u64	addr2;
+		struct {
+			__u32	cmd_op;
+			__u32	__pad1;
+		};
+	};
+	union {
+		__u64	addr;	/* pointer to buffer or iovecs */
+		__u64	splice_off_in;
+		struct {
+			__u32	level;
+			__u32	optname;
+		};
+	};
+	__u32	len;		/* buffer size or number of iovecs */
+	union {
+		__kernel_rwf_t	rw_flags;
+		__u32		fsync_flags;
+		__u16		poll_events;	/* compatibility */
+		__u32		poll32_events;	/* word-reversed for BE */
+		__u32		sync_range_flags;
+		__u32		msg_flags;
+		__u32		timeout_flags;
+		__u32		accept_flags;
+		__u32		cancel_flags;
+		__u32		open_flags;
+		__u32		statx_flags;
+		__u32		fadvise_advice;
+		__u32		splice_flags;
+		__u32		rename_flags;
+		__u32		unlink_flags;
+		__u32		hardlink_flags;
+		__u32		xattr_flags;
+		__u32		msg_ring_flags;
+		__u32		uring_cmd_flags;
+		__u32		waitid_flags;
+		__u32		futex_flags;
+		__u32		install_fd_flags;
+		__u32		nop_flags;
+	};
+	__u64	user_data;	/* data to be passed back at completion time */
+	/* pack this to avoid bogus arm OABI complaints */
+	union {
+		/* index into fixed buffers, if used */
+		__u16	buf_index;
+		/* for grouped buffer selection */
+		__u16	buf_group;
+	} __attribute__((packed));
+	/* personality to use, if used */
+	__u16	personality;
+	union {
+		__s32	splice_fd_in;
+		__u32	file_index;
+		__u32	optlen;
+		struct {
+			__u16	addr_len;
+			__u16	__pad3[1];
+		};
+	};
+	union {
+		struct {
+			__u64	addr3;
+			__u64	__pad2[1];
+		};
+		__u64	optval;
+		/*
+		 * If the ring is initialized with IORING_SETUP_SQE128, then
+		 * this field is used for 80 bytes of arbitrary command data
+		 */
+		__u8	cmd[0];
+	};
+};
+```
 
 To submit an I/O request to **io_uring**, you need to acquire a
 submission queue entry (SQE) from the submission queue (SQ), fill it up
@@ -246,17 +250,19 @@ SQEs are added to the tail of the submission queue. The kernel picks up
 SQEs off the head of the SQ. The general algorithm to get the next
 available SQE and update the tail is as follows.
 
-    struct io_uring_sqe *sqe;
-    unsigned tail, index;
-    tail = *sqring->tail;
-    index = tail & (*sqring->ring_mask);
-    sqe = &sqring->sqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
-    /* fill up details about this I/O request */
-    describe_io(sqe);
-    /* fill the sqe index into the SQ ring array */
-    sqring->array[index](https://man7.org/linux/man-pages/man2/index.2.html) = index;
-    tail++;
-    atomic_store_explicit(sqring->tail, tail, memory_order_release);
+``` c
+struct io_uring_sqe *sqe;
+unsigned tail, index;
+tail = *sqring->tail;
+index = tail & (*sqring->ring_mask);
+sqe = &sqring->sqes[index];
+/* fill up details about this I/O request */
+describe_io(sqe);
+/* fill the sqe index into the SQ ring array */
+sqring->array[index] = index;
+tail++;
+atomic_store_explicit(sqring->tail, tail, memory_order_release);
+```
 
 To get the index of an entry, the application must mask the current tail
 index with the size mask of the ring. This holds true for both SQs and
@@ -270,16 +276,18 @@ The following code snippet demonstrates how a read operation, an
 equivalent of a [preadv2](https://man7.org/linux/man-pages/man2/preadv2.2.html) system call is described by filling up an
 SQE with the necessary parameters.
 
-    struct iovec iovecs[16](https://man7.org/linux/man-pages/man2/16.2.html);
-     ...
-    sqe->opcode = IORING_OP_READV;
-    sqe->fd = fd;
-    sqe->addr = (unsigned long) iovecs;
-    sqe->len = 16;
-    sqe->off = offset;
-    sqe->flags = 0;
+``` c
+struct iovec iovecs[16];
+ ...
+sqe->opcode = IORING_OP_READV;
+sqe->fd = fd;
+sqe->addr = (unsigned long) iovecs;
+sqe->len = 16;
+sqe->off = offset;
+sqe->flags = 0;
+```
 
-**Memory ordering**  
+**Memory ordering**\
 Modern compilers and CPUs freely reorder reads and writes without
 affecting the program's outcome to optimize performance. Some aspects of
 this need to be kept in mind on SMP systems since **io_uring** involves
@@ -295,7 +303,7 @@ modern memory models the reader may refer to the
 Documentation/memory-barriers.txt in the kernel tree or to the
 documentation of the formal C11 or kernel memory model.
 
-**Letting the kernel know about I/O submissions**  
+**Letting the kernel know about I/O submissions**\
 Once you place one or more SQEs on to the SQ, you need to let the kernel
 know that you've done so. You can do this by calling the
 [io_uring_enter] system call. This system call is also capable of
@@ -347,11 +355,13 @@ only for a return value back from the kernel. This is easily understood
 by looking at the completion queue event structure, struct
 **io_uring_cqe**:
 
-    struct io_uring_cqe {
-    	__u64	user_data;  /* sqe->data submission passed back */
-    	__s32	res;        /* result code for this event */
-    	__u32	flags;
-    };
+``` c
+struct io_uring_cqe {
+	__u64	user_data;  /* sqe->data submission passed back */
+	__s32	res;        /* result code for this event */
+	__u32	flags;
+};
+```
 
 Here, *user_data* is custom data that is passed unchanged from
 submission to completion. That is, from SQEs to CQEs. This field can be
@@ -364,7 +374,7 @@ submission; its return value.
 The *flags* field carries request-specific information. As of the 6.12
 kernel, the following flags are defined:
 
-**IORING_CQE_F_BUFFER**  
+**IORING_CQE_F_BUFFER**\
 If set, the upper 16 bits of the flags field carries the buffer ID that
 was chosen for this request. The request must have been issued with
 **IOSQE_BUFFER_SELECT** set, and used with a request type that supports
@@ -372,20 +382,20 @@ buffer selection. Additionally, buffers must have been provided upfront
 either via the **IORING_OP_PROVIDE_BUFFERS** or the
 **IORING_REGISTER_PBUF_RING** methods.
 
-**IORING_CQE_F_MORE**  
+**IORING_CQE_F_MORE**\
 If set, the application should expect more completions from the request.
 This is used for requests that can generate multiple completions, such
 as multi-shot requests, receive, or accept.
 
-**IORING_CQE_F_SOCK_NONEMPTY**  
+**IORING_CQE_F_SOCK_NONEMPTY**\
 If set, upon receiving the data from the socket in the current request,
 the socket still had data left on completion of this request.
 
-**IORING_CQE_F_NOTIF**  
+**IORING_CQE_F_NOTIF**\
 Set for notification CQEs, as seen with the zero-copy networking send
 and receive support.
 
-**IORING_CQE_F_BUF_MORE**  
+**IORING_CQE_F_BUF_MORE**\
 If set, the buffer ID set in the completion will get more completions.
 This means that the provided buffer has been partially consumed and
 there's more buffer space left, and hence the application should expect
@@ -394,7 +404,7 @@ where the previous one left off. This can only happen if the provided
 buffer ring has been setup with **IOU_PBUF_RING_INC** to allow for
 incremental / partial consumption of buffers.
 
-**IORING_CQE_F_SKIP**  
+**IORING_CQE_F_SKIP**\
 If the ring has been configured with **IORING_SETUP_CQE_MIXED ,** then
 CQEs may be posted which has this flag set. This can happen if the ring
 is a single 16b CQE entry away from wrapping, but someone needs to post
@@ -403,7 +413,7 @@ to get posted to allow posting of the 32b CQE. CQEs with this flag set
 should simply be skipped and ignored, they serve no other purpose than
 to fill a gap in the CQ ring.
 
-**IORING_CQE_F_32**  
+**IORING_CQE_F_32**\
 If the ring has been configured with **IORING_SETUP_CQE_MIXED ,** this
 flag is set when the CQE is of the 32b type. This tells the application
 that there's an extra 16b of space in this CQE, and that to get to the
@@ -413,19 +423,21 @@ next CQE the CQ ring must be advanced by twice as much as for a normal
 The general sequence to read completion events off the completion queue
 is as follows:
 
-    unsigned head;
-    head = *cqring->head;
-    if (head != atomic_load_acquire(cqring->tail)) {
-        struct io_uring_cqe *cqe;
-        unsigned index;
-        index = head & (cqring->mask);
-        cqe = &cqring->cqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
-        /* process completed CQE */
-        process_cqe(cqe);
-        /* CQE consumption complete */
-        head++;
-    }
-    atomic_store_explicit(cqring->head, head, memory_order_release);
+``` c
+unsigned head;
+head = *cqring->head;
+if (head != atomic_load_acquire(cqring->tail)) {
+    struct io_uring_cqe *cqe;
+    unsigned index;
+    index = head & (cqring->mask);
+    cqe = &cqring->cqes[index];
+    /* process completed CQE */
+    process_cqe(cqe);
+    /* CQE consumption complete */
+    head++;
+}
+atomic_store_explicit(cqring->head, head, memory_order_release);
+```
 
 It helps to be reminded that the kernel adds CQEs to the tail of the CQ,
 while you need to dequeue them off the head. To get the index of an
@@ -483,254 +495,256 @@ larger queue depth to parallelize I/O request processing so as to gain
 the kind of performance benefits **io_uring** provides with its
 asynchronous processing of requests.
 
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <sys/stat.h>
-    #include <sys/ioctl.h>
-    #include <sys/syscall.h>
-    #include <sys/mman.h>
-    #include <sys/uio.h>
-    #include <linux/fs.h>
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include <string.h>
-    #include <stdatomic.h>
-    #include <errno.h>
+``` c
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
+#include <sys/syscall.h>
+#include <sys/mman.h>
+#include <sys/uio.h>
+#include <linux/fs.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdatomic.h>
+#include <errno.h>
 
-    #include <linux/io_uring.h>
+#include <linux/io_uring.h>
 
-    #define QUEUE_DEPTH 1
-    #define BLOCK_SZ    1024
+#define QUEUE_DEPTH 1
+#define BLOCK_SZ    1024
 
-    /* Macros for barriers needed by io_uring */
-    #define io_uring_smp_store_release(p, v)            \
-        atomic_store_explicit((_Atomic typeof(*(p)) *)(p), (v), \
-                      memory_order_release)
-    #define io_uring_smp_load_acquire(p)                \
-        atomic_load_explicit((_Atomic typeof(*(p)) *)(p),   \
-                     memory_order_acquire)
+/* Macros for barriers needed by io_uring */
+#define io_uring_smp_store_release(p, v)            \
+    atomic_store_explicit((_Atomic typeof(*(p)) *)(p), (v), \
+                  memory_order_release)
+#define io_uring_smp_load_acquire(p)                \
+    atomic_load_explicit((_Atomic typeof(*(p)) *)(p),   \
+                 memory_order_acquire)
 
-    int ring_fd;
-    unsigned *sring_tail, *sring_mask, *sring_array, 
-                *cring_head, *cring_tail, *cring_mask;
-    struct io_uring_sqe *sqes;
-    struct io_uring_cqe *cqes;
-    char buff[BLOCK_SZ](https://man7.org/linux/man-pages/man2/BLOCK_SZ.2.html);
-    off_t offset;
+int ring_fd;
+unsigned *sring_tail, *sring_mask, *sring_array, 
+            *cring_head, *cring_tail, *cring_mask;
+struct io_uring_sqe *sqes;
+struct io_uring_cqe *cqes;
+char buff[BLOCK_SZ];
+off_t offset;
+
+/*
+ * System call wrappers provided since glibc does not yet
+ * provide wrappers for io_uring system calls.
+* */
+
+int io_uring_setup(unsigned entries, struct io_uring_params *p)
+{
+    int ret;
+    ret = syscall(__NR_io_uring_setup, entries, p);
+    return (ret < 0) ? -errno : ret;
+}
+
+int io_uring_enter(int ring_fd, unsigned int to_submit,
+                   unsigned int min_complete, unsigned int flags)
+{
+    int ret;
+    ret = syscall(__NR_io_uring_enter, ring_fd, to_submit,
+                  min_complete, flags, NULL, 0);
+    return (ret < 0) ? -errno : ret;
+}
+
+int app_setup_uring(void) {
+    struct io_uring_params p;
+    void *sq_ptr, *cq_ptr;
+
+    /* See io_uring_setup(2) for io_uring_params.flags you can set */
+    memset(&p, 0, sizeof(p));
+    ring_fd = io_uring_setup(QUEUE_DEPTH, &p);
+    if (ring_fd < 0) {
+        perror("io_uring_setup");
+        return 1;
+    }
 
     /*
-     * System call wrappers provided since glibc does not yet
-     * provide wrappers for io_uring system calls.
-    * */
+     * io_uring communication happens via 2 shared kernel-user space ring
+     * buffers, which can be jointly mapped with a single mmap() call in
+     * kernels >= 5.4.
+     */
 
-    int io_uring_setup(unsigned entries, struct io_uring_params *p)
-    {
-        int ret;
-        ret = syscall(__NR_io_uring_setup, entries, p);
-        return (ret < 0) ? -errno : ret;
+    int sring_sz = p.sq_off.array + p.sq_entries * sizeof(unsigned);
+    int cring_sz = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
+
+    /* Rather than check for kernel version, the recommended way is to
+     * check the features field of the io_uring_params structure, which is a 
+     * bitmask. If IORING_FEAT_SINGLE_MMAP is set, we can do away with the
+     * second mmap() call to map in the completion ring separately.
+     */
+    if (p.features & IORING_FEAT_SINGLE_MMAP) {
+        if (cring_sz > sring_sz)
+            sring_sz = cring_sz;
+        cring_sz = sring_sz;
     }
 
-    int io_uring_enter(int ring_fd, unsigned int to_submit,
-                       unsigned int min_complete, unsigned int flags)
-    {
-        int ret;
-        ret = syscall(__NR_io_uring_enter, ring_fd, to_submit,
-                      min_complete, flags, NULL, 0);
-        return (ret < 0) ? -errno : ret;
+    /* Map in the submission and completion queue ring buffers.
+     *  Kernels < 5.4 only map in the submission queue, though.
+     */
+    sq_ptr = mmap(0, sring_sz, PROT_READ | PROT_WRITE,
+                  MAP_SHARED | MAP_POPULATE,
+                  ring_fd, IORING_OFF_SQ_RING);
+    if (sq_ptr == MAP_FAILED) {
+        perror("mmap");
+        return 1;
     }
 
-    int app_setup_uring(void) {
-        struct io_uring_params p;
-        void *sq_ptr, *cq_ptr;
-
-        /* See io_uring_setup(2) for io_uring_params.flags you can set */
-        memset(&p, 0, sizeof(p));
-        ring_fd = io_uring_setup(QUEUE_DEPTH, &p);
-        if (ring_fd < 0) {
-            perror("io_uring_setup");
-            return 1;
-        }
-
-        /*
-         * io_uring communication happens via 2 shared kernel-user space ring
-         * buffers, which can be jointly mapped with a single mmap() call in
-         * kernels >= 5.4.
-         */
-
-        int sring_sz = p.sq_off.array + p.sq_entries * sizeof(unsigned);
-        int cring_sz = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
-
-        /* Rather than check for kernel version, the recommended way is to
-         * check the features field of the io_uring_params structure, which is a 
-         * bitmask. If IORING_FEAT_SINGLE_MMAP is set, we can do away with the
-         * second mmap() call to map in the completion ring separately.
-         */
-        if (p.features & IORING_FEAT_SINGLE_MMAP) {
-            if (cring_sz > sring_sz)
-                sring_sz = cring_sz;
-            cring_sz = sring_sz;
-        }
-
-        /* Map in the submission and completion queue ring buffers.
-         *  Kernels < 5.4 only map in the submission queue, though.
-         */
-        sq_ptr = mmap(0, sring_sz, PROT_READ | PROT_WRITE,
+    if (p.features & IORING_FEAT_SINGLE_MMAP) {
+        cq_ptr = sq_ptr;
+    } else {
+        /* Map in the completion queue ring buffer in older kernels separately */
+        cq_ptr = mmap(0, cring_sz, PROT_READ | PROT_WRITE,
                       MAP_SHARED | MAP_POPULATE,
-                      ring_fd, IORING_OFF_SQ_RING);
-        if (sq_ptr == MAP_FAILED) {
+                      ring_fd, IORING_OFF_CQ_RING);
+        if (cq_ptr == MAP_FAILED) {
             perror("mmap");
             return 1;
         }
-
-        if (p.features & IORING_FEAT_SINGLE_MMAP) {
-            cq_ptr = sq_ptr;
-        } else {
-            /* Map in the completion queue ring buffer in older kernels separately */
-            cq_ptr = mmap(0, cring_sz, PROT_READ | PROT_WRITE,
-                          MAP_SHARED | MAP_POPULATE,
-                          ring_fd, IORING_OFF_CQ_RING);
-            if (cq_ptr == MAP_FAILED) {
-                perror("mmap");
-                return 1;
-            }
-        }
-        /* Save useful fields for later easy reference */
-        sring_tail = sq_ptr + p.sq_off.tail;
-        sring_mask = sq_ptr + p.sq_off.ring_mask;
-        sring_array = sq_ptr + p.sq_off.array;
-
-        /* Map in the submission queue entries array */
-        sqes = mmap(0, p.sq_entries * sizeof(struct io_uring_sqe),
-                       PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
-                       ring_fd, IORING_OFF_SQES);
-        if (sqes == MAP_FAILED) {
-            perror("mmap");
-            return 1;
-        }
-
-        /* Save useful fields for later easy reference */
-        cring_head = cq_ptr + p.cq_off.head;
-        cring_tail = cq_ptr + p.cq_off.tail;
-        cring_mask = cq_ptr + p.cq_off.ring_mask;
-        cqes = cq_ptr + p.cq_off.cqes;
-
-        return 0;
     }
+    /* Save useful fields for later easy reference */
+    sring_tail = sq_ptr + p.sq_off.tail;
+    sring_mask = sq_ptr + p.sq_off.ring_mask;
+    sring_array = sq_ptr + p.sq_off.array;
+
+    /* Map in the submission queue entries array */
+    sqes = mmap(0, p.sq_entries * sizeof(struct io_uring_sqe),
+                   PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
+                   ring_fd, IORING_OFF_SQES);
+    if (sqes == MAP_FAILED) {
+        perror("mmap");
+        return 1;
+    }
+
+    /* Save useful fields for later easy reference */
+    cring_head = cq_ptr + p.cq_off.head;
+    cring_tail = cq_ptr + p.cq_off.tail;
+    cring_mask = cq_ptr + p.cq_off.ring_mask;
+    cqes = cq_ptr + p.cq_off.cqes;
+
+    return 0;
+}
+
+/*
+* Read from completion queue.
+* In this function, we read completion events from the completion queue.
+* We dequeue the CQE, update and head and return the result of the operation.
+* */
+
+int read_from_cq() {
+    struct io_uring_cqe *cqe;
+    unsigned head;
+
+    /* Read barrier */
+    head = io_uring_smp_load_acquire(cring_head);
+    /*
+    * Remember, this is a ring buffer. If head == tail, it means that the
+    * buffer is empty.
+    * */
+    if (head == *cring_tail)
+        return -1;
+
+    /* Get the entry */
+    cqe = &cqes[head & (*cring_mask)];
+    if (cqe->res < 0)
+        fprintf(stderr, "Error: %s\n", strerror(abs(cqe->res)));
+
+    head++;
+
+    /* Write barrier so that update to the head are made visible */
+    io_uring_smp_store_release(cring_head, head);
+
+    return cqe->res;
+}
+
+/*
+* Submit a read or a write request to the submission queue.
+* */
+
+int submit_to_sq(int fd, int op) {
+    unsigned index, tail;
+
+    /* Add our submission queue entry to the tail of the SQE ring buffer */
+    tail = *sring_tail;
+    index = tail & *sring_mask;
+    struct io_uring_sqe *sqe = &sqes[index];
+    /* Fill in the parameters required for the read or write operation */
+    sqe->opcode = op;
+    sqe->fd = fd;
+    sqe->addr = (unsigned long) buff;
+    if (op == IORING_OP_READ) {
+        memset(buff, 0, sizeof(buff));
+        sqe->len = BLOCK_SZ;
+    }
+    else {
+        sqe->len = strlen(buff);
+    }
+    sqe->off = offset;
+
+    sring_array[index] = index;
+    tail++;
+
+    /* Update the tail */
+    io_uring_smp_store_release(sring_tail, tail);
 
     /*
-    * Read from completion queue.
-    * In this function, we read completion events from the completion queue.
-    * We dequeue the CQE, update and head and return the result of the operation.
+    * Tell the kernel we have submitted events with the io_uring_enter()
+    * system call. We also pass in the IORING_ENTER_GETEVENTS flag which
+    * causes the io_uring_enter() call to wait until min_complete
+    * (the 3rd param) events complete.
     * */
-
-    int read_from_cq() {
-        struct io_uring_cqe *cqe;
-        unsigned head;
-
-        /* Read barrier */
-        head = io_uring_smp_load_acquire(cring_head);
-        /*
-        * Remember, this is a ring buffer. If head == tail, it means that the
-        * buffer is empty.
-        * */
-        if (head == *cring_tail)
-            return -1;
-
-        /* Get the entry */
-        cqe = &cqes[head & (*cring_mask)](https://man7.org/linux/man-pages/man2/head & (*cring_mask).2.html);
-        if (cqe->res < 0)
-            fprintf(stderr, "Error: %s\n", strerror(abs(cqe->res)));
-
-        head++;
-
-        /* Write barrier so that update to the head are made visible */
-        io_uring_smp_store_release(cring_head, head);
-
-        return cqe->res;
+    int ret =  io_uring_enter(ring_fd, 1,1,
+                              IORING_ENTER_GETEVENTS);
+    if(ret < 0) {
+        perror("io_uring_enter");
+        return -1;
     }
 
-    /*
-    * Submit a read or a write request to the submission queue.
-    * */
+    return ret;
+}
 
-    int submit_to_sq(int fd, int op) {
-        unsigned index, tail;
+int main(int argc, char *argv[]) {
+    int res;
 
-        /* Add our submission queue entry to the tail of the SQE ring buffer */
-        tail = *sring_tail;
-        index = tail & *sring_mask;
-        struct io_uring_sqe *sqe = &sqes[index](https://man7.org/linux/man-pages/man2/index.2.html);
-        /* Fill in the parameters required for the read or write operation */
-        sqe->opcode = op;
-        sqe->fd = fd;
-        sqe->addr = (unsigned long) buff;
-        if (op == IORING_OP_READ) {
-            memset(buff, 0, sizeof(buff));
-            sqe->len = BLOCK_SZ;
-        }
-        else {
-            sqe->len = strlen(buff);
-        }
-        sqe->off = offset;
-
-        sring_array[index](https://man7.org/linux/man-pages/man2/index.2.html) = index;
-        tail++;
-
-        /* Update the tail */
-        io_uring_smp_store_release(sring_tail, tail);
-
-        /*
-        * Tell the kernel we have submitted events with the io_uring_enter()
-        * system call. We also pass in the IORING_ENTER_GETEVENTS flag which
-        * causes the io_uring_enter() call to wait until min_complete
-        * (the 3rd param) events complete.
-        * */
-        int ret =  io_uring_enter(ring_fd, 1,1,
-                                  IORING_ENTER_GETEVENTS);
-        if(ret < 0) {
-            perror("io_uring_enter");
-            return -1;
-        }
-
-        return ret;
+    /* Setup io_uring for use */
+    if(app_setup_uring()) {
+        fprintf(stderr, "Unable to setup uring!\n");
+        return 1;
     }
 
-    int main(int argc, char *argv[]) {
-        int res;
-
-        /* Setup io_uring for use */
-        if(app_setup_uring()) {
-            fprintf(stderr, "Unable to setup uring!\n");
-            return 1;
+    /* 
+    * A while loop that reads from stdin and writes to stdout.
+    * Breaks on EOF.
+    */
+    while (1) {
+        /* Initiate read from stdin and wait for it to complete */
+        submit_to_sq(STDIN_FILENO, IORING_OP_READ);
+        /* Read completion queue entry */
+        res = read_from_cq();
+        if (res > 0) {
+            /* Read successful. Write to stdout. */
+            submit_to_sq(STDOUT_FILENO, IORING_OP_WRITE);
+            read_from_cq();
+        } else if (res == 0) {
+            /* reached EOF */
+            break;
         }
-
-        /* 
-        * A while loop that reads from stdin and writes to stdout.
-        * Breaks on EOF.
-        */
-        while (1) {
-            /* Initiate read from stdin and wait for it to complete */
-            submit_to_sq(STDIN_FILENO, IORING_OP_READ);
-            /* Read completion queue entry */
-            res = read_from_cq();
-            if (res > 0) {
-                /* Read successful. Write to stdout. */
-                submit_to_sq(STDOUT_FILENO, IORING_OP_WRITE);
-                read_from_cq();
-            } else if (res == 0) {
-                /* reached EOF */
-                break;
-            }
-            else if (res < 0) {
-                /* Error reading file */
-                fprintf(stderr, "Error: %s\n", strerror(abs(res)));
-                break;
-            }
-            offset += res;
+        else if (res < 0) {
+            /* Error reading file */
+            fprintf(stderr, "Error: %s\n", strerror(abs(res)));
+            break;
         }
-
-        return 0;
+        offset += res;
     }
+
+    return 0;
+}
+```
 
 # SEE ALSO
 

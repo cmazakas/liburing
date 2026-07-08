@@ -1,4 +1,4 @@
-Io_uring linked requests overview
+io_uring linked requests overview
 
 # DESCRIPTION
 
@@ -41,23 +41,25 @@ Requests are linked by setting the **IOSQE_IO_LINK** flag on a request.
 This links it to the next request in the submission. The chain continues
 until a request without the link flag is encountered.
 
-    struct io_uring_sqe *sqe;
+``` c
+struct io_uring_sqe *sqe;
 
-    /* First request in chain */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd_in, buf, len, 0);
-    sqe->flags |= IOSQE_IO_LINK;
+/* First request in chain */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd_in, buf, len, 0);
+sqe->flags |= IOSQE_IO_LINK;
 
-    /* Second request, linked to first */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_write(sqe, fd_out, buf, len, 0);
-    sqe->flags |= IOSQE_IO_LINK;
+/* Second request, linked to first */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_write(sqe, fd_out, buf, len, 0);
+sqe->flags |= IOSQE_IO_LINK;
 
-    /* Third request, end of chain (no link flag) */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_fsync(sqe, fd_out, 0);
+/* Third request, end of chain (no link flag) */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_fsync(sqe, fd_out, 0);
 
-    io_uring_submit(ring);
+io_uring_submit(ring);
+```
 
 In this example, the read completes first, then the write, then the
 fsync. Each operation waits for the previous one to complete before
@@ -80,21 +82,23 @@ There are two types of links, which differ in how they handle errors:
 > runs regardless of the outcome of previous requests. This is useful
 > when you want to attempt all operations even if some fail.
 
-    /* Soft link: write is canceled if read fails */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd, buf, len, 0);
-    sqe->flags |= IOSQE_IO_LINK;
+``` c
+/* Soft link: write is canceled if read fails */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd, buf, len, 0);
+sqe->flags |= IOSQE_IO_LINK;
 
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_write(sqe, fd2, buf, len, 0);
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_write(sqe, fd2, buf, len, 0);
 
-    /* Hard link: write runs even if read fails */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd, buf, len, 0);
-    sqe->flags |= IOSQE_IO_HARDLINK;
+/* Hard link: write runs even if read fails */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd, buf, len, 0);
+sqe->flags |= IOSQE_IO_HARDLINK;
 
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_write(sqe, fd2, buf, len, 0);
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_write(sqe, fd2, buf, len, 0);
+```
 
 ## Link timeouts
 
@@ -102,18 +106,20 @@ A common use of linked requests is to add a timeout to an operation. The
 **IORING_OP_LINK_TIMEOUT** operation (set up with
 [io_uring_prep_link_timeout]) is designed specifically for this:
 
-    struct __kernel_timespec ts = { .tv_sec = 5, .tv_nsec = 0 };
+``` c
+struct __kernel_timespec ts = { .tv_sec = 5, .tv_nsec = 0 };
 
-    /* The operation to be timed */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, fd, buf, len, 0);
-    sqe->flags |= IOSQE_IO_LINK;
+/* The operation to be timed */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, fd, buf, len, 0);
+sqe->flags |= IOSQE_IO_LINK;
 
-    /* The timeout, linked to the read */
-    sqe = io_uring_get_sqe(ring);
-    io_uring_prep_link_timeout(sqe, &ts, 0);
+/* The timeout, linked to the read */
+sqe = io_uring_get_sqe(ring);
+io_uring_prep_link_timeout(sqe, &ts, 0);
 
-    io_uring_submit(ring);
+io_uring_submit(ring);
+```
 
 If the read completes before the timeout:
 
@@ -151,24 +157,24 @@ For soft-linked chains, error handling is straightforward:
 
 - The first non-canceled error indicates where the chain broke
 
-<!-- -->
+``` c
+/* Processing a linked chain's completions */
+for (int i = 0; i < chain_length; i++) {
+    io_uring_wait_cqe(ring, &cqe);
 
-    /* Processing a linked chain's completions */
-    for (int i = 0; i < chain_length; i++) {
-        io_uring_wait_cqe(ring, &cqe);
-
-        if (cqe->res == -ECANCELED) {
-            /* Previous request in chain failed */
-        } else if (cqe->res < 0) {
-            /* This request failed, caused chain break */
-            handle_error(cqe->res);
-        } else {
-            /* Success */
-            handle_success(cqe->res);
-        }
-
-        io_uring_cqe_seen(ring, cqe);
+    if (cqe->res == -ECANCELED) {
+        /* Previous request in chain failed */
+    } else if (cqe->res < 0) {
+        /* This request failed, caused chain break */
+        handle_error(cqe->res);
+    } else {
+        /* Success */
+        handle_success(cqe->res);
     }
+
+    io_uring_cqe_seen(ring, cqe);
+}
+```
 
 ## Common patterns
 
@@ -176,31 +182,37 @@ For soft-linked chains, error handling is straightforward:
 
 > Read data, write it elsewhere, then sync:
 >
->     io_uring_prep_read(sqe1, src_fd, buf, len, 0);
->     sqe1->flags |= IOSQE_IO_LINK;
+> ``` c
+> io_uring_prep_read(sqe1, src_fd, buf, len, 0);
+> sqe1->flags |= IOSQE_IO_LINK;
 >
->     io_uring_prep_write(sqe2, dst_fd, buf, len, 0);
->     sqe2->flags |= IOSQE_IO_LINK;
+> io_uring_prep_write(sqe2, dst_fd, buf, len, 0);
+> sqe2->flags |= IOSQE_IO_LINK;
 >
->     io_uring_prep_fsync(sqe3, dst_fd, 0);
+> io_uring_prep_fsync(sqe3, dst_fd, 0);
+> ```
 
 **Connect with timeout:**
 
 > Attempt connection with a time limit:
 >
->     io_uring_prep_connect(sqe1, sockfd, addr, addrlen);
->     sqe1->flags |= IOSQE_IO_LINK;
+> ``` c
+> io_uring_prep_connect(sqe1, sockfd, addr, addrlen);
+> sqe1->flags |= IOSQE_IO_LINK;
 >
->     io_uring_prep_link_timeout(sqe2, &timeout, 0);
+> io_uring_prep_link_timeout(sqe2, &timeout, 0);
+> ```
 
 **Send after connect:**
 
 > Connect then immediately send data:
 >
->     io_uring_prep_connect(sqe1, sockfd, addr, addrlen);
->     sqe1->flags |= IOSQE_IO_LINK;
+> ``` c
+> io_uring_prep_connect(sqe1, sockfd, addr, addrlen);
+> sqe1->flags |= IOSQE_IO_LINK;
 >
->     io_uring_prep_send(sqe2, sockfd, data, len, 0);
+> io_uring_prep_send(sqe2, sockfd, data, len, 0);
+> ```
 
 # NOTES
 

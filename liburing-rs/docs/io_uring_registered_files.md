@@ -1,4 +1,4 @@
-Io_uring registered files overview
+io_uring registered files overview
 
 # DESCRIPTION
 
@@ -41,12 +41,14 @@ Files are registered using [io_uring_register_files] or
 [io_uring_register_files_tags]. The files are described using an
 array of file descriptors:
 
-    int fds[3](https://man7.org/linux/man-pages/man2/3.2.html);
-    fds[0](https://man7.org/linux/man-pages/man2/0.2.html) = open("file1", O_RDONLY);
-    fds[1](https://man7.org/linux/man-pages/man2/1.2.html) = open("file2", O_RDONLY);
-    fds[2](https://man7.org/linux/man-pages/man2/2.2.html) = open("file3", O_WRONLY | O_CREAT, 0644);
+``` c
+int fds[3];
+fds[0] = open("file1", O_RDONLY);
+fds[1] = open("file2", O_RDONLY);
+fds[2] = open("file3", O_WRONLY | O_CREAT, 0644);
 
-    ret = io_uring_register_files(ring, fds, 3);
+ret = io_uring_register_files(ring, fds, 3);
+```
 
 Once registered, the original file descriptors can be closed if desired.
 The kernel holds its own references to the underlying files.
@@ -58,9 +60,11 @@ To use a registered file in an I/O operation, set the
 into the registered file array (not the original file descriptor) in the
 *fd* field:
 
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_read(sqe, 0, buf, len, offset);  /* index 0, not fd */
-    io_uring_sqe_set_flags(sqe, IOSQE_FIXED_FILE);
+``` c
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_read(sqe, 0, buf, len, offset);  /* index 0, not fd */
+io_uring_sqe_set_flags(sqe, IOSQE_FIXED_FILE);
+```
 
 The index is 0-based into the array passed to
 [io_uring_register_files].
@@ -72,12 +76,14 @@ slots are indicated by setting the file descriptor to -1. Applications
 can create a fully sparse table using
 [io_uring_register_files_sparse] and fill in slots later:
 
-    /* Create sparse table with 100 slots */
-    ret = io_uring_register_files_sparse(ring, 100);
+``` c
+/* Create sparse table with 100 slots */
+ret = io_uring_register_files_sparse(ring, 100);
 
-    /* Later, fill in slot 5 */
-    int fd = open("file", O_RDONLY);
-    ret = io_uring_register_files_update(ring, 5, &fd, 1);
+/* Later, fill in slot 5 */
+int fd = open("file", O_RDONLY);
+ret = io_uring_register_files_update(ring, 5, &fd, 1);
+```
 
 ## Updating registered files
 
@@ -94,12 +100,14 @@ Registered files can be updated using
 To skip updating certain slots while updating others, use the special
 value **IORING_REGISTER_FILES_SKIP**.
 
-    int fds[3](https://man7.org/linux/man-pages/man2/3.2.html);
-    fds[0](https://man7.org/linux/man-pages/man2/0.2.html) = new_fd;                        /* replace slot 0 */
-    fds[1](https://man7.org/linux/man-pages/man2/1.2.html) = IORING_REGISTER_FILES_SKIP;    /* leave slot 1 unchanged */
-    fds[2](https://man7.org/linux/man-pages/man2/2.2.html) = -1;                            /* remove slot 2 */
+``` c
+int fds[3];
+fds[0] = new_fd;                        /* replace slot 0 */
+fds[1] = IORING_REGISTER_FILES_SKIP;    /* leave slot 1 unchanged */
+fds[2] = -1;                            /* remove slot 2 */
 
-    ret = io_uring_register_files_update(ring, 0, fds, 3);
+ret = io_uring_register_files_update(ring, 0, fds, 3);
+```
 
 Updates do not require the ring to be idle on kernels 5.13 and later. On
 older kernels, updates would wait for in-flight operations to complete.
@@ -139,13 +147,15 @@ When using **IORING_FILE_INDEX_ALLOC**, the application should use
 [io_uring_register_file_alloc_range] to specify which range of the
 file table should be used for allocations.
 
-    /* Reserve slots 50-99 for dynamic allocation */
-    io_uring_register_file_alloc_range(ring, 50, 50);
+``` c
+/* Reserve slots 50-99 for dynamic allocation */
+io_uring_register_file_alloc_range(ring, 50, 50);
 
-    /* Accept with direct descriptor allocation */
-    struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
-    io_uring_prep_accept_direct(sqe, listen_fd, NULL, NULL, 0,
-                                IORING_FILE_INDEX_ALLOC);
+/* Accept with direct descriptor allocation */
+struct io_uring_sqe *sqe = io_uring_get_sqe(ring);
+io_uring_prep_accept_direct(sqe, listen_fd, NULL, NULL, 0,
+                            IORING_FILE_INDEX_ALLOC);
+```
 
 The allocated slot index is returned in the CQE *res* field on success.
 

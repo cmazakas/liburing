@@ -12,7 +12,7 @@ contains new timeout information.
 For an update request, the *flags* member may contain a bitmask of the
 following values:
 
-**IORING_TIMEOUT_ABS**  
+**IORING_TIMEOUT_ABS**\
 The value specified in *ts* is an absolute value rather than a relative
 one.
 
@@ -27,21 +27,21 @@ None
 These are the errors that are reported in the CQE *res* field. On
 success, **0** is returned.
 
-**-ENOENT**  
+**-ENOENT**\
 The timeout identified by *user_data* could not be found. It may be
 invalid, or triggered before the update or removal request was
 processed.
 
-**-EALREADY**  
+**-EALREADY**\
 The timeout identified by *user_data* is already firing and cannot be
 canceled.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid. For example, two
 clocksources were given, or the specified timeout seconds or nanoseconds
 were \< 0.
 
-**-EFAULT**  
+**-EFAULT**\
 io_uring was unable to access the data specified by *ts*.
 
 # NOTES

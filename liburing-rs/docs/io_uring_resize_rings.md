@@ -30,13 +30,13 @@ configured rings will result in an **-EINVAL** error.
 
 Valid flags in *flags*:
 
-**IORING_SETUP_CQSIZE**  
+**IORING_SETUP_CQSIZE**\
 If this isn't set, then the CQ ring size is set based on the specified
 SQ ring size. The default is twice as many CQ ring entries as there are
 SQ ring entries. If set, then *cq_entries* will be used to size the CQ
 ring.
 
-**IORING_SETUP_CLAMP**  
+**IORING_SETUP_CLAMP**\
 If set, then SQ and CQ ring entries are clamped to the maximum allowable
 size, if they exceed that. If not set, setting sizes too large will
 cause the operation to fail.
@@ -57,21 +57,21 @@ flags.
 Returns 0 on success, and \< 0 on failure. Potential common failure
 cases:
 
-**-EEXIST**  
+**-EEXIST**\
 Attempting to resize a ring setup with **IORING_SETUP_SINGLE_ISSUER**
 and the resizing task is different from the one that created/enabled the
 ring.
 
-**-EFAULT**  
+**-EFAULT**\
 Copying of *p* was unsuccessful.
 
-**-EINVAL**  
+**-EINVAL**\
 Invalid flags were specified for the operation
 
-**-EINVAL**  
+**-EINVAL**\
 Attempt to resize a ring not setup with **IORING_SETUP_DEFER_TASKRUN**.
 
-**-EOVERFLOW**  
+**-EOVERFLOW**\
 The values specified for SQ or CQ entries would cause an overflow.
 
 # SEE ALSO

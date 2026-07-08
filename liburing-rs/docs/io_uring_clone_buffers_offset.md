@@ -45,14 +45,14 @@ for **\_\_io_uring_clone_buffers**(3) for details.
 
 *flags* may be set to the following value:
 
-**IORING_REGISTER_SRC_REGISTERED**  
+**IORING_REGISTER_SRC_REGISTERED**\
 If the source ring is registered AND the calling thread is the one that
 originally registered its ring fd, then this flag may be set to lookup
 the registered index rather than use the normal file descriptor. If the
 normal file descriptor wasn't closed after registering it, there's no
 need to set this flag.
 
-**IORING_REGISTER_DST_REPLACE**  
+**IORING_REGISTER_DST_REPLACE**\
 If set, cloning may happen for a destination ring that already has a
 buffer table assigned. In that case, existing nodes that overlap with
 the specified range will be released and replaced.
@@ -70,14 +70,14 @@ On success [io_uring_clone_buffers()] and
 [io_uring_clone_buffers_offset] return 0. On failure, they returns
 **-errno**, specifically
 
-**-EBUSY**  
+**-EBUSY**\
 The destination ring already has buffers registered, and
 **IORING_REGISTER_DST_REPLACE** wasn't set.
 
-**-ENOMEM**  
+**-ENOMEM**\
 The kernel ran out of memory.
 
-**-ENXIO**  
+**-ENXIO**\
 The source ring doesn't have any buffers registered.
 
 # SEE ALSO

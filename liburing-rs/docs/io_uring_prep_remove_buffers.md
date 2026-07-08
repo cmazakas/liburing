@@ -17,13 +17,13 @@ These are the errors that are reported in the CQE *res* field. On
 success, *res* will contain the number of successfully removed buffers.
 On error, the following errors can occur.
 
-**-ENOMEM**  
+**-ENOMEM**\
 The kernel was unable to allocate memory for the request.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid.
 
-**-ENOENT**  
+**-ENOENT**\
 No buffers exist at the specified *bgid* buffer group ID.
 
 # SEE ALSO

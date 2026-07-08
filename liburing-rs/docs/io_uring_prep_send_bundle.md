@@ -10,7 +10,7 @@ with modifier flags *flags*.
 After calling this function, additional io_uring internal modifier flags
 may be set in the SQE *ioprio* field. The following flags are supported:
 
-**IORING_RECVSEND_POLL_FIRST**  
+**IORING_RECVSEND_POLL_FIRST**\
 If set, io_uring will assume the socket is currently full and attempting
 to send data will be unsuccessful. For this case, io_uring will arm
 internal poll and trigger a send of the data when the socket has space
@@ -19,7 +19,7 @@ the operation will proceed immediately.
 
 <!-- -->
 
-**IORING_RECVSEND_BUNDLE**  
+**IORING_RECVSEND_BUNDLE**\
 If set, the send operation will attempt to fill multiple buffers with
 rather than just pick a single buffer to fill. To send multiple buffers
 in a single send, the buffer group ID set in the SQE must be of the ring
@@ -39,7 +39,7 @@ should be incremented accordingly. Sending in bundles can improve
 performance when more than one chunk of data is available by eliminating
 redundant round trips through the networking stack.
 
-**IORING_SEND_VECTORIZED**  
+**IORING_SEND_VECTORIZED**\
 If set, *addr must point to an array of* *struct iovec* and *len* must
 be the number of vectors in that array. This enables use of vectorized
 IO for a normal send operation, rather than needing a sendmsg variant to

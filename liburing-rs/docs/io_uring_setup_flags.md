@@ -1,4 +1,4 @@
-Io_uring ring setup flags overview
+io_uring ring setup flags overview
 
 # DESCRIPTION
 
@@ -22,30 +22,30 @@ These flags control how I/O completion and submission polling works.
 > reduces latency for high-performance storage devices (NVMe, etc.) but
 > requires:
 >
-Io_uring ring setup flags overview
+> - Files opened with **O_DIRECT** (if using the
 >   **IORING_OP\_{READ,WRITE}(V)(\_FIXED)** opcodes)
 >
-Io_uring ring setup flags overview
+> - Hardware and drivers that support polling
 >
-Io_uring ring setup flags overview
+> - The application to call [io_uring_enter] to reap completions
 >   (busy-polling)
 >
-Io_uring ring setup flags overview
+> - Storage device configuration for polling support
 >
 > Only the following opcodes are allowed on IOPOLL rings:
 >
-Io_uring ring setup flags overview
+> - **IORING_OP_NOP(128)**
 >
-Io_uring ring setup flags overview
+> - **IORING_OP\_{READ,WRITE}(V)(\_FIXED)** (if the file supports
 >   busy-polling)
 >
-Io_uring ring setup flags overview
+> - **IORING_OP_FILES_UPDATE**
 >
-Io_uring ring setup flags overview
+> - **IORING_OP\_{PROVIDE,REMOVE}\_BUFFERS**
 >
-Io_uring ring setup flags overview
+> - **IORING_OP_MSG_RING**
 >
-Io_uring ring setup flags overview
+> - **IORING_OP_URING_CMD(128)**
 >
 > Since kernel 7.1, an **IORING_OP_URING_CMD(128)** request will use
 > busy-polling if the file supports it (i.e., NVMe passthrough I/O
@@ -121,9 +121,9 @@ These flags control when and how completion processing runs.
 >
 > Some features require this flag:
 >
-Io_uring ring setup flags overview
+> - Ring resizing ([io_uring_resize_rings])
 >
-Io_uring ring setup flags overview
+> - Zero-copy receive (**IORING_OP_RECV_ZC**)
 
 **IORING_SETUP_SINGLE_ISSUER**
 
@@ -287,9 +287,11 @@ These flags control the async worker threads.
 
 **High-performance single-threaded application:**
 
+> ``` c
 > .flags = IORING_SETUP_SINGLE_ISSUER |
->              IORING_SETUP_DEFER_TASKRUN |
->              IORING_SETUP_COOP_TASKRUN
+>          IORING_SETUP_DEFER_TASKRUN |
+>          IORING_SETUP_COOP_TASKRUN
+> ```
 >
 > This combination provides the best latency and throughput for
 > applications where each thread has its own ring and processes
@@ -297,9 +299,11 @@ These flags control the async worker threads.
 
 **Low-latency storage with polling:**
 
+> ``` c
 > .flags = IORING_SETUP_IOPOLL |
->              IORING_SETUP_SINGLE_ISSUER |
->              IORING_SETUP_DEFER_TASKRUN
+>          IORING_SETUP_SINGLE_ISSUER |
+>          IORING_SETUP_DEFER_TASKRUN
+> ```
 >
 > For NVMe or other devices that support polling, this eliminates
 > interrupt overhead. Combined with DEFER_TASKRUN for optimal completion
@@ -307,22 +311,26 @@ These flags control the async worker threads.
 
 **System call-free submission:**
 
+> ``` c
 > .flags = IORING_SETUP_SQPOLL |
->              IORING_SETUP_SQ_AFF
->     .sq_thread_cpu = preferred_cpu
->     .sq_thread_idle = 1000
+>          IORING_SETUP_SQ_AFF
+> .sq_thread_cpu = preferred_cpu
+> .sq_thread_idle = 1000
+> ```
 >
 > For workloads that benefit from eliminating submission syscall
 > overhead. See [io_uring_sqpoll].
 
 **Multiple rings sharing resources:**
 
+> ``` c
 > /* First ring */
->     p1.flags = IORING_SETUP_SQPOLL;
+> p1.flags = IORING_SETUP_SQPOLL;
 >
->     /* Subsequent rings */
->     p2.flags = IORING_SETUP_SQPOLL | IORING_SETUP_ATTACH_WQ;
->     p2.wq_fd = ring1_fd;
+> /* Subsequent rings */
+> p2.flags = IORING_SETUP_SQPOLL | IORING_SETUP_ATTACH_WQ;
+> p2.wq_fd = ring1_fd;
+> ```
 >
 > Reduces kernel thread and workqueue overhead when using multiple
 > rings.

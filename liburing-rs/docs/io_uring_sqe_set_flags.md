@@ -9,11 +9,11 @@ enables the *flags* belonging to the *sqe* submission queue entry param.
 *flags* is a bit mask of 0 or more of the following values ORed
 together:
 
-**IOSQE_FIXED_FILE**  
+**IOSQE_FIXED_FILE**\
 The file descriptor in the SQE refers to the index of a previously
 registered file or direct file descriptor, not a normal file descriptor.
 
-**IOSQE_ASYNC**  
+**IOSQE_ASYNC**\
 Normal operation for io_uring is to try and issue an sqe as non-blocking
 first, and if that fails, execute it in an async manner. To support more
 efficient overlapped operation of requests that the application
@@ -24,7 +24,7 @@ thread with no initial non-blocking attempt. This may be less efficient
 and should not be used liberally or without understanding the
 performance and efficiency tradeoffs.
 
-**IOSQE_IO_LINK**  
+**IOSQE_IO_LINK**\
 When this flag is specified, the SQE forms a link with the next SQE in
 the submission ring. That next SQE will not be started before the
 previous request completes. This, in effect, forms a chain of SQEs,
@@ -38,22 +38,22 @@ executing in parallel, or chains and individual SQEs. Only members
 inside the chain are serialized. A chain of SQEs will be broken if any
 request in that chain ends in error.
 
-**IOSQE_IO_HARDLINK**  
+**IOSQE_IO_HARDLINK**\
 Like **IOSQE_IO_LINK ,** except the links aren't severed if an error or
 unexpected result occurs.
 
-**IOSQE_IO_DRAIN**  
+**IOSQE_IO_DRAIN**\
 When this flag is specified, the SQE will not be started before
 previously submitted SQEs have completed, and new SQEs will not be
 started before this one completes.
 
-**IOSQE_CQE_SKIP_SUCCESS**  
+**IOSQE_CQE_SKIP_SUCCESS**\
 Request that no CQE be generated for this request, if it completes
 successfully. This can be useful in cases where the application doesn't
 need to know when a specific request completed, if it completed
 successfully.
 
-**IOSQE_BUFFER_SELECT**  
+**IOSQE_BUFFER_SELECT**\
 If set, and if the request types supports it, select an IO buffer from
 the indicated buffer group. This can be used with requests that read or
 receive data from a file or socket, where buffer selection is deferred

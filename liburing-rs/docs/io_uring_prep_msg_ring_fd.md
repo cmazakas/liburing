@@ -24,24 +24,24 @@ None
 
 These are the errors that are reported in the CQE *res* field.
 
-**-ENOMEM**  
+**-ENOMEM**\
 The kernel was unable to allocate memory for the request.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid.
 
-**-EINVAL**  
+**-EINVAL**\
 Target ring is identical to the source ring.
 
-**-EBADFD**  
+**-EBADFD**\
 The descriptor passed in *fd* does not refer to an io_uring file
 descriptor, or the ring is in a disabled state.
 
-**-EOVERFLOW**  
+**-EOVERFLOW**\
 The kernel was unable to fill a CQE on the target ring. This can happen
 if the target CQ ring is in an overflow state and the kernel wasn't able
 to allocate memory for a new CQE entry.
 
-**-ENFILE**  
+**-ENFILE**\
 The direct descriptor table in the target ring was full, no new
 descriptors could be successfully allocated.

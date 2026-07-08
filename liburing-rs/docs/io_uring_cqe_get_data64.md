@@ -23,4 +23,4 @@ will be returned. Otherwise, the return value is undefined.
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_sqe_set_data],
-[io_uring_sqe_submit]
+[io_uring_submit]

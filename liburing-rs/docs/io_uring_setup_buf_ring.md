@@ -21,7 +21,7 @@ allocation and registration fails.
 
 The *flags* argument can be set to one of the following values:
 
-**IOU_PBUF_RING_INC**  
+**IOU_PBUF_RING_INC**\
 The buffers in this ring can be incrementally consumed. With partial
 consumption, each completion of a given buffer ID will continue where
 the previous one left off, or from the start if no completions have been

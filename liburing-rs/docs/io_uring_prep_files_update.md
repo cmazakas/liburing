@@ -28,21 +28,21 @@ These are the errors that are reported in the CQE *res* field. On
 success, *res* will contain the number of successfully updated file
 descriptors. On error, the following errors can occur.
 
-**-ENOMEM**  
+**-ENOMEM**\
 The kernel was unable to allocate memory for the request.
 
-**-EINVAL**  
+**-EINVAL**\
 One of the fields set in the SQE was invalid.
 
-**-EFAULT**  
+**-EFAULT**\
 The kernel was unable to copy in the memory pointed to by *fds*.
 
-**-EBADF**  
+**-EBADF**\
 On of the descriptors located in *fds* didn't refer to a valid file
 descriptor, or one of the file descriptors in the array referred to an
 io_uring instance.
 
-**-EOVERFLOW**  
+**-EOVERFLOW**\
 The product of *offset* and *nr_fds* exceed the valid amount or
 overflowed.
 

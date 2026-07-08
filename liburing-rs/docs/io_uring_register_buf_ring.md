@@ -13,14 +13,16 @@ type of operations in flight than buffers available.
 The *reg* argument must be filled in with the appropriate information.
 It looks as follows:
 
-    struct io_uring_buf_reg {
-        __u64 ring_addr;
-        __u32 ring_entries;
-        __u16 bgid;
-        __u16 flags;
-        __u32 min_left;
-        __u32 resv[5](https://man7.org/linux/man-pages/man2/5.2.html);
-    };
+``` c
+struct io_uring_buf_reg {
+    __u64 ring_addr;
+    __u32 ring_entries;
+    __u16 bgid;
+    __u16 flags;
+    __u32 min_left;
+    __u32 resv[5];
+};
+```
 
 The *ring_addr* field must contain the address to the memory allocated
 to fit this ring. The memory must be page aligned and hence allocated
@@ -40,7 +42,7 @@ rest of the fields are reserved and must be cleared to zero.
 
 The *flags* argument can be set to one of the following values:
 
-**IOU_PBUF_RING_INC**  
+**IOU_PBUF_RING_INC**\
 The buffers in this ring can be incrementally consumed. With partial
 consumption, each completion of a given buffer ID will continue where
 the previous one left off, or from the start if no completions have been
@@ -50,28 +52,32 @@ member. Available since 6.12.
 
 A shared buffer ring looks as follows:
 
-    struct io_uring_buf_ring {
-        union {
-            struct {
-                __u64 resv1;
-                __u32 resv2;
-                __u16 resv3;
-                __u16 tail;
-            };
-            struct io_uring_buf bufs[0](https://man7.org/linux/man-pages/man2/0.2.html);
+``` c
+struct io_uring_buf_ring {
+    union {
+        struct {
+            __u64 resv1;
+            __u32 resv2;
+            __u16 resv3;
+            __u16 tail;
         };
+        struct io_uring_buf bufs[0];
     };
+};
+```
 
 where *tail* is the index at which the application can insert new
 buffers for consumption by requests, and *struct io_uring_buf* is buffer
 definition:
 
-    struct io_uring_buf {
-        __u64 addr;
-        __u32 len;
-        __u16 bid;
-        __u16 resv;
-    };
+``` c
+struct io_uring_buf {
+    __u64 addr;
+    __u32 len;
+    __u16 bid;
+    __u16 resv;
+};
+```
 
 where *addr* is the address for the buffer, *len* is the length of the
 buffer in bytes, and *bid* is the buffer ID that will be returned in the

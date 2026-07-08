@@ -1,4 +1,4 @@
-Io_uring registered buffers overview
+io_uring registered buffers overview
 
 # DESCRIPTION
 
@@ -38,13 +38,15 @@ Buffers are registered using [io_uring_register_buffers] or
 [io_uring_register_buffers_tags]. The buffers are described using
 an array of *struct iovec* structures:
 
-    struct iovec iovecs[2](https://man7.org/linux/man-pages/man2/2.2.html);
-    iovecs[0](https://man7.org/linux/man-pages/man2/0.2.html).iov_base = buf1;
-    iovecs[0](https://man7.org/linux/man-pages/man2/0.2.html).iov_len = 4096;
-    iovecs[1](https://man7.org/linux/man-pages/man2/1.2.html).iov_base = buf2;
-    iovecs[1](https://man7.org/linux/man-pages/man2/1.2.html).iov_len = 8192;
+``` c
+struct iovec iovecs[2];
+iovecs[0].iov_base = buf1;
+iovecs[0].iov_len = 4096;
+iovecs[1].iov_base = buf2;
+iovecs[1].iov_len = 8192;
 
-    ret = io_uring_register_buffers(ring, iovecs, 2);
+ret = io_uring_register_buffers(ring, iovecs, 2);
+```
 
 The buffers must be anonymous memory (allocated via [malloc](https://man7.org/linux/man-pages/man2/malloc.2.html),
 [mmap](https://man7.org/linux/man-pages/man2/mmap.2.html) with **MAP_ANONYMOUS**, or similar). File-backed memory is
@@ -63,11 +65,15 @@ Unless running as root, if buffer registration fails with **ENOMEM**,
 the memlock limit may need to be increased. The current limit can be
 checked with:
 
-    ulimit -l
+``` c
+ulimit -l
+```
 
 The limit can be increased for the current shell session with:
 
-    ulimit -l unlimited
+``` c
+ulimit -l unlimited
+```
 
 For a permanent change, edit */etc/security/limits.conf* or use
 [setrlimit](https://man7.org/linux/man-pages/man2/setrlimit.2.html) programmatically with **RLIMIT_MEMLOCK**.
@@ -100,11 +106,13 @@ The memory range used for the I/O operation must fall within the bounds
 of the registered buffer. It is valid to use only a portion of a
 registered buffer for an operation.
 
-    /* Use first 1024 bytes of registered buffer 0 */
-    io_uring_prep_read_fixed(sqe, fd, buf1, 1024, offset, 0);
+``` c
+/* Use first 1024 bytes of registered buffer 0 */
+io_uring_prep_read_fixed(sqe, fd, buf1, 1024, offset, 0);
 
-    /* Use registered buffer 1 */
-    io_uring_prep_write_fixed(sqe, fd, buf2, 2048, offset, 1);
+/* Use registered buffer 1 */
+io_uring_prep_write_fixed(sqe, fd, buf2, 2048, offset, 1);
+```
 
 ## Sparse buffer registration
 
@@ -114,12 +122,14 @@ slots that can be filled in later using
 [io_uring_register_buffers_update_tag]. This is useful when the
 full set of buffers is not known at registration time.
 
-    /* Create sparse table with 10 slots */
-    ret = io_uring_register_buffers_sparse(ring, 10);
+``` c
+/* Create sparse table with 10 slots */
+ret = io_uring_register_buffers_sparse(ring, 10);
 
-    /* Later, fill in slot 3 */
-    struct iovec iov = { .iov_base = buf, .iov_len = 4096 };
-    ret = io_uring_register_buffers_update_tag(ring, 3, &iov, NULL, 1);
+/* Later, fill in slot 3 */
+struct iovec iov = { .iov_base = buf, .iov_len = 4096 };
+ret = io_uring_register_buffers_update_tag(ring, 3, &iov, NULL, 1);
+```
 
 ## Buffer tagging
 

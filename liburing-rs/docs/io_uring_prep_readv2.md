@@ -10,19 +10,19 @@ start reading *nr_vecs* into the *iovecs* array at the specified
 
 Supported values for *flags* are:
 
-**RWF_HIPRI**  
+**RWF_HIPRI**\
 High priority request, poll if possible
 
-**RWF_DSYNC**  
+**RWF_DSYNC**\
 per-IO O_DSYNC
 
-**RWF_SYNC**  
+**RWF_SYNC**\
 per-IO O_SYNC
 
-**RWF_NOWAIT**  
+**RWF_NOWAIT**\
 per-IO, return **-EAGAIN** if operation would block
 
-**RWF_APPEND**  
+**RWF_APPEND**\
 per-IO O_APPEND
 
 On files that support seeking, if the offset is set to **-1**, the read
