@@ -161,7 +161,7 @@ destruction.
 ## Cloning buffers
 
 Registered buffers can be cloned from one ring to another using
-[io_uring_clone_buffers] or [io_uring_clone_buffers_offset].
+[io_uring_clone_buffers()] or [io_uring_clone_buffers_offset].
 This allows multiple rings to share the same set of registered buffers
 without re-registering them.
 
@@ -189,4 +189,4 @@ without re-registering them.
 [io_uring_register_buffers_update_tag],
 [io_uring_unregister_buffers], [io_uring_prep_read_fixed],
 [io_uring_prep_write_fixed], [io_uring_prep_send_zc],
-[io_uring_prep_sendmsg_zc], [io_uring_clone_buffers]
+[io_uring_prep_sendmsg_zc], [io_uring_clone_buffers()]

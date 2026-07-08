@@ -2,7 +2,7 @@ Clones registered buffers between rings
 
 # DESCRIPTION
 
-The [io_uring_clone_buffers] function clones registered buffers
+The [io_uring_clone_buffers()] function clones registered buffers
 from the ring indicated by *src* to the ring indicated by *dst*. Upon
 successful completion of this operation, *src* and *dst* will have the
 same set of registered buffers. This operation is identical to
@@ -19,7 +19,7 @@ it takes a *flags* argument. By default, if the destination ring has a
 registered file descriptor through [io_uring_register_ring_fd] AND
 the calling application is not the thread that registered that ring,
 then the kernel doesn't know how to look up the destination. This is
-problematic as [io_uring_clone_buffers] defaults to using the
+problematic as [io_uring_clone_buffers()] defaults to using the
 registered index if the destination is setup as such. Use
 **\_\_io_uring_clone_buffers**(3) which doesn't set
 **IORING_REGISTER_SRC_REGISTERED** by default. This requires the
@@ -30,13 +30,13 @@ Available since kernel 6.12.
 
 The [io_uring_clone_buffers_offset] function also clones buffers
 from the *src* ring to the *dst* ring, however it supports cloning only
-a subset of the buffers, where [io_uring_clone_buffers] always
+a subset of the buffers, where [io_uring_clone_buffers()] always
 clones all of them. *dst_off* indicates at what offset cloning should
 start in the destination, *src_off* indicates at what offset cloning
 should start in the source, and *nr* indicates how many buffers to clone
 at the given offset. If both *dst_off*, *src_off*, and *nr* are given as
 **0 ,** then [io_uring_clone_buffers_offset] performs the same
-action as [io_uring_clone_buffers]**.**
+action as [io_uring_clone_buffers()]**.**
 
 While [io_uring_clone_buffers_offset] sets
 **IORING_REGISTER_SRC_REGISTERED** by default, the
@@ -66,7 +66,7 @@ internal kernel accounting.
 
 # RETURN VALUE
 
-On success [io_uring_clone_buffers] and
+On success [io_uring_clone_buffers()] and
 [io_uring_clone_buffers_offset] return 0. On failure, they returns
 **-errno**, specifically
 
