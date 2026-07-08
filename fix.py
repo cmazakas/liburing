@@ -1,6 +1,24 @@
+#!/bin/python3
+
 import re
 import sys
 from pathlib import Path
+import subprocess
+
+def fix_man_link(match: re.Match) -> str:
+    fn_name = match.group(1)
+
+    man_link_map = {}
+    path = man_link_map.get(fn_name, f"man2/{fn_name}.2.html")
+    url = f"https://man7.org/linux/man-pages/{path}"
+    return f"[{fn_name}]({url})"
+
+def fix_man_links(text: str) -> str:
+    pattern = re.compile(r'\[(?![^\]]*\]\()(?!io_uring)([^\]]+)\]')
+    found = pattern.findall(text)
+    print(found)
+
+    return pattern.sub(fix_man_link, text)
 
 def process(text: str) -> str:
     # 1. Remove the "# NAME" line entirely
@@ -13,9 +31,6 @@ def process(text: str) -> str:
         short = m.group(2).strip()
         # Capitalize first word
         short = short[0].upper() + short[1:]
-        # Ensure trailing period
-        if not short.endswith('.'):
-            short += '.'
         # Replace the whole line with just the cleaned short description
         text = re.sub(r'^.*? - .*$', short, text, flags=re.MULTILINE)
 
@@ -34,18 +49,29 @@ def process(text: str) -> str:
         return f'[{symbol}]'
 
     text = re.sub(
-        r'\*\*([A-Za-z0-9_]+)\*\*\(\d+\)',
+        r'\*\*([A-Za-z0-9_]+)\*\*\((\d+)\)',
         fix_see_also,
         text
     )
 
+    text = fix_man_links(text)
     return text
 
 if __name__ == "__main__":
     for path in sys.argv[1:]:
         p = Path(path)
+        if not p.is_file():
+            continue
+        print(p.name)
+
+        name = p.name.rsplit('.')[0]
+
+        out_name = f"liburing-rs/docs/{name}.md"
+        subprocess.run(['pandoc', '-f', 'man', '-t', 'commonmark', '-o', out_name, p])
+
+        p = Path(out_name)
         original = p.read_text()
         cleaned = process(original)
-        # print(cleaned)
+        print(cleaned)
         p.write_text(cleaned)
         print(f"Processed {p}")
