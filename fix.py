@@ -4,6 +4,7 @@ import re
 import sys
 from pathlib import Path
 import subprocess
+import os.path
 
 def fix_man_link(match: re.Match) -> str:
     fn_name = match.group(1)
@@ -16,7 +17,7 @@ def fix_man_link(match: re.Match) -> str:
 def fix_man_links(text: str) -> str:
     pattern = re.compile(r'\[(?![^\]]*\]\()(?!io_uring)([^\]]+)\]')
     found = pattern.findall(text)
-    print(found)
+    # print(found)
 
     return pattern.sub(fix_man_link, text)
 
@@ -60,18 +61,14 @@ def process(text: str) -> str:
 if __name__ == "__main__":
     for path in sys.argv[1:]:
         p = Path(path)
-        if not p.is_file():
-            continue
-        print(p.name)
-
         name = p.name.rsplit('.')[0]
 
         out_name = f"liburing-rs/docs/{name}.md"
-        subprocess.run(['pandoc', '-f', 'man', '-t', 'commonmark', '-o', out_name, p])
+        subprocess.run(['pandoc', '-f', 'man', '-t', 'commonmark', '-o', out_name, path], stdout=True)
 
         p = Path(out_name)
         original = p.read_text()
         cleaned = process(original)
-        print(cleaned)
+        # print(cleaned)
         p.write_text(cleaned)
         print(f"Processed {p}")
