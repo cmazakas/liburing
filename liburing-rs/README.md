@@ -40,6 +40,8 @@ the environment variables `CC`, `CXX` are used to set the C and C++ compilers.
 CC=clang-19 CXX=clang++-19 cargo build
 ```
 
+Read the docs for each module in [Modules](#modules) for a high-level overview of io_uring and each feature.
+
 ## Building Tests
 
 axboe-liburing includes a few Rust-specific tests to verify the basic flow works but the lion's share of the testing is
@@ -77,14 +79,10 @@ make all -j$(nproc)
 make -C test liburing_rs_tests -j$(nproc)
 ```
 
-## Docs
-
-For documentation, see the man pages for the liburing package itself. The Arch Linux pages have relatively up-to-date
-docs: <https://man.archlinux.org/listing/extra/liburing/>.
-
-Examples can be found in the main repo: <https://github.com/axboe/liburing/tree/master/examples>
 
 ## Example
+
+Examples can be found in the main repo: <https://github.com/axboe/liburing/tree/master/examples>
 
 ```rust
 extern crate liburing_rs;

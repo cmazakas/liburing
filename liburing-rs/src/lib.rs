@@ -405,6 +405,7 @@ pub unsafe fn io_uring_opcode_supported(p: *mut io_uring_probe, op: c_int) -> c_
  * This shift is 1 for rings with big CQEs, and 0 for rings with normal CQEs.
  * CQE `index` can be computed as &cq.cqes[(index & cq.ring_mask) << cqe_shift].
  */
+#[doc(hidden)]
 #[must_use]
 #[inline]
 pub fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint
@@ -412,6 +413,7 @@ pub fn io_uring_cqe_shift_from_flags(flags: c_uint) -> c_uint
     u32::from(flags & IORING_SETUP_CQE32 != 0)
 }
 
+#[doc(hidden)]
 #[must_use]
 #[inline]
 pub unsafe fn io_uring_cqe_shift(ring: *const io_uring) -> c_uint
@@ -428,6 +430,7 @@ pub unsafe fn io_uring_cqe_nr(cqe: *const io_uring_cqe) -> c_uint
     1 << shift
 }
 
+#[doc(hidden)]
 #[must_use]
 #[inline]
 pub unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
@@ -440,6 +443,7 @@ pub unsafe fn io_uring_cqe_iter_init(ring: *const io_uring) -> io_uring_cqe_iter
                         tail: io_uring_smp_load_acquire((*ring).cq.ktail) }
 }
 
+#[doc(hidden)]
 #[inline]
 pub unsafe fn io_uring_cqe_iter_next(iter: *mut io_uring_cqe_iter, cqe: *mut *mut io_uring_cqe)
                                      -> bool
@@ -561,12 +565,13 @@ pub unsafe fn io_uring_sqe_set_buf_group(sqe: *mut io_uring_sqe, bgid: c_int)
 }
 
 #[inline]
-pub unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
+unsafe fn __io_uring_set_target_fixed_file(sqe: *mut io_uring_sqe, file_index: c_uint)
 {
     /* 0 means no fixed files, indexes should be encoded as "index + 1" */
     (*sqe).__liburing_anon_5.file_index = file_index + 1;
 }
 
+#[doc(hidden)]
 #[inline]
 pub unsafe fn io_uring_initialize_sqe(sqe: *mut io_uring_sqe)
 {
@@ -580,6 +585,7 @@ pub unsafe fn io_uring_initialize_sqe(sqe: *mut io_uring_sqe)
     (*sqe).__liburing_anon_6.__liburing_anon_1.as_mut().__pad2[0] = 0;
 }
 
+#[doc(hidden)]
 #[inline]
 pub unsafe fn io_uring_prep_rw(op: c_uint, sqe: *mut io_uring_sqe, fd: c_int, addr: *const c_void,
                                len: c_uint, offset: __u64)
@@ -1738,6 +1744,7 @@ pub unsafe fn io_uring_prep_pipe_direct(sqe: *mut io_uring_sqe, fds: *mut c_int,
 }
 
 /* Read the kernel's SQ head index with appropriate memory ordering */
+#[doc(hidden)]
 #[inline]
 pub unsafe fn io_uring_load_sq_head(ring: *mut io_uring) -> c_uint
 {
@@ -1779,6 +1786,7 @@ pub unsafe fn io_uring_sq_space_left(ring: *mut io_uring) -> c_uint
  * This shift is 1 for rings with big SQEs, and 0 for rings with normal SQEs.
  * SQE `index` can be computed as &sq.sqes[(index & sq.ring_mask) << sqe_shift].
  */
+#[doc(hidden)]
 #[must_use]
 #[inline]
 pub fn io_uring_sqe_shift_from_flags(flags: c_uint) -> c_uint
@@ -1786,6 +1794,7 @@ pub fn io_uring_sqe_shift_from_flags(flags: c_uint) -> c_uint
     u32::from(flags & IORING_SETUP_SQE128 != 0)
 }
 
+#[doc(hidden)]
 #[inline]
 pub unsafe fn io_uring_sqe_shift(ring: *mut io_uring) -> c_uint
 {
