@@ -2,6 +2,24 @@ use std::{env, io::Write, path::PathBuf};
 
 extern crate bindgen;
 
+fn print_error_and_die() -> !
+{
+    eprint!(
+            r#"
+Crate axboe-liburing unable to generate bindings for header liburing.h
+If you see several errors of the form:
+    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:80:2: error: call to undeclared function 'atomic_load_explicit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:81:9: error: use of undeclared identifier 'memory_order_acquire'
+    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:77:2: error: call to undeclared function 'atomic_store_explicit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+
+then it means you're most likely missing the required environment variables bindgen needs. Install libclang then set the environment variables below:
+    CLANG_PATH = "/usr/bin/clang-22"
+    LIBCLANG_PATH = "/usr/lib/llvm-22/lib"
+"#
+    );
+    panic!("Bindings generation failed.");
+}
+
 fn main()
 {
     println!("cargo::rerun-if-changed=src/");
@@ -110,7 +128,9 @@ fn main()
                                                 .unwrap();
 
         std::io::stderr().write_all(&r.stderr).unwrap();
-        assert!(r.status.success());
+        if !r.status.success() {
+            print_error_and_die();
+        }
     } else {
         let bindings = bindgen::Builder::default().clang_arg(format!("-I{}/src/include",
                                                                      out_path.to_str().unwrap()))
@@ -122,16 +142,11 @@ fn main()
                                                   .use_core()
                                                   .generate();
 
-        let Ok(bindings) = bindings else {
-            eprintln!("Unable to generate bindings for header liburing.h");
-            eprintln!("If you see several errors of the form:");
-            eprintln!("    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:80:2: error: call to undeclared function 'atomic_load_explicit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]");
-            eprintln!("    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:81:9: error: use of undeclared identifier 'memory_order_acquire'");
-            eprintln!("    liburing/target/debug/build/axboe-liburing-<hash>/out/src/include/liburing/barrier.h:77:2: error: call to undeclared function 'atomic_store_explicit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]");
-            eprintln!("then it means you're most likely missing the require environment variables libclang needs. Install libclang then set the environment variables below:");
-            eprintln!(r#"    CLANG_PATH = "/usr/bin/clang-22"#);
-            eprintln!(r#"    LIBCLANG_PATH = "/usr/lib/llvm-22/lib""#);
-            panic!();
+        let bindings = match &bindings {
+            Ok(bindings) => bindings,
+            Err(_err) => {
+                print_error_and_die();
+            }
         };
 
         bindings.write_to_file(out_path.join("liburing_bindings.rs"))
