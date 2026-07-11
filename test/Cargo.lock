@@ -13,7 +13,7 @@ dependencies = [
 
 [[package]]
 name = "axboe-liburing"
-version = "2.15.1"
+version = "2.15.2"
 dependencies = [
  "bindgen",
 ]
