@@ -1929,10 +1929,11 @@ unsafe fn io_uring_skip_cqe(ring: *mut io_uring, cqe: *mut io_uring_cqe, err: *m
  * "official" versions of this, io_uring_peek_cqe(), io_uring_wait_cqe(),
  * or io_uring_wait_cqes*().
  */
+#[doc(hidden)]
 #[inline]
-unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe,
-                              nr_available: *mut c_uint)
-                              -> c_int
+pub unsafe fn __io_uring_peek_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring_cqe,
+                                  nr_available: *mut c_uint)
+                                  -> c_int
 {
     let mut cqe;
     let mut err = 0;
@@ -2031,8 +2032,9 @@ pub unsafe fn io_uring_wait_cqe(ring: *mut io_uring, cqe_ptr: *mut *mut io_uring
  *
  * Returns a vacant sqe, or NULL if we're full.
  */
+#[doc(hidden)]
 #[inline]
-unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
+pub unsafe fn _io_uring_get_sqe(ring: *mut io_uring) -> *mut io_uring_sqe
 {
     let sq = &raw mut (*ring).sq;
 

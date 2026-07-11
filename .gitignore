@@ -49,6 +49,8 @@
 /examples/kdigest-rs
 /examples/reg-wait-rs
 /examples/zcrx-rs
+/examples/echo-server-rs
+
 /examples/liburing_rs_test.a
 
 /test/*.t
