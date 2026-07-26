@@ -223,11 +223,11 @@ jobs:
 
       - name: Install Compilers
         run: |
-          if [[ "${{matrix.cc_pkg}}" == "clang" ]]; then \
+          if [[ "${{matrix.build_args.cc_pkg}}" == "clang" ]]; then \
             wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh; \
-            sudo bash /tmp/llvm.sh 22; \
-            sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-22 400; \
-            sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-22 400; \
+            sudo bash /tmp/llvm.sh 23; \
+            sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-23 400; \
+            sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-23 400; \
           else \
             sudo apt-get update -y; \
             sudo apt-get install -y ${{matrix.build_args.cc_pkg}} ${{matrix.build_args.cxx_pkg}}; \
