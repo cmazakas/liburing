@@ -87,6 +87,10 @@ if __name__ == "__main__":
         p = Path(path)
         name = p.name.rsplit('.')[0]
 
+        if name == 'IO_URING_CHECK_VERSION':
+            continue
+
+
         out_name = f"liburing-rs/docs/{name}.md"
         subprocess.run(['pandoc',  '-f', 'man', '-t', 'commonmark', '--lua-filter=tag-c.lua', '-o', out_name, path], stdout=True)
 
