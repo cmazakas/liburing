@@ -1712,13 +1712,16 @@ pub unsafe fn io_uring_prep_ftruncate(sqe: *mut io_uring_sqe, fd: c_int, len: c_
 #[inline]
 pub unsafe fn io_uring_prep_cmd_discard(sqe: *mut io_uring_sqe, fd: c_int, offset: u64, nbytes: u64)
 {
-    // TODO: really someday fix this
-    // We need bindgen to actually evaluate this macro's value during generation.
-    // No idea if hard-coding this value like this is viable in practice.
-    io_uring_prep_uring_cmd(sqe, ((0x12) << 8) as _ /* BLOCK_URING_CMD_DISCARD */, fd);
-
+    io_uring_prep_uring_cmd(sqe, LIBURING_RS_BLOCK_URING_CMD_DISCARD as _, fd);
     (*sqe).__liburing_anon_2.addr = offset;
     (*sqe).__liburing_anon_6.__liburing_anon_1.as_mut().addr3 = nbytes;
+}
+
+#[doc=include_str!("../docs/io_uring_prep_cmd_zone_reset_all.md")]
+#[inline]
+pub unsafe fn io_uring_prep_cmd_zone_reset_all(sqe: *mut io_uring_sqe, fd: i32)
+{
+    io_uring_prep_uring_cmd(sqe, LIBURING_RS_BLOCK_URING_CMD_ZONE_RESET_ALL as _, fd);
 }
 
 #[doc = include_str!("../docs/io_uring_prep_pipe.md")]
