@@ -1538,20 +1538,19 @@ system call.
 .I addr
 must hold a pointer to the futex,
 .I addr2
-must hold the value to which the futex has to be changed so this caller to
-.BR futex_wait (2)
-can be woken by a call to
-.BR futex_wake (2),
+must hold the value of the futex word read by the application when
+submitting the operation.  The kernel will only put the task to sleep
+and wait on the futex if, at the time of queueing, the futex word still
+matches this value.
 .I addr3
-must hold the bitmask of this
+must hold a bitmask of this
 .BR futex_wait (2)
-caller.
-For a caller of
-.BR futex_wake (2)
-to wake a waiter additionally the bitmask of the waiter and waker must have
-at least one set bit in common.
+caller, which will be used as a key by the kernel when
+deciding which callers to wake up.
 .I fd
-must contain additional flags passed in.
+may contain additional flags following the
+.B futex2
+interface flags.
 
 Available since 6.7.
 
@@ -1561,17 +1560,19 @@ Issues the equivalent of the
 .BR futex_wake (2)
 system call.
 .I addr
-must hold a pointer to the futex,
+must hold a pointer to the futex to be awaken,
 .I addr2
-must hold the maximum number of waiters waiting on this futex to wake,
+must hold the maximum number of waiters to be awaken by this call,
 .I addr3
-must hold the bitmask of this
-.BR futex_wake (2)
-call.
-To wake a waiter additionally the bitmask of the waiter and waker must have
-at least one set bit in common.
+must hold a bitmask identifying which callers to wake.
+A waker will be waken if at least one bit of the bitmask matches,
+subject to the limit of waiters set by
+.IR addr2 .
 .I fd
-must contain additional flags passed in.
+may contain additional flags following
+the
+.B futex2
+interface flags.
 
 Available since 6.7.
 
