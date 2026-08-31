@@ -33,6 +33,10 @@ about how many submission queue entries have been successfully submitted, while
 using SQPOLL, the user must fall back to repeatedly submitting a single submission
 queue entry. On failure it returns
 .BR -errno .
+See
+.BR io_uring_enter (2)
+for details on the possible error codes returned by
+.BR io_uring_submit (3) .
 .SH NOTES
 For any request that passes in data in a struct, that data must remain
 valid until the request has been successfully submitted. It need not remain
@@ -48,4 +52,5 @@ mentioning this fact as well, if required for the given command.
 .SH SEE ALSO
 .BR io_uring_get_sqe (3),
 .BR io_uring_submit_and_wait (3),
-.BR io_uring_submit_and_wait_timeout (3)
+.BR io_uring_submit_and_wait_timeout (3),
+.BR io_uring_enter (2)
