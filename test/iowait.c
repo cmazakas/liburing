@@ -11,7 +11,7 @@
 #include "liburing.h"
 #include "helpers.h"
 
-static int get_iowait(int cpu)
+static int get_iowait(int cpu, int *cpu_time)
 {
 	char cpu_buf[32], this_cpu[32];
 	int user, nice, system, idle, iowait, ret;
@@ -33,6 +33,7 @@ static int get_iowait(int cpu)
 			continue;
 		if (strncmp(cpu_buf, this_cpu, strlen(this_cpu)))
 			continue;
+		*cpu_time = user + system;
 		ret = iowait;
 		break;
 	} while (1);
@@ -45,14 +46,20 @@ static int test(struct io_uring *ring, int with_iowait, int cpu)
 {
 	struct io_uring_sqe *sqe;
 	struct io_uring_cqe *cqe;
-	int iowait_pre, iowait_post;
+	int iowait_pre, iowait_post, cputime_pre, cputime_post;
 	struct __kernel_timespec ts;
-	int ret, fds[2], diff;
+	int ret, fds[2], diff, diff_cputime, retry = 5;
 	char buf[32];
 
 	if (!(ring->features & IORING_FEAT_NO_IOWAIT))
 		return T_EXIT_SKIP;
 
+retry:
+	if (retry < 0) {
+		fprintf(stderr,
+			"System is not quiesced for too long. skipping\n");
+		return T_EXIT_SKIP;
+	}
 	if (pipe(fds) < 0) {
 		perror("pipe");
 		return T_EXIT_FAIL;
@@ -70,14 +77,15 @@ static int test(struct io_uring *ring, int with_iowait, int cpu)
 
 	ts.tv_sec = 1;
 	ts.tv_nsec = 0;
-	iowait_pre = get_iowait(cpu);
+	iowait_pre = get_iowait(cpu, &cputime_pre);
 	ret = io_uring_wait_cqe_timeout(ring, &cqe, &ts);
 	if (ret != -ETIME) {
 		fprintf(stderr, "Unexpected wait ret: %d\n", ret);
 		return T_EXIT_FAIL;
 	}
-	iowait_post = get_iowait(cpu);
+	iowait_post = get_iowait(cpu, &cputime_post);
 	diff = iowait_post - iowait_pre;
+	diff_cputime = cputime_post - cputime_pre;
 
 	close(fds[0]);
 	close(fds[1]);
@@ -91,7 +99,13 @@ static int test(struct io_uring *ring, int with_iowait, int cpu)
 
 	if (with_iowait) {
 		if (diff < 50) {
-			fprintf(stderr, "iowait diff too small: %d\n", diff);
+			if (diff_cputime > 10) {
+				/* System is not quiesced. iowait is unreliable. */
+				retry--;
+				sleep(2);
+				goto retry;
+			}
+			fprintf(stderr, "iowait diff too small: %d (u=%d)\n", diff, diff_cputime);
 			return T_EXIT_FAIL;
 		}
 	} else {
