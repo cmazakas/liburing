@@ -56,9 +56,12 @@ If the kernel doesn't support this functionality,
 will be returned. If no events are submitted and the wait operation times
 out, then
 .BR -ETIME
-will be returned.
+will be returned.  Otherwise, see
+.BR io_uring_enter (2)
+for details on the remaining possible error codes.
 
 .SH SEE ALSO
 .BR io_uring_register_region (3) ,
 .BR io_uring_submit_and_wait_min_timeout (3) ,
-.BR io_uring_submit_and_wait_timeout (3)
+.BR io_uring_submit_and_wait_timeout (3) ,
+.BR io_uring_enter (2)

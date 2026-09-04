@@ -26,6 +26,11 @@ On success
 .BR io_uring_submit_and_get_events (3)
 returns the number of submitted submission queue entries. On failure it returns
 .BR -errno .
+See
+.BR io_uring_enter (2)
+for details on the possible error codes returned by
+.BR io_uring_submit_and_get_events (3) .
 .SH SEE ALSO
 .BR io_uring_submit (3),
-.BR io_uring_get_events (3)
+.BR io_uring_get_events (3),
+.BR io_uring_enter (2)

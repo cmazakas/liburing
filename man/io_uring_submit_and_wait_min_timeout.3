@@ -106,14 +106,17 @@ returns the number of submitted submission queue entries. On failure it returns
 If the kernel doesn't support this functionality,
 .BR -EINVAL
 will be returned. See note on the feature flag.
-The most common failure case is not receiving a completion within the specified
-timeout,
+See
+.BR io_uring_enter (2)
+for details on the other possible error codes.  In addition to those, this
+function can also return
 .B -ETIME
-is returned in this case.
+if a completion was not received within the specified timeframe.
 .SH SEE ALSO
 .BR io_uring_queue_init_params (3),
 .BR io_uring_get_sqe (3),
 .BR io_uring_submit (3),
 .BR io_uring_submit_and_wait (3),
 .BR io_uring_submit_and_wait_timeout (3),
-.BR io_uring_wait_cqe (3)
+.BR io_uring_wait_cqe (3),
+.BR io_uring_enter (2)
