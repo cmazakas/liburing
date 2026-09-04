@@ -32,13 +32,15 @@ will see waiting on multiple requests.
 
 On success [io_uring_submit_and_wait_timeout] returns the number of
 submitted submission queue entries. On failure it returns **-errno**.
-Note that in earlier versions of the liburing library, the return value
-was 0 on success. The most common failure case is not receiving a
-completion within the specified timeout, **-ETIME** is returned in this
-case.
+See [io_uring_enter] for details on the possible error codes. In
+addition to those, this function can also return **-ETIME** if a
+completion was not received within the specified timeframe, or
+**-EAGAIN** if the queue was full and it couldn't queue the timeout
+request. Note that in earlier versions of the liburing library, the
+return value was 0 on success.
 
 # SEE ALSO
 
 [io_uring_queue_init_params], [io_uring_get_sqe],
 [io_uring_submit], [io_uring_submit_and_wait],
-[io_uring_wait_cqe]
+[io_uring_wait_cqe], [io_uring_enter]

@@ -926,13 +926,13 @@ or not the read request will generate further CQEs. Available since 6.7.
 
 **IORING_OP_FUTEX_WAIT**\
 Issues the equivalent of the [futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) system call. *addr* must
-hold a pointer to the futex, *addr2* must hold the value to which the
-futex has to be changed so this caller to [futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) can be woken
-by a call to [futex_wake](https://man7.org/linux/man-pages/man2/futex_wake.2.html), *addr3* must hold the bitmask of this
-[futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) caller. For a caller of [futex_wake](https://man7.org/linux/man-pages/man2/futex_wake.2.html) to wake a
-waiter additionally the bitmask of the waiter and waker must have at
-least one set bit in common. *fd* must contain additional flags passed
-in.
+hold a pointer to the futex, *addr2* must hold the value of the futex
+word read by the application when submitting the operation. The kernel
+will only put the task to sleep and wait on the futex if, at the time of
+queueing, the futex word still matches this value. *addr3* must hold a
+bitmask of this [futex_wait](https://man7.org/linux/man-pages/man2/futex_wait.2.html) caller, which will be used as a key by
+the kernel when deciding which callers to wake up. *fd* may contain
+additional flags following the **futex2** interface flags.
 
 Available since 6.7.
 
@@ -940,11 +940,12 @@ Available since 6.7.
 
 **IORING_OP_FUTEX_WAKE**\
 Issues the equivalent of the [futex_wake](https://man7.org/linux/man-pages/man2/futex_wake.2.html) system call. *addr* must
-hold a pointer to the futex, *addr2* must hold the maximum number of
-waiters waiting on this futex to wake, *addr3* must hold the bitmask of
-this [futex_wake](https://man7.org/linux/man-pages/man2/futex_wake.2.html) call. To wake a waiter additionally the bitmask
-of the waiter and waker must have at least one set bit in common. *fd*
-must contain additional flags passed in.
+hold a pointer to the futex to be awaken, *addr2* must hold the maximum
+number of waiters to be awaken by this call, *addr3* must hold a bitmask
+identifying which callers to wake. A waker will be waken if at least one
+bit of the bitmask matches, subject to the limit of waiters set by
+*addr2*. *fd* may contain additional flags following the **futex2**
+interface flags.
 
 Available since 6.7.
 

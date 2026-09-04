@@ -28,10 +28,11 @@ On success [io_uring_submit_and_wait_reg] returns the number of new
 requests submitted. On failure it returns **-errno**. If the kernel
 doesn't support this functionality, **-EINVAL** will be returned. If no
 events are submitted and the wait operation times out, then **-ETIME**
-will be returned.
+will be returned. Otherwise, see [io_uring_enter] for details on
+the remaining possible error codes.
 
 # SEE ALSO
 
 [io_uring_register_region]**,**
 [io_uring_submit_and_wait_min_timeout]**,**
-[io_uring_submit_and_wait_timeout]
+[io_uring_submit_and_wait_timeout]**,** [io_uring_enter]

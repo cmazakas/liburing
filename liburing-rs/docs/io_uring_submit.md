@@ -17,7 +17,9 @@ return value may report a higher number of submitted entries than
 actually submitted. If the user requires accurate information about how
 many submission queue entries have been successfully submitted, while
 using SQPOLL, the user must fall back to repeatedly submitting a single
-submission queue entry. On failure it returns **-errno**.
+submission queue entry. On failure it returns **-errno**. See
+[io_uring_enter] for details on the possible error codes returned
+by [io_uring_submit]**.**
 
 # NOTES
 
@@ -34,4 +36,4 @@ fact as well, if required for the given command.
 # SEE ALSO
 
 [io_uring_get_sqe], [io_uring_submit_and_wait],
-[io_uring_submit_and_wait_timeout]
+[io_uring_submit_and_wait_timeout], [io_uring_enter]

@@ -14,7 +14,10 @@ call.
 
 On success [io_uring_submit_and_get_events] returns the number of
 submitted submission queue entries. On failure it returns **-errno**.
+See [io_uring_enter] for details on the possible error codes
+returned by [io_uring_submit_and_get_events]**.**
 
 # SEE ALSO
 
-[io_uring_submit], [io_uring_get_events]
+[io_uring_submit], [io_uring_get_events],
+[io_uring_enter]
