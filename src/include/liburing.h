@@ -435,6 +435,7 @@ IOURINGINLINE unsigned io_uring_cqe_shift(const struct io_uring *ring)
 }
 
 IOURINGINLINE unsigned io_uring_cqe_nr(const struct io_uring_cqe *cqe)
+	LIBURING_NOEXCEPT
 {
 	const unsigned int shift = !!(cqe->flags & IORING_CQE_F_32);
 
@@ -549,6 +550,7 @@ IOURINGINLINE void io_uring_sqe_set_data64(struct io_uring_sqe *sqe,
 }
 
 IOURINGINLINE __u64 io_uring_cqe_get_data64(const struct io_uring_cqe *cqe)
+	LIBURING_NOEXCEPT
 {
 	return cqe->user_data;
 }
@@ -1694,6 +1696,7 @@ IOURINGINLINE void io_uring_prep_cmd_zone_reset_all(struct io_uring_sqe *sqe,
 
 IOURINGINLINE void io_uring_prep_pipe(struct io_uring_sqe *sqe, int *fds,
 				      int pipe_flags)
+	LIBURING_NOEXCEPT
 {
 	io_uring_prep_rw(IORING_OP_PIPE, sqe, 0, fds, 0, 0);
 	sqe->pipe_flags = (__u32) pipe_flags;
@@ -1703,6 +1706,7 @@ IOURINGINLINE void io_uring_prep_pipe(struct io_uring_sqe *sqe, int *fds,
 IOURINGINLINE void io_uring_prep_pipe_direct(struct io_uring_sqe *sqe, int *fds,
 					     int pipe_flags,
 					     unsigned int file_index)
+	LIBURING_NOEXCEPT
 {
 	io_uring_prep_pipe(sqe, fds, pipe_flags);
 	/* offset by 1 for allocation */

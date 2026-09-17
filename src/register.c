@@ -33,6 +33,7 @@ int io_uring_register_buffers_update_tag(struct io_uring *ring, unsigned off,
 					 unsigned nr)
 {
 	liburing_sanitize_iovecs(iovecs, nr);
+	liburing_sanitize_address(tags);
 
 	struct io_uring_rsrc_update2 up = {
 		.offset	= off,
@@ -50,6 +51,7 @@ int io_uring_register_buffers_tags(struct io_uring *ring,
 				   unsigned nr)
 {
 	liburing_sanitize_iovecs(iovecs, nr);
+	liburing_sanitize_address(tags);
 
 	struct io_uring_rsrc_register reg = {
 		.nr = nr,
