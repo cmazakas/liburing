@@ -34,8 +34,8 @@ fn main()
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 
-    // copy everything in src to the OUT_DIR
-    // Note, this brings along existing binary artifacts in the source tree
+    // Copy everything in src to the OUT_DIR.
+    // Note, this brings along existing binary artifacts in the source tree.
     std::process::Command::new("cp").args(["-r",
                                            "src",
                                            "Makefile",
@@ -51,7 +51,7 @@ fn main()
                                     .wait()
                                     .unwrap();
 
-    // if there are any binary artifacts in the source for OUT_DIR, clean them
+    // If there are any binary artifacts in the source for OUT_DIR, clean them.
     let r = std::process::Command::new("make").args(["-C", "src", "clean"])
                                               .current_dir(out_path.clone())
                                               .output()
