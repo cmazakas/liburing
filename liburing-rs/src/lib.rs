@@ -30,58 +30,50 @@ use core::{
 #[doc(hidden)]
 pub use uring::*;
 
-#[doc(hidden)]
-pub mod docs
-{
-    #[allow(unused_imports)]
-    use super::*;
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring.md")]
+pub mod io_uring_overview
+{}
 
-    #[doc = include_str!("../docs/io_uring.md")]
-    pub mod io_uring
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_cancelation.md")]
+pub mod io_uring_cancelation
+{}
 
-    #[doc = include_str!("../docs/io_uring_cancelation.md")]
-    pub mod io_uring_cancelation
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_linked_requests.md")]
+pub mod io_uring_linked_requests
+{}
 
-    #[doc = include_str!("../docs/io_uring_linked_requests.md")]
-    pub mod io_uring_linked_requests
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_multishot.md")]
+pub mod io_uring_multishot
+{}
 
-    #[doc = include_str!("../docs/io_uring_multishot.md")]
-    pub mod io_uring_multishot
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_provided_buffers.md")]
+pub mod io_uring_provided_buffers
+{}
 
-    #[doc = include_str!("../docs/io_uring_provided_buffers.md")]
-    pub mod io_uring_provided_buffers
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_registered_buffers.md")]
+pub mod io_uring_registered_buffers
+{}
 
-    #[doc = include_str!("../docs/io_uring_registered_buffers.md")]
-    pub mod io_uring_registered_buffers
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_registered_files.md")]
+pub mod io_uring_registered_files
+{}
 
-    #[doc = include_str!("../docs/io_uring_registered_files.md")]
-    pub mod io_uring_registered_files
-    {}
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_setup_flags.md")]
+pub mod io_uring_setup_flags
+{}
 
-    #[doc = include_str!("../docs/io_uring_setup_flags.md")]
-    pub mod io_uring_setup_flags
-    {}
-
-    #[doc = include_str!("../docs/io_uring_sqpoll.md")]
-    pub mod io_uring_sqpoll
-    {}
-}
-
-pub use docs::io_uring as io_uring_overview;
-pub use docs::io_uring_cancelation;
-pub use docs::io_uring_linked_requests;
-pub use docs::io_uring_multishot;
-pub use docs::io_uring_provided_buffers;
-pub use docs::io_uring_registered_buffers;
-pub use docs::io_uring_registered_files;
-pub use docs::io_uring_setup_flags;
-pub use docs::io_uring_sqpoll;
+#[cfg(feature = "doc")]
+#[doc = include_str!("../docs/io_uring_sqpoll.md")]
+pub mod io_uring_sqpoll
+{}
 
 pub use uring::{io_uring, io_uring_cq, io_uring_cqe, io_uring_sq, io_uring_sqe};
 
