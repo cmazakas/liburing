@@ -30,47 +30,47 @@ use core::{
 #[doc(hidden)]
 pub use uring::*;
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring.md")]
 pub mod io_uring_overview
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_cancelation.md")]
 pub mod io_uring_cancelation
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_linked_requests.md")]
 pub mod io_uring_linked_requests
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_multishot.md")]
 pub mod io_uring_multishot
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_provided_buffers.md")]
 pub mod io_uring_provided_buffers
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_registered_buffers.md")]
 pub mod io_uring_registered_buffers
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_registered_files.md")]
 pub mod io_uring_registered_files
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_setup_flags.md")]
 pub mod io_uring_setup_flags
 {}
 
-#[cfg(feature = "doc")]
+#[cfg(any(doc, feature = "doc"))]
 #[doc = include_str!("../docs/io_uring_sqpoll.md")]
 pub mod io_uring_sqpoll
 {}
