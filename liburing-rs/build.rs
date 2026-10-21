@@ -60,16 +60,18 @@ fn main()
     std::io::stderr().write_all(&r.stderr).unwrap();
     assert!(r.status.success());
 
-    let r = if cfg!(feature = "sanitizers") {
-        std::process::Command::new("./configure").current_dir(out_path.clone())
-                                                 .arg("--enable-sanitizer")
-                                                 .output()
-                                                 .unwrap()
-    } else {
-        std::process::Command::new("./configure").current_dir(out_path.clone())
-                                                 .output()
-                                                 .unwrap()
-    };
+    let mut cmd = std::process::Command::new("./configure");
+    let mut cmd = cmd.current_dir(out_path.clone());
+
+    if cfg!(feature = "libc") {
+        cmd = cmd.arg("--use-libc");
+    }
+
+    if cfg!(feature = "sanitizers") {
+        cmd = cmd.arg("--enable-sanitizer");
+    }
+
+    let r = cmd.output().unwrap();
 
     std::io::stderr().write_all(&r.stderr).unwrap();
     assert!(r.status.success());
