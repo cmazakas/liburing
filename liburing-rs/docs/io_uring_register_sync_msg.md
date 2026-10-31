@@ -37,6 +37,13 @@ can set the CQE flags field *cqe-\>flags* when sending a message. Be
 aware that io_uring could potentially set additional bits into this
 field.
 
+If the calling task has registered per-task restrictions on register
+opcodes, see **IORING_REGISTER_RESTRICTIONS** in
+[io_uring_register], **IORING_REGISTER_SEND_MSG_RING** must be
+among the allowed opcodes or the call fails with **-EACCES**. As there
+is no source ring, a restriction on **IORING_OP_MSG_RING** or a BPF
+filter does not apply to this synchronous variant.
+
 Available since kernel 6.13.
 
 # RETURN VALUE

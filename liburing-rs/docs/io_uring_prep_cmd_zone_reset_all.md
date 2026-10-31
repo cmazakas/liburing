@@ -14,7 +14,7 @@ device. The user has to make sure that no other in-flight requests are
 modifying or reading the range(s). If that is the case, it might result
 in stale page cache and data inconsistencies.
 
-Available since Linux 7.TBD.
+Available since Linux 7.3.
 
 # RETURN VALUE
 

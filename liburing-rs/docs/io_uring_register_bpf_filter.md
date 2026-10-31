@@ -46,7 +46,8 @@ operation-specific payload data for the given opcode (e.g., the socket
 or open structs inside **struct io_uring_bpf_ctx**). For opcodes that
 have no extra payload, this should be zero. For **IORING_OP_SOCKET**
 this would be 12 (three 4-byte members), and for **IORING_OP_OPENAT**
-and **IORING_OP_OPENAT2** this would be 24 (three 8-byte members).
+and **IORING_OP_OPENAT2** this would be 24 (three 8-byte members), and
+for **IORING_OP_CONNECT** also 24 (see below).
 
 If the application's *pdu_size* matches the kernel's expected size for
 the opcode, registration succeeds. If the sizes differ, the behavior
@@ -107,6 +108,15 @@ struct io_uring_bpf_ctx {
             __u64   mode;      /* offset 24: file mode */
             __u64   resolve;   /* offset 32: resolve flags */
         } open;
+        struct {
+            __u32   family;    /* offset 16: address family */
+            __be16  port;      /* offset 20: port, network order */
+            __u8    pad[2];
+            union {
+                __be32  v4_addr;      /* offset 24: IPv4 address */
+                __u8    v6_addr[16];  /* offset 24: IPv6 address */
+            };
+        } connect;
     };
 };
 ```
@@ -128,6 +138,22 @@ the open flags (e.g., **O_RDONLY**, **O_CREAT**). The resolve field is
 only meaningful for **IORING_OP_OPENAT2** and contains resolve flags
 (e.g., **RESOLVE_IN_ROOT**). *pdu_size* is set to 24 (three 8-byte
 members).
+
+For **IORING_OP_CONNECT** operations (Linux 7.2 and later), the address
+family, port and address are populated. The family is filled in only if
+the address length covers it, and the port and address only if it covers
+a complete **struct sockaddr_in** or **struct sockaddr_in6**; otherwise
+they are zero. The port and the IPv4 address are in network byte order.
+*pdu_size* is set to 24. On older kernels, filters for
+**IORING_OP_CONNECT** receive no payload and the kernel's *pdu_size* for
+it is 0.
+
+A filter can only load 32-bit words (**BPF_LD | BPF_W | BPF_ABS**) at
+4-byte aligned offsets within the context. To inspect a smaller field,
+such as *sqe_flags* or the connect *port*, load the word that contains
+it and mask the result. Words are loaded in host byte order, so on a
+little-endian machine *sqe_flags* is in bits 8 to 15 of the word at
+offset 8. See **Deny provided buffer selection** in EXAMPLES.
 
 ## Filter Stacking
 
@@ -254,6 +280,42 @@ prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 io_uring_register_bpf_filter_task(&bpf);
 ```
 
+## Deny provided buffer selection
+
+Load the word that holds *opcode* and *sqe_flags*, and deny the read if
+**IOSQE_BUFFER_SELECT** is set. Reads without it are allowed.
+
+``` c
+#include <endian.h>
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define SQE_FLAGS_SHIFT  8
+#else
+#define SQE_FLAGS_SHIFT  16
+#endif
+
+struct sock_filter no_buffer_select[] = {
+    /* Load the word holding opcode, sqe_flags and pdu_size */
+    BPF_STMT(BPF_LD | BPF_W | BPF_ABS, 8),
+    /* If IOSQE_BUFFER_SELECT is set, deny */
+    BPF_JUMP(BPF_JMP | BPF_JSET | BPF_K,
+             IOSQE_BUFFER_SELECT << SQE_FLAGS_SHIFT, 0, 1),
+    BPF_STMT(BPF_RET | BPF_K, 0),
+    BPF_STMT(BPF_RET | BPF_K, 1),
+};
+
+struct io_uring_bpf bpf = {
+    .cmd_type = IO_URING_BPF_CMD_FILTER,
+    .filter = {
+        .opcode = IORING_OP_READ,
+        .filter_len = 4,
+        .filter_ptr = (unsigned long) no_buffer_select,
+    },
+};
+
+io_uring_register_bpf_filter(&ring, &bpf);
+```
+
 ## Discover kernel pdu_size for an opcode
 
 This example demonstrates how to use the **-EMSGSIZE** write-back to
@@ -312,6 +374,16 @@ Task-level filters registered with
 processes. This allows a parent process to establish security
 restrictions that apply to all descendants. Children can add additional
 restrictions but cannot remove or weaken filters set by their ancestors.
+
+Task-level filters are also kept across [execve](https://man7.org/linux/man-pages/man2/execve.2.html). Kernels before
+Linux 7.2 dropped them on [execve](https://man7.org/linux/man-pages/man2/execve.2.html) if the task had already used
+io_uring, unless they carry commit bc0e8faf90e7 ("io_uring: preserve
+task restrictions across exec").
+
+A task-level filter counts as task restrictions: once one is registered,
+registering a task-level opcode allowlist with
+**IORING_REGISTER_RESTRICTIONS** on file descriptor -1 fails with
+**-EPERM**. If both are used, register the opcode allowlist first.
 
 Ring-level filters registered with [io_uring_register_bpf_filter]
 only apply to that specific ring and are not inherited.

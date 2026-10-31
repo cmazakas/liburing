@@ -8,11 +8,13 @@ iterator, and points *cqe* to each pending event when iterating.
 
 This helper provides an efficient way to iterate all pending events in
 the ring, and then advancing the CQ ring by calling
-[io_uring_cq_advance] with the number of CQEs consumed when done.
-As updating the kernel visible CQ ring state involves an ordered write,
-doing it once for a number of events is more efficient than handling
-each completion separately and calling [io_uring_cqe_seen] for each
-of them.
+[io_uring_cq_advance] with the number of CQ ring slots consumed
+when done. That is the sum of [io_uring_cqe_nr] over the CQEs seen,
+as a 32b CQE on a ring setup with **IORING_SETUP_CQE_MIXED** takes two
+slots. As updating the kernel visible CQ ring state involves an ordered
+write, doing it once for a number of events is more efficient than
+handling each completion separately and calling [io_uring_cqe_seen]
+for each of them.
 
 # EXAMPLE
 
@@ -21,15 +23,15 @@ void handle_cqes(struct io_uring *ring)
 {
 	struct io_uring_cqe *cqe;
 	unsigned head;
-	unsigned i = 0;
+	unsigned nr = 0;
 
 	io_uring_for_each_cqe(ring, head, cqe) {
 		/* handle completion */
 		printf("cqe: %d\n", cqe->res);
-		i++;
+		nr += io_uring_cqe_nr(cqe);
 	}
 
-	io_uring_cq_advance(ring, i);
+	io_uring_cq_advance(ring, nr);
 }
 ```
 
@@ -41,4 +43,4 @@ None
 
 [io_uring_wait_cqe_timeout], [io_uring_wait_cqe],
 [io_uring_wait_cqes], [io_uring_cqe_seen],
-[io_uring_buf_ring_cq_advance]
+[io_uring_cqe_nr], [io_uring_buf_ring_cq_advance]

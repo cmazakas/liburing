@@ -306,7 +306,36 @@ call to [io_uring_setup]).
 
 Available since 5.10.
 
-<!-- -->
+Restrictions can also be registered for the calling task rather than for
+a ring, by passing -1 as *fd* and pointing *arg* at a *struct
+io_uring_task_restriction* with *nr_args* set to 1.
+
+``` c
+struct io_uring_task_restriction {
+    __u16 flags;
+    __u16 nr_res;
+    __u32 resv[3];
+    struct io_uring_restriction restrictions[];
+};
+```
+
+*nr_res* is the number of entries in *restrictions*, *flags* and *resv*
+must be zero. Task restrictions apply to every ring the task creates
+afterwards, are inherited by children across [fork](https://man7.org/linux/man-pages/man2/fork.2.html), and can be
+registered only once per task. As with [seccomp](https://man7.org/linux/man-pages/man2/seccomp.2.html) filters, the
+caller must either have **CAP_SYS_ADMIN** or have set **no_new_privs**.
+
+Allowed register opcodes in a task restriction also govern the
+operations that take no ring and are issued with *fd* set to -1, such as
+**IORING_REGISTER_SEND_MSG_RING**, **IORING_REGISTER_QUERY** and
+**IORING_REGISTER_BPF_FILTER**. Note that
+**IORING_REGISTER_SEND_MSG_RING** has no source ring, so it is subject
+only to the register opcode allowlist and not to a restriction on
+**IORING_OP_MSG_RING** or to any BPF filter. A sandbox that disallows
+**IORING_OP_MSG_RING** should leave **IORING_REGISTER_SEND_MSG_RING**
+out of the allowed register opcodes as well.
+
+Available since 7.4.
 
 **IORING_REGISTER_IOWQ_AFF**\
 By default, async workers created by io_uring will inherit the CPU mask
@@ -609,7 +638,12 @@ Supports sending of the equivalent of a **IORING_OP_MSG_RING** request,
 but without having a source ring available. Takes a pointer to a
 *struct*io_uring_sqe which must be prepared with
 [io_uring_prep_msg_ring] before being submitted. Only supports
-**IORING_MSG_DATA** type of requests. Available since kernel 6.13.
+**IORING_MSG_DATA** type of requests. This operation does not require a
+ring and is called with *fd* set to -1. If the calling task has
+registered restrictions on register opcodes, see
+**IORING_REGISTER_RESTRICTIONS**, **IORING_REGISTER_SEND_MSG_RING** must
+be among the allowed opcodes or the call fails with **EACCES**.
+Available since kernel 6.13.
 
 <!-- -->
 

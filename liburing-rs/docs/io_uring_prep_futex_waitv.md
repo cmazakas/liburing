@@ -5,8 +5,7 @@ Prepare a futex waitv request
 The [io_uring_prep_futex_waitv] function prepares a futex wait
 request for multiple futexes at the same time. The submission queue
 entry *sqe* is setup for waiting on all futexes given by *futexv* and
-*nr_futex* is the number of futexes in that array. *flags* must be set
-to the io_uring specific futex flags.
+*nr_futex* is the number of futexes in that array.
 
 Unlike [io_uring_prep_futex_wait], the desired bitset mask and
 values are passed in *futexv*.
